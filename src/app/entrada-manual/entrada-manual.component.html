@@ -1,0 +1,63 @@
+<ion-app>
+  <div class="app-entrada-manual-container">
+    <div class="head">
+      <div class="menu">
+        <ion-menu side="start" content-id="main-content">
+          <ion-header>
+            <ion-toolbar translucent>
+              <ion-title>Menu</ion-title>
+            </ion-toolbar>
+          </ion-header>
+          <ion-content>
+            <ion-list>
+              <ion-item>
+                <ion-icon name="mail" slot="start"></ion-icon>
+                <ion-label>Inbox</ion-label>
+              </ion-item>
+
+              <ion-item name="logout" slot="start" (click)="logoutUsuario()">
+                <ion-icon name="log-out-outline"></ion-icon>
+                <ion-label>Sair</ion-label>
+              </ion-item>
+            </ion-list>
+          </ion-content>
+        </ion-menu>
+        <div id="main-content">
+          <ion-header>
+            <ion-toolbar>
+              <ion-buttons slot="start">
+                <ion-menu-button></ion-menu-button>
+              </ion-buttons>
+            </ion-toolbar>
+          </ion-header>
+          <ion-content class="ion-padding"> </ion-content>
+        </div>
+      </div>
+
+      <div class="nomeCentro">ADB Móvel</div>
+
+      <div class="logoCemig">
+        <img
+          style="width: 100%; margin-right: -60px"
+          src="../../../assets/logo-cemig-2048.png"
+          alt="logo"
+        />
+      </div>
+    </div>
+
+    <!-- rote and search -->
+    <div class="route">
+      <div class="routeSelect">selecione</div>
+      <div class="search"><ion-icon name="search-outline"></ion-icon></div>
+    </div>
+
+    <!-- box data -->
+    <div class="boxData">
+      <ion-list *ngFor="let app of aplicacaoData">
+        <ion-list (click)="onAplicacaoChange($event)">
+          {{ app.Nome }}
+        </ion-list>
+      </ion-list>
+    </div>
+  </div>
+</ion-app>

@@ -1,0 +1,7 @@
+{
+  "name": "PI-EntradaManual-Web",
+  "integrations": {
+    "cordova": {}
+  },
+  "type": "angular"
+}

@@ -1,0 +1,80 @@
+.head {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  border-bottom: 2px solid black;
+  padding: 8px;
+  background-color: rgb(245, 247, 231);
+}
+
+.menu-button {
+  background-color: rgb(245, 247, 231);
+}
+
+.toolbar-container {
+  background-color: rgb(245, 247, 231);
+}
+
+ion-menu-button {
+  background-color: rgb(245, 247, 231);
+  color: #008f45;
+  font-size: 50px;
+}
+
+ion-icon {
+  color: #008f45;
+  margin-top: -10px;
+  background-repeat: no-repeat;
+  display: inline-block;
+  font-size: 60px;
+  font-weight: 900;
+  margin: 0;
+}
+
+.logoCemig > img {
+  margin-top: 15px;
+}
+
+.nomeCentro {
+  color: #008f45;
+  font-size: 2.2rem;
+  font-weight: 800;
+  margin: auto 0;
+  margin-left: 90px;
+}
+
+/* routes and search */
+.route {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+.routeSelect {
+  font-size: 1.5rem;
+  margin: 10px;
+  color: #008f45;
+  background: yellow;
+}
+
+.search {
+  margin-right: 20px;
+}
+
+/* data box route */
+.boxData {
+  padding: 20px;
+  margin: 10px;
+  border: 2px solid black;
+  overflow: auto;
+  height: 618px;
+}
+
+ion-list {
+  font-size: 2.6rem;
+  padding: 20px;
+  list-style: none;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: rgb(95, 95, 95);
+}
