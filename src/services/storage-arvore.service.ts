@@ -1,26 +1,43 @@
 import { Injectable } from '@angular/core';
 import { Storage } from '@ionic/storage';
+import { HttpClient } from '@angular/common/http';
 
 @Injectable({
   providedIn: 'root',
 })
 export class StorageArvoreService {
-  constructor(private storage: Storage) {}
+  constructor(private storage: Storage, private http: HttpClient) {}
 
-  public insert(key, arvore: Arvore) {
-    // let key = arvore.AplicacaoID;
+  public insert(arvore: Arvore) {
+    let key = arvore.AplicacaoID;
     return this.save(key, arvore);
   }
 
-  public update() {}
+  public update(key: string, arvore: Arvore) {
+    return this.save(key, arvore);
+  }
 
-  private save(key: string, arvore: Arvore) {
+  public save(key: string, arvore: Arvore) {
     this.storage.set(key, arvore);
   }
 
-  public remove() {}
+  public getAll() {
+    let arvores: ArvoreList[] = [];
 
-  public getAll() {}
+    return this.storage
+      .forEach((value: Arvore, key: string) => {
+        let arvore = new ArvoreList();
+        arvore.key = key;
+        arvore.arvore = value;
+        arvores.push(arvore);
+      })
+      .then(() => {
+        return Promise.resolve(arvores);
+      })
+      .catch((error) => {
+        return Promise.reject(error);
+      });
+  }
 }
 
 export class Arvore {
@@ -30,4 +47,10 @@ export class Arvore {
   PossuiSubNivel: boolean;
   Caminho: string;
   CategoryNames: string | null;
+  IdParent?: string;
+}
+
+export class ArvoreList {
+  key: string;
+  arvore: Arvore;
 }

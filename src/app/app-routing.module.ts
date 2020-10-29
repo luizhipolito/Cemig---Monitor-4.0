@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
 import { LoginComponent } from './login/login.component';
 import { EntradaManualComponent } from './entrada-manual/entrada-manual.component';
+import { SenhaOffPageComponent } from './senha-off-page/senha-off-page.component';
 
 const routes: Routes = [
   {
@@ -22,6 +23,10 @@ const routes: Routes = [
     path: 'entrada-manual',
     component: EntradaManualComponent,
   },
+  {
+    path: 'senha-off-page',
+    component: SenhaOffPageComponent,
+  },
 ];
 
 @NgModule({
@@ -30,4 +35,4 @@ const routes: Routes = [
   ],
   exports: [RouterModule],
 })
-export class AppRoutingModule {}
+export class AppRoutingModule { }

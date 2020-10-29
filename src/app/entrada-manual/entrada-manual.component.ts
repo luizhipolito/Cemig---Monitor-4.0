@@ -16,6 +16,11 @@ import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MenuController, NavController } from '@ionic/angular';
 import { Elements, DataBaseService } from 'src/services/data-base.service';
+import {
+  StorageArvoreService,
+  ArvoreList,
+  Arvore,
+} from 'src/services/storage-arvore.service';
 
 @Component({
   selector: 'app-entrada-manual',
@@ -27,7 +32,7 @@ export class EntradaManualComponent implements OnInit {
 
   Elemento = {};
 
-  selectedViews = 'elementos';
+  selectedViews = 'elemento';
 
   @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
   @ViewChild(MatSort, { static: true }) sort: MatSort;
@@ -40,133 +45,51 @@ export class EntradaManualComponent implements OnInit {
 
   autorizacaoStored: Autorizacao;
   aplicacaoData: dados;
+  arvores: Arvore;
 
   TableDataSource = new MatTableDataSource<TagPI>([]);
-  tableColumns: string[] = [
-    'Nome',
-    'Descricao',
-    'Unidade',
-    'ValorEntrada',
-    'StatusEnvio',
-    'UltimaData',
-    'UltimoValor',
-  ];
+  tableColumns: string[] = ['Nome', 'Descricao'];
 
   dataAtual = this.utils.formatDateTime(new Date());
 
   fillOfAplicacao = () => {
     this.api
       .getData(
-        '/entradaManual/Aplicacoes?AuthorizationRequest=' +
-          this.autorizacaoStored.Token
-      )
-      .subscribe((data: Resposta) => {
-        if (data.Status) {
-          this.aplicacaoData = data.Dados;
-          // let dados = data.Dados;
-          console.log(this.aplicacaoData);
-          this.api.hideLoader();
-        } else {
-          this.showMessageBox(data.Mensagem);
-        }
-      });
-  };
-
-  // get by AplicacaoID
-  onAplicacaoChange = () => {
-    var aplicacao = this.aplicacaoData.Arvore.find((item) => item.AplicacaoID);
-    console.log(aplicacao);
-    this.api
-      .getData(
         '/entradaManual/TagAplicacao?AuthorizationRequest=' +
           this.autorizacaoStored.Token +
-          '&AplicacaoId=' +
-          aplicacao.AplicacaoID
+          '&AplicacaoId=E0Yfc0jetNdUKgzx5SiPQwKAJmkZ-0ID6xGDTA46LyNIOwRUMyQU1BWi1UMU41RUo1XFRFU1RFU1xDRU1JRyAtIEdFUsOKTkNJQSBERSBTRUdVUkFOw4dBIERFIEJBUlJBR0VOUyBFIE1BTlVURU7Dh8ODTyBDSVZJTA&?searchFullHierarchy=true'
       )
       .subscribe((data: Resposta) => {
         if (data.Status) {
           this.aplicacaoData = data.Dados;
-          console.log(data.Dados);
-          // this.TableDataSource.paginator = this.paginator;
-          // this.TableDataSource.sort = this.sort;
+          for (let ar of this.aplicacaoData) {
+            let parentId = ar.AplicacaoID;
+            let pathSplit = ar.Caminho.split('\\');
+            // console.log(pathSplit);
+            let index = pathSplit.indexOf('Usinas');
+            if (pathSplit.length === index) continue;
+            if (pathSplit.length === index + 2) {
+              //Raiz: ex: Usinas/PCH...
+              //Não precisa salvar ipdParent
+              parentId = null;
+              parentId = ar.AplicacaoID;
+              console.log('path', ar);
+              this.storageService.insert(ar);
+            } else {
+              //Filhos da raiz. Ex: Usinas/PCH.../../.. etc
+              //Salvar idParent, que tem que ser sempre o idApplication anterior
+              this.storageService.insert(ar);
+            }
+          }
           this.api.hideLoader();
         } else {
           this.showMessageBox(data.Mensagem);
-          this.api.hideLoader();
         }
       });
-  };
-
-  // onEnviarClick = (ev) => {
-  //   const entradasInvalidas = this.TableDataSource.data.filter(
-  //     (item) => item.ErroValidacao
-  //   ).length;
-
-  //   if (entradasInvalidas == 0) {
-  //     const tagsParaEnviar = this.TableDataSource.data.filter(
-  //       (item) => item.ValorEntrada
-  //     );
-
-  //     if (tagsParaEnviar.length > 0) {
-  //       tagsParaEnviar.forEach((item) => (item.DataEntrada = this.dataAtual));
-  //       this.api
-  //         .postData(
-  //           '/entradaManual/EscreveTags?AuthorizationRequest=' +
-  //             this.autorizacaoStored.Token,
-  //           tagsParaEnviar
-  //         )
-  //         .subscribe((data: Resposta) => {
-  //           if (data.Status) {
-  //             // this.onAplicacaoChange(undefined);
-
-  //             const dadosRetorno = data.Dados as TagPI[];
-
-  //             const dadosTabela = this.TableDataSource.data;
-
-  //             dadosRetorno.forEach((item) => {
-  //               const aux = dadosTabela.findIndex(
-  //                 (f) => f.Caminho == item.Caminho
-  //               );
-  //               if (aux >= 0) {
-  //                 dadosTabela[aux] = item;
-  //               }
-  //             });
-
-  //             this.TableDataSource.data = dadosTabela;
-
-  //             console.log(this.TableDataSource.data);
-  //             this.api.hideLoader();
-  //           } else {
-  //             this.api.hideLoader();
-  //           }
-  //         });
-  //     } else alert('Não há valores a serem enviados!');
-  //   } else alert('Existem tags com valores inválidos!');
-  // };
-
-  onLimparClick = (ev) => {
-    this.TableDataSource.data.forEach(
-      (item) => (
-        (item.ValorEntrada = null),
-        (item.ErroValidacao = false),
-        (item.StatusEnvio = '')
-      )
-    );
   };
 
   onSairClick = (ev) => {
     this.logoutUsuario();
-  };
-
-  EntradaValida = (data: TagPI) => {
-    const valorEntrada: number = Number.parseFloat(data.ValorEntrada);
-    if (
-      valorEntrada < data.LimiteInferior ||
-      valorEntrada > data.LimiteSuperior
-    ) {
-      return true;
-    }
-    return false;
   };
 
   showMessageBox = (message: string) => {
@@ -189,7 +112,8 @@ export class EntradaManualComponent implements OnInit {
     private messageBox: MatSnackBar,
     private menu: MenuController,
     private db: DataBaseService,
-    public navCtrl: NavController
+    public navCtrl: NavController,
+    public storageService: StorageArvoreService
   ) {}
 
   openMenu() {
@@ -203,15 +127,15 @@ export class EntradaManualComponent implements OnInit {
 
     this.fillOfAplicacao();
     console.log('autorizado', this.autorizacaoStored);
-
-    this.db.getDataBaseState().subscribe((ready) => {
-      if (ready) {
-        this.db.getArvores().subscribe((elementos) => {
-          this.elements = elementos;
-        });
-        console.log(this.elements);
-      }
-    });
   }
   ngOnDestroy() {}
+
+  ionViewDidEnter() {
+    if (!this.arvores) {
+      this.storageService.getAll().then((result) => {
+        this.arvores = result;
+        console.log(this.arvores);
+      });
+    }
+  }
 }

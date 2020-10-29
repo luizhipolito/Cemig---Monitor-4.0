@@ -53,9 +53,9 @@
 
     <!-- box data -->
     <div class="boxData">
-      <ion-list *ngFor="let app of aplicacaoData">
-        <ion-list (click)="onAplicacaoChange($event)">
-          {{ app.Nome }}
+      <ion-list *ngFor="let app of arvores">
+        <ion-list>
+          {{ app.arvore.Nome }}
         </ion-list>
       </ion-list>
     </div>

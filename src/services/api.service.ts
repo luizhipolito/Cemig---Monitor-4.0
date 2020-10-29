@@ -18,7 +18,7 @@ export class ApiService {
   // URL DEV
   public baseUrl = 'http://localhost:52346';
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   httpOptions = {
     headers: new HttpHeaders({ 'Content-Type': 'application/json' }),

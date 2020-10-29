@@ -11,7 +11,12 @@ export class HomePage implements OnInit {
   goSincronizar() {
     this.router.navigate(['/login']);
   }
-  constructor(private router: Router) {}
 
-  ngOnInit(): void {}
+  goEntrar() {
+    this.router.navigate(['/senha-off-page'])
+  }
+
+  constructor(private router: Router) { }
+
+  ngOnInit(): void { }
 }
