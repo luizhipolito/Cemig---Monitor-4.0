@@ -21,15 +21,35 @@ export class StorageArvoreService {
     this.storage.set(key, arvore);
   }
 
-  public getAll() {
-    let arvores: ArvoreList[] = [];
-
+  public getFilhos(id: string) {
+    let filhos: ArvoreList[] = [];
     return this.storage
       .forEach((value: Arvore, key: string) => {
         let arvore = new ArvoreList();
         arvore.key = key;
         arvore.arvore = value;
-        arvores.push(arvore);
+        if (value.parentID === id) {
+          filhos.push(arvore);
+        }
+      })
+      .then(() => {
+        return Promise.resolve(filhos);
+      })
+      .catch((error) => {
+        return Promise.reject(error);
+      });
+  }
+
+  public getAll() {
+    let arvores: ArvoreList[] = [];
+    return this.storage
+      .forEach((value: Arvore, key: string) => {
+        let arvore = new ArvoreList();
+        arvore.key = key;
+        arvore.arvore = value;
+        if (value.parentID === undefined) {
+          arvores.push(arvore);
+        }
       })
       .then(() => {
         return Promise.resolve(arvores);
@@ -47,7 +67,7 @@ export class Arvore {
   PossuiSubNivel: boolean;
   Caminho: string;
   CategoryNames: string | null;
-  IdParent?: string;
+  parentID: string;
 }
 
 export class ArvoreList {

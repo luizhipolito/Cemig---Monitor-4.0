@@ -6,20 +6,33 @@
   height: 100vh;
 }
 
-.descricao {
+.seetings {
+  position: relative;
+}
+
+.seetings > ion-icon {
+  margin: 30px;
+  font-size: 60px;
+  color: white;
+}
+
+.main {
+  width: 100%;
+}
+
+.main_descricao {
   position: absolute;
   font-size: 2.3rem;
   color: white;
   margin-top: 36%;
-  margin-left: 170px;
 }
 
-.btns {
+.main_btns {
   display: flex;
   justify-content: space-evenly;
 }
 
-.btns > button {
+.main_btns > button {
   width: 28%;
   height: 70px;
   border-radius: 40px;

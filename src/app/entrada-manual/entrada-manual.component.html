@@ -53,11 +53,13 @@
 
     <!-- box data -->
     <div class="boxData">
-      <ion-list *ngFor="let app of arvores">
-        <ion-list>
-          {{ app.arvore.Nome }}
+      <div *ngFor="let app of arvoreLocal">
+        <ion-list (click)="onClickId(app.arvore)">
+          <div>
+            {{ app.arvore.Nome }}
+          </div>
         </ion-list>
-      </ion-list>
+      </div>
     </div>
   </div>
 </ion-app>

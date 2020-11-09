@@ -13,17 +13,20 @@ import { NgForm } from '@angular/forms';
   styleUrls: ['./senha-off-page.component.scss'],
 })
 export class SenhaOffPageComponent implements OnInit {
-
-  private loginData: Login = {};
-
   private configError: MatSnackBarConfig = {
     panelClass: ['style-error'],
     duration: 2000,
     verticalPosition: 'top',
   };
 
+  onSubmit(f: NgForm) {
+    if (f.value.password === 'ihm123!@#') {
+      this.storage.getAll();
+    }
+  }
+
   goEntrada() {
-    this.router.navigate(['/entrada-manual'])
+    this.router.navigate(['/entrada-manual']);
   }
 
   showMessageBox = (message: string) => {
@@ -36,7 +39,7 @@ export class SenhaOffPageComponent implements OnInit {
     public utils: AppUtils,
     private messageBox: MatSnackBar,
     public storage: StorageArvoreService
-  ) { }
+  ) {}
 
   ngOnInit() {
     this.utils.usuarioLogado = null;

@@ -5,8 +5,7 @@ import { NgForm } from '@angular/forms';
 import { ApiService } from 'src/services/api.service';
 import { AppUtils } from 'src/utils/app.utils';
 import { MatSnackBar, MatSnackBarConfig } from '@angular/material/snack-bar';
-import { StorageArvoreService, ArvoreList, Arvore } from '../../services/storage-arvore.service';
-import { Key } from 'protractor';
+import { StorageArvoreService } from '../../services/storage-arvore.service';
 
 @Component({
   selector: 'app-login',
@@ -15,7 +14,6 @@ import { Key } from 'protractor';
 })
 export class LoginComponent implements OnInit {
   private loginData: Login = {};
-
 
   private configError: MatSnackBarConfig = {
     panelClass: ['style-error'],
@@ -44,12 +42,10 @@ export class LoginComponent implements OnInit {
             this.showMessageBox(data.Mensagem);
           }
         });
-
     } else {
       this.showMessageBox('Informe seu usuário e senha para continuar!');
     }
   }
-
 
   showMessageBox = (message: string) => {
     this.messageBox.open(message, null, this.configError);
@@ -61,7 +57,7 @@ export class LoginComponent implements OnInit {
     public utils: AppUtils,
     private messageBox: MatSnackBar,
     public storage: StorageArvoreService
-  ) { }
+  ) {}
 
   ngOnInit() {
     this.utils.usuarioLogado = null;

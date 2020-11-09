@@ -4,13 +4,7 @@ import { AppUtils } from 'src/utils/app.utils';
 import { Router } from '@angular/router';
 import { MatSnackBar, MatSnackBarConfig } from '@angular/material/snack-bar';
 import { Autorizacao } from '../login/login.interfaces';
-import {
-  Resposta,
-  AplicacaoPI,
-  arvore,
-  TagPI,
-  dados,
-} from './entrada-manual.interfaces';
+import { Resposta, arvore, dados } from './entrada-manual.interfaces';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
@@ -19,7 +13,6 @@ import { Elements, DataBaseService } from 'src/services/data-base.service';
 import {
   StorageArvoreService,
   ArvoreList,
-  Arvore,
 } from 'src/services/storage-arvore.service';
 
 @Component({
@@ -44,11 +37,8 @@ export class EntradaManualComponent implements OnInit {
   };
 
   autorizacaoStored: Autorizacao;
-  aplicacaoData: dados;
-  arvores: Arvore;
-
-  TableDataSource = new MatTableDataSource<TagPI>([]);
-  tableColumns: string[] = ['Nome', 'Descricao'];
+  aplicacaoData: Array<arvore>;
+  arvoreLocal: Array<ArvoreList>;
 
   dataAtual = this.utils.formatDateTime(new Date());
 
@@ -59,24 +49,29 @@ export class EntradaManualComponent implements OnInit {
           this.autorizacaoStored.Token +
           '&AplicacaoId=E0Yfc0jetNdUKgzx5SiPQwKAJmkZ-0ID6xGDTA46LyNIOwRUMyQU1BWi1UMU41RUo1XFRFU1RFU1xDRU1JRyAtIEdFUsOKTkNJQSBERSBTRUdVUkFOw4dBIERFIEJBUlJBR0VOUyBFIE1BTlVURU7Dh8ODTyBDSVZJTA&?searchFullHierarchy=true'
       )
-      .subscribe((data: Resposta) => {
+      .subscribe((data) => {
         if (data.Status) {
           this.aplicacaoData = data.Dados;
-          for (let ar of this.aplicacaoData) {
-            let parentId = ar.AplicacaoID;
+          console.log('dados data', data.Dados);
+          let parentId = '';
+
+          let arr = this.aplicacaoData.sort(this.comparePath);
+          console.log('arr', arr);
+          for (let ar of arr) {
             let pathSplit = ar.Caminho.split('\\');
-            // console.log(pathSplit);
+
             let index = pathSplit.indexOf('Usinas');
-            if (pathSplit.length === index) continue;
+            if (pathSplit.length === index + 1) continue;
             if (pathSplit.length === index + 2) {
               //Raiz: ex: Usinas/PCH...
               //Não precisa salvar ipdParent
-              parentId = null;
-              parentId = ar.AplicacaoID;
-              console.log('path', ar);
               this.storageService.insert(ar);
             } else {
-              //Filhos da raiz. Ex: Usinas/PCH.../../.. etc
+              const prevPath = pathSplit
+                .slice(0, pathSplit.length - 1)
+                .join('\\');
+              parentId = arr.find((a) => a.Caminho === prevPath).AplicacaoID;
+              ar.parentID = parentId;
               //Salvar idParent, que tem que ser sempre o idApplication anterior
               this.storageService.insert(ar);
             }
@@ -88,8 +83,32 @@ export class EntradaManualComponent implements OnInit {
       });
   };
 
-  onSairClick = (ev) => {
-    this.logoutUsuario();
+  comparePath(a: arvore, b: arvore) {
+    if (a.Caminho < b.Caminho) {
+      return -1;
+    }
+    if (a.Caminho > b.Caminho) {
+      return 1;
+    }
+    return 0;
+  }
+
+  ngAfterViewInit() {
+    this.storageService.getAll().then((result) => {
+      this.arvoreLocal = result;
+      console.log('Arvore local', this.arvoreLocal);
+    });
+  }
+
+  onClickId = (e) => {
+    let Idparent = e.AplicacaoID;
+    console.log(Idparent);
+    this.storageService.getFilhos(Idparent).then((result) => {
+      this.arvoreLocal = result;
+      if (result === undefined) {
+        console.log(result);
+      }
+    });
   };
 
   showMessageBox = (message: string) => {
@@ -98,11 +117,17 @@ export class EntradaManualComponent implements OnInit {
     });
   };
 
+  openMenu() {
+    this.menu.open();
+  }
+
   logoutUsuario = () => {
     this.utils.usuarioLogado = null;
     this.utils.removeStorgare('Autorizacao');
     this.router.navigate(['/']);
-    this.navCtrl.pop();
+  };
+  onSairClick = (ev) => {
+    this.logoutUsuario();
   };
 
   constructor(
@@ -111,14 +136,9 @@ export class EntradaManualComponent implements OnInit {
     private router: Router,
     private messageBox: MatSnackBar,
     private menu: MenuController,
-    private db: DataBaseService,
     public navCtrl: NavController,
     public storageService: StorageArvoreService
   ) {}
-
-  openMenu() {
-    this.menu.open();
-  }
 
   ngOnInit() {
     this.autorizacaoStored = this.utils.getStorage(
@@ -129,13 +149,4 @@ export class EntradaManualComponent implements OnInit {
     console.log('autorizado', this.autorizacaoStored);
   }
   ngOnDestroy() {}
-
-  ionViewDidEnter() {
-    if (!this.arvores) {
-      this.storageService.getAll().then((result) => {
-        this.arvores = result;
-        console.log(this.arvores);
-      });
-    }
-  }
 }

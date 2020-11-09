@@ -1,14 +1,20 @@
 <div class="tudo">
   <div class="login">
-    <form>
+    <form #f="ngForm" (ngSubmit)="onSubmit(f)">
       <div class="inputs">
         <div class="pass">
           <label>Senha: </label>
-          <input type="password" name="password" ngModel placeholder="Senha" required />
+          <input
+            type="password"
+            name="password"
+            ngModel
+            placeholder="Senha"
+            required
+          />
         </div>
       </div>
       <div class="btn">
-        <button type="submit" (click)="goEntrada()" value="Sincronizar">Entrar</button>
+        <button type="submit" value="Entrar">Entrar</button>
       </div>
     </form>
   </div>
