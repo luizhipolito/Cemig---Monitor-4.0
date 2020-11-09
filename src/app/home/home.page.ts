@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { LoginComponent } from '../login/login.component';
 
 @Component({
   selector: 'app-home',
@@ -13,10 +12,14 @@ export class HomePage implements OnInit {
   }
 
   goEntrar() {
-    this.router.navigate(['/senha-off-page'])
+    this.router.navigate(['/senha-off-page']);
   }
 
-  constructor(private router: Router) { }
+  goSettings() {
+    this.router.navigate(['/data-config']);
+  }
 
-  ngOnInit(): void { }
+  constructor(private router: Router) {}
+
+  ngOnInit(): void {}
 }

@@ -1,0 +1,56 @@
+<div class="all">
+  <div class="head">
+    <div class="menu">
+      <ion-menu side="start" content-id="main-content">
+        <ion-header>
+          <ion-toolbar translucent>
+            <ion-title>Menu</ion-title>
+          </ion-toolbar>
+        </ion-header>
+        <ion-content>
+          <ion-list>
+            <ion-item>
+              <ion-icon name="mail" slot="start"></ion-icon>
+              <ion-label>Inbox</ion-label>
+            </ion-item>
+
+            <ion-item name="logout" slot="start" (click)="backHome()">
+              <ion-icon name="log-out-outline"></ion-icon>
+              <ion-label>Voltar</ion-label>
+            </ion-item>
+          </ion-list>
+        </ion-content>
+      </ion-menu>
+      <div id="main-content">
+        <ion-header>
+          <ion-toolbar>
+            <ion-buttons slot="start">
+              <ion-menu-button></ion-menu-button>
+            </ion-buttons>
+          </ion-toolbar>
+        </ion-header>
+        <ion-content class="ion-padding"> </ion-content>
+      </div>
+    </div>
+
+    <div class="nomeCentro">ADB Móvel</div>
+
+    <div class="logoCemig">
+      <img
+        style="width: 100%; margin-right: -60px"
+        src="../../../assets/logo-cemig-2048.png"
+        alt="logo"
+      />
+    </div>
+  </div>
+
+  <div class="main">
+    <legend>Configuracoes</legend>
+    <div class="main_inputs">
+      <input type="text" />
+      <input type="text" />
+      <input type="text" />
+      <input type="text" />
+    </div>
+  </div>
+</div>

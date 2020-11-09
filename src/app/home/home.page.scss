@@ -7,7 +7,8 @@
 }
 
 .seetings {
-  position: relative;
+  display: flex;
+  justify-content: flex-end;
 }
 
 .seetings > ion-icon {
@@ -21,10 +22,12 @@
 }
 
 .main_descricao {
-  position: absolute;
   font-size: 2.3rem;
   color: white;
-  margin-top: 36%;
+  margin-top: 30%;
+}
+.main_descricao > p {
+  text-align: center;
 }
 
 .main_btns {
@@ -37,7 +40,6 @@
   height: 70px;
   border-radius: 40px;
   border: none;
-  margin-top: 48%;
   font-size: 2rem;
   font-weight: 800;
   color: rgb(32, 128, 69);

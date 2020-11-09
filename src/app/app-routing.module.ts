@@ -3,6 +3,7 @@ import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
 import { LoginComponent } from './login/login.component';
 import { EntradaManualComponent } from './entrada-manual/entrada-manual.component';
 import { SenhaOffPageComponent } from './senha-off-page/senha-off-page.component';
+import { DataConfigComponent } from './data-config/data-config.component';
 
 const routes: Routes = [
   {
@@ -27,6 +28,10 @@ const routes: Routes = [
     path: 'senha-off-page',
     component: SenhaOffPageComponent,
   },
+  {
+    path: 'data-config',
+    component: DataConfigComponent,
+  },
 ];
 
 @NgModule({
@@ -35,4 +40,4 @@ const routes: Routes = [
   ],
   exports: [RouterModule],
 })
-export class AppRoutingModule { }
+export class AppRoutingModule {}
