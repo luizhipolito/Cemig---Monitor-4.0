@@ -49,22 +49,39 @@ ion-icon {
   height: 80vh;
   margin-top: 20px;
   margin-left: 15%;
-  border: 1px solid #ccc;
   border-radius: 25px;
+}
+fieldset {
+  height: 105%;
+  border-radius: 50px;
 }
 
 legend {
   font-size: 30px;
 }
-
 .main_inputs {
   display: flex;
   flex-direction: column;
   align-items: center;
 }
+.main_inputs > label {
+  font-size: 25px;
+  margin-top: 25px;
+}
 .main_inputs > input {
   width: 70%;
+  height: 80px;
+  border: 15px solid #ccc;
+  font-size: 35px;
+}
+.btn {
+  width: 28%;
   height: 60px;
-  margin-top: 40px;
-  border: 10px solid #ccc;
+  margin-top: 15px;
+  border-radius: 40px;
+  border: none;
+  font-size: 2rem;
+  font-weight: 800;
+  color: rgb(255, 255, 255);
+  background-color: #008f45;
 }

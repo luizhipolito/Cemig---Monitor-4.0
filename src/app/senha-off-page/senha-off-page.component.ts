@@ -22,6 +22,7 @@ export class SenhaOffPageComponent implements OnInit {
   onSubmit(f: NgForm) {
     if (f.value.password === 'ihm123!@#') {
       this.storage.getAll();
+      this.router.navigate(['/entrada-manual']);
     }
   }
 

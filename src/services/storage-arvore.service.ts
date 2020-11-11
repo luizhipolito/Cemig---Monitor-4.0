@@ -13,12 +13,20 @@ export class StorageArvoreService {
     return this.save(key, arvore);
   }
 
+  public saveConfig(key, value: string) {
+    this.storage.set(key, value);
+  }
+
   public update(key: string, arvore: Arvore) {
     return this.save(key, arvore);
   }
 
   public save(key: string, arvore: Arvore) {
     this.storage.set(key, arvore);
+  }
+
+  public getConfig(key: string) {
+    return this.storage.get(key);
   }
 
   public getFilhos(id: string) {

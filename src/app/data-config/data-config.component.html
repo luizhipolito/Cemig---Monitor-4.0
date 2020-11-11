@@ -45,12 +45,21 @@
   </div>
 
   <div class="main">
-    <legend>Configuracoes</legend>
-    <div class="main_inputs">
-      <input type="text" />
-      <input type="text" />
-      <input type="text" />
-      <input type="text" />
-    </div>
+    <fieldset>
+      <legend>Configurações</legend>
+      <form #f="ngForm" (ngSubmit)="onSubmit(f)">
+        <div class="main_inputs">
+          <label>PI WEB API</label>
+          <input type="text" name="server" ngModel required />
+          <label>PI Asset Framework</label>
+          <input type="text" name="asset" ngModel required />
+          <label>Database</label>
+          <input type="text" name="database" ngModel required />
+          <label>Configurações</label>
+          <input type="text" name="configuracoes" ngModel required />
+          <button class="btn" type="submit" value="salvar">Salvar</button>
+        </div>
+      </form>
+    </fieldset>
   </div>
 </div>

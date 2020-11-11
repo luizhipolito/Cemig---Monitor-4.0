@@ -22,9 +22,17 @@ import { IonicStorageModule } from '@ionic/storage';
 
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { StorageArvoreService } from 'src/services/storage-arvore.service';
+import { DataConfigComponent } from './data-config/data-config.component';
+import { SenhaOffPageComponent } from './senha-off-page/senha-off-page.component';
 
 @NgModule({
-  declarations: [AppComponent, LoginComponent, EntradaManualComponent],
+  declarations: [
+    AppComponent,
+    LoginComponent,
+    EntradaManualComponent,
+    DataConfigComponent,
+    SenhaOffPageComponent,
+  ],
   entryComponents: [],
   imports: [
     BrowserModule,

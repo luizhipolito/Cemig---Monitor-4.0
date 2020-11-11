@@ -6,19 +6,25 @@ import {
 } from '@angular/common/http';
 import { throwError } from 'rxjs';
 import { retry, catchError } from 'rxjs/operators';
+import { StorageArvoreService } from './storage-arvore.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ApiService {
-  // URL PRODUCTION
+  public baseUrl = 'https://34.233.235.92/piwebapi';
 
-  // public baseUrl = './api';
+  constructor(
+    private http: HttpClient,
+    private storageService: StorageArvoreService
+  ) {}
 
-  // URL DEV
-  public baseUrl = 'http://localhost:52346';
-
-  constructor(private http: HttpClient) { }
+  loadConfig() {
+    this.storageService
+      .getConfig('baseUrl')
+      .then((result) => (this.baseUrl = result));
+    console.log('url', this.baseUrl);
+  }
 
   httpOptions = {
     headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
