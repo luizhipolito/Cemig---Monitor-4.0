@@ -25,10 +25,13 @@ export class LoginComponent implements OnInit {
     if (f.valid) {
       console.log(f.value.username + ':' + f.value.password);
       var autorizacao = btoa(f.value.username + ':' + f.value.password);
+      console.log(autorizacao);
+      this.api.setAuth(autorizacao);
       this.loginData.Autorizacao = autorizacao;
-      this.api.postData(this.loginData).subscribe((data: Resposta) => {
-        if (data.Status) {
-          this.utils.saveStorage('Autorizacao', data.Dados);
+      this.api.getData('').subscribe((data: Resposta) => {
+        console.log(data);
+        if (data) {
+          // this.utils.saveStorage('Autorizacao', data.Dados);
           this.utils.usuarioLogado = this.utils.getStorage(
             'Autorizacao'
           ) as Autorizacao;

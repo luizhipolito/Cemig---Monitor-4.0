@@ -43,44 +43,38 @@ export class EntradaManualComponent implements OnInit {
   dataAtual = this.utils.formatDateTime(new Date());
 
   fillOfAplicacao = () => {
-    this.api
-      .getData(
-        '/entradaManual/TagAplicacao?AuthorizationRequest=' +
-          this.autorizacaoStored.Token +
-          '&AplicacaoId=E0Yfc0jetNdUKgzx5SiPQwKAJmkZ-0ID6xGDTA46LyNIOwRUMyQU1BWi1UMU41RUo1XFRFU1RFU1xDRU1JRyAtIEdFUsOKTkNJQSBERSBTRUdVUkFOw4dBIERFIEJBUlJBR0VOUyBFIE1BTlVURU7Dh8ODTyBDSVZJTA&?searchFullHierarchy=true'
-      )
-      .subscribe((data) => {
-        if (data.Status) {
-          this.aplicacaoData = data.Dados;
-          console.log('dados data', data.Dados);
-          let parentId = '';
+    this.api.getData('').subscribe((data) => {
+      if (data.Status) {
+        this.aplicacaoData = data.Dados;
+        console.log('dados data', data.Dados);
+        let parentId = '';
 
-          let arr = this.aplicacaoData.sort(this.comparePath);
-          console.log('arr', arr);
-          for (let ar of arr) {
-            let pathSplit = ar.Caminho.split('\\');
+        let arr = this.aplicacaoData.sort(this.comparePath);
+        console.log('arr', arr);
+        for (let ar of arr) {
+          let pathSplit = ar.Caminho.split('\\');
 
-            let index = pathSplit.indexOf('Usinas');
-            if (pathSplit.length === index + 1) continue;
-            if (pathSplit.length === index + 2) {
-              //Raiz: ex: Usinas/PCH...
-              //Não precisa salvar ipdParent
-              this.storageService.insert(ar);
-            } else {
-              const prevPath = pathSplit
-                .slice(0, pathSplit.length - 1)
-                .join('\\');
-              parentId = arr.find((a) => a.Caminho === prevPath).AplicacaoID;
-              ar.parentID = parentId;
-              //Salvar idParent, que tem que ser sempre o idApplication anterior
-              this.storageService.insert(ar);
-            }
+          let index = pathSplit.indexOf('Usinas');
+          if (pathSplit.length === index + 1) continue;
+          if (pathSplit.length === index + 2) {
+            //Raiz: ex: Usinas/PCH...
+            //Não precisa salvar ipdParent
+            this.storageService.insert(ar);
+          } else {
+            const prevPath = pathSplit
+              .slice(0, pathSplit.length - 1)
+              .join('\\');
+            parentId = arr.find((a) => a.Caminho === prevPath).AplicacaoID;
+            ar.parentID = parentId;
+            //Salvar idParent, que tem que ser sempre o idApplication anterior
+            this.storageService.insert(ar);
           }
-          this.api.hideLoader();
-        } else {
-          this.showMessageBox(data.Mensagem);
         }
-      });
+        this.api.hideLoader();
+      } else {
+        this.showMessageBox(data.Mensagem);
+      }
+    });
   };
 
   comparePath(a: arvore, b: arvore) {

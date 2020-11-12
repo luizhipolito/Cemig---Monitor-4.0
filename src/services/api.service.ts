@@ -12,26 +12,27 @@ import { StorageArvoreService } from './storage-arvore.service';
   providedIn: 'root',
 })
 export class ApiService {
-  public baseUrl = 'https://34.233.235.92/piwebapi';
+  public baseUrl =
+    'https://34.233.235.92/piwebapi/elements/E0Yfc0jetNdUKgzx5SiPQwKAKWkZ-0ID6xGDTA46LyNIOwRUMyQU1BWi1UMU41RUo1XFRFU1RFU1xDRU1JRyAtIEdFUsOKTkNJQSBERSBTRUdVUkFOw4dBIERFIEJBUlJBR0VOUyBFIE1BTlVURU7Dh8ODTyBDSVZJTFxVU0lOQVM/elements';
 
   constructor(
     private http: HttpClient,
     private storageService: StorageArvoreService
   ) {
-    let options = {
-      headers: new HttpHeaders({
-        Authorization: 'Basic UGlVc2VyOmlobTEyMyFAIw==',
-      }),
-    };
-    this.http.get(this.baseUrl, options).subscribe(console.log);
+    // let options = {
+    //   headers: new HttpHeaders({
+    //     Authorization: 'Basic UGlVc2VyOmlobTEyMyFAIw==',
+    //   }),
+    // };
+    // this.http.get(this.baseUrl, options).subscribe(console.log);
   }
 
-  loadConfig() {
-    this.storageService
-      .getConfig('baseUrl')
-      .then((result) => (this.baseUrl = result));
-    console.log('url', this.baseUrl);
-  }
+  // loadConfig() {
+  //   this.storageService
+  //     .getConfig('baseUrl')
+  //     .then((result) => (this.baseUrl = result));
+  //   console.log('url', this.baseUrl);
+  // }
 
   httpOptions = {
     headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
@@ -45,10 +46,19 @@ export class ApiService {
     document.getElementById('loader').style.display = 'none';
   }
 
+  setAuth(token: string) {
+    this.httpOptions.headers = this.httpOptions.headers.append(
+      'Authorization',
+      `Basic ${token}`
+    );
+  }
+
   postData(data: any) {
     this.showLoader();
+    console.log(this.httpOptions);
     return this.http
       .post<any>(this.baseUrl, JSON.stringify(data), this.httpOptions)
+
       .pipe(retry(2), catchError(this.handleError));
   }
 
@@ -62,7 +72,7 @@ export class ApiService {
   getData(url: string) {
     this.showLoader();
     return this.http
-      .get<any>(this.baseUrl + url)
+      .get<any>(this.baseUrl, this.httpOptions)
       .pipe(retry(2), catchError(this.handleError));
   }
 
