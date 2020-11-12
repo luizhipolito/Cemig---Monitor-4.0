@@ -31,6 +31,7 @@
     "@ionic/storage": "^2.3.1",
     "cordova-android": "8.1.0",
     "cordova-sqlite-storage": "^5.1.0",
+    "oidc-client": "^1.10.1",
     "rxjs": "~6.5.5",
     "tslib": "^2.0.0",
     "uk.co.workingedge.cordova.plugin.sqliteporter": "^1.1.1",

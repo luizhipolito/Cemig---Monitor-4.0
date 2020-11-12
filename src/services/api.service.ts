@@ -17,7 +17,14 @@ export class ApiService {
   constructor(
     private http: HttpClient,
     private storageService: StorageArvoreService
-  ) {}
+  ) {
+    let options = {
+      headers: new HttpHeaders({
+        Authorization: 'Basic UGlVc2VyOmlobTEyMyFAIw==',
+      }),
+    };
+    this.http.get(this.baseUrl, options).subscribe(console.log);
+  }
 
   loadConfig() {
     this.storageService
@@ -38,10 +45,10 @@ export class ApiService {
     document.getElementById('loader').style.display = 'none';
   }
 
-  postData(url: string, data: any) {
+  postData(data: any) {
     this.showLoader();
     return this.http
-      .post<any>(this.baseUrl + url, JSON.stringify(data), this.httpOptions)
+      .post<any>(this.baseUrl, JSON.stringify(data), this.httpOptions)
       .pipe(retry(2), catchError(this.handleError));
   }
 

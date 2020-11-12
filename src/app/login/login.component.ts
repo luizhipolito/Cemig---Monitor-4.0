@@ -26,22 +26,20 @@ export class LoginComponent implements OnInit {
       console.log(f.value.username + ':' + f.value.password);
       var autorizacao = btoa(f.value.username + ':' + f.value.password);
       this.loginData.Autorizacao = autorizacao;
-      this.api
-        .postData('/login', this.loginData)
-        .subscribe((data: Resposta) => {
-          if (data.Status) {
-            this.utils.saveStorage('Autorizacao', data.Dados);
-            this.utils.usuarioLogado = this.utils.getStorage(
-              'Autorizacao'
-            ) as Autorizacao;
-            this.router.navigate(['/entrada-manual']);
-            this.api.hideLoader();
-            // redireciona para pagina de entrada manual
-          } else {
-            this.api.hideLoader();
-            this.showMessageBox(data.Mensagem);
-          }
-        });
+      this.api.postData(this.loginData).subscribe((data: Resposta) => {
+        if (data.Status) {
+          this.utils.saveStorage('Autorizacao', data.Dados);
+          this.utils.usuarioLogado = this.utils.getStorage(
+            'Autorizacao'
+          ) as Autorizacao;
+          this.router.navigate(['/entrada-manual']);
+          this.api.hideLoader();
+          // redireciona para pagina de entrada manual
+        } else {
+          this.api.hideLoader();
+          this.showMessageBox(data.Mensagem);
+        }
+      });
     } else {
       this.showMessageBox('Informe seu usuário e senha para continuar!');
     }
