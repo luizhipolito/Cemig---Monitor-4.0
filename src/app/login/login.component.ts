@@ -24,19 +24,21 @@ export class LoginComponent implements OnInit {
   onSubmit(f: NgForm) {
     if (f.valid) {
       console.log(f.value.username + ':' + f.value.password);
-      var autorizacao = btoa(f.value.username + ':' + f.value.password);
-      console.log(autorizacao);
-      this.api.setAuth(autorizacao);
-      this.loginData.Autorizacao = autorizacao;
-      this.api.getData('').subscribe((data: Resposta) => {
+      var Authorization = btoa(f.value.username + ':' + f.value.password);
+
+      this.api.setAuth(Authorization);
+      console.log(Authorization);
+      this.loginData.Autorizacao = Authorization;
+      this.api.getData().subscribe((data: Resposta) => {
         console.log(data);
         if (data) {
-          // this.utils.saveStorage('Autorizacao', data.Dados);
+          this.utils.saveStorage('Authorization', Authorization);
           this.utils.usuarioLogado = this.utils.getStorage(
-            'Autorizacao'
+            'Authorization'
           ) as Autorizacao;
           this.router.navigate(['/entrada-manual']);
           this.api.hideLoader();
+
           // redireciona para pagina de entrada manual
         } else {
           this.api.hideLoader();

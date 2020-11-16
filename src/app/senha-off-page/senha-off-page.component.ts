@@ -4,7 +4,7 @@ import { ApiService } from 'src/services/api.service';
 import { AppUtils } from 'src/utils/app.utils';
 import { MatSnackBar, MatSnackBarConfig } from '@angular/material/snack-bar';
 import { StorageArvoreService } from 'src/services/storage-arvore.service';
-import { Autorizacao, Resposta, Login } from '../login/login.interfaces';
+// import { Autorizacao, Resposta, Login } from '../login/login.interfaces';
 import { NgForm } from '@angular/forms';
 
 @Component({

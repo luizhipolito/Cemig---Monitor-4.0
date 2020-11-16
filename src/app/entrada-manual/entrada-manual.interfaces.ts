@@ -17,3 +17,13 @@ export interface arvore {
   CategoryNames: string | null;
   parentID: string;
 }
+
+export class ArvoreLocal {
+  AplicacaoID: string;
+  Nome: string;
+  Descricao: string;
+  PossuiSubNivel: boolean;
+  Caminho: string;
+  CategoryNames: string | null;
+  parentID: string;
+}

@@ -1,9 +1,9 @@
 .tudo {
-  background-image: url(../../assets/cemigCapa.PNG);
+  background-image: url(../../assets/cemigCapa2.png);
   background-position: center;
   background-repeat: no-repeat;
   background-size: cover;
-  height: 100vh;
+  height: 100%;
 }
 
 .seetings {
@@ -20,11 +20,13 @@
 .main {
   width: 100%;
 }
-
+.main_logo {
+  text-align: center;
+  margin-top: 12%;
+}
 .main_descricao {
   font-size: 2.3rem;
   color: white;
-  margin-top: 30%;
 }
 .main_descricao > p {
   text-align: center;
@@ -43,4 +45,25 @@
   font-size: 2rem;
   font-weight: 800;
   color: rgb(32, 128, 69);
+}
+
+@media screen and(max-width: 800px) {
+  .main {
+    margin-top: 40%;
+  }
+
+  .main_descricao {
+    font-size: 1.7rem;
+  }
+
+  .main_btns {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .main_btns > button {
+    width: 60%;
+    margin-top: 30px;
+  }
 }

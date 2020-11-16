@@ -13,26 +13,12 @@ import { StorageArvoreService } from './storage-arvore.service';
 })
 export class ApiService {
   public baseUrl =
-    'https://34.233.235.92/piwebapi/elements/E0Yfc0jetNdUKgzx5SiPQwKAKWkZ-0ID6xGDTA46LyNIOwRUMyQU1BWi1UMU41RUo1XFRFU1RFU1xDRU1JRyAtIEdFUsOKTkNJQSBERSBTRUdVUkFOw4dBIERFIEJBUlJBR0VOUyBFIE1BTlVURU7Dh8ODTyBDSVZJTFxVU0lOQVM/elements';
+    'https://34.233.235.92/piwebapi/assetdatabases/D0Yfc0jetNdUKgzx5SiPQwKAjcpntrnuOUKBew1cDt4krwRUMyQU1BWi1UMU41RUo1XFRFU1RFUw/elements?searchFullHierarchy=true';
 
   constructor(
     private http: HttpClient,
     private storageService: StorageArvoreService
-  ) {
-    // let options = {
-    //   headers: new HttpHeaders({
-    //     Authorization: 'Basic UGlVc2VyOmlobTEyMyFAIw==',
-    //   }),
-    // };
-    // this.http.get(this.baseUrl, options).subscribe(console.log);
-  }
-
-  // loadConfig() {
-  //   this.storageService
-  //     .getConfig('baseUrl')
-  //     .then((result) => (this.baseUrl = result));
-  //   console.log('url', this.baseUrl);
-  // }
+  ) {}
 
   httpOptions = {
     headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
@@ -47,6 +33,7 @@ export class ApiService {
   }
 
   setAuth(token: string) {
+    this.httpOptions.headers = this.httpOptions.headers.delete('Authorization');
     this.httpOptions.headers = this.httpOptions.headers.append(
       'Authorization',
       `Basic ${token}`
@@ -69,10 +56,10 @@ export class ApiService {
       .pipe(retry(2), catchError(this.handleError));
   }
 
-  getData(url: string) {
+  getData() {
     this.showLoader();
     return this.http
-      .get<any>(this.baseUrl, this.httpOptions)
+      .get(this.baseUrl, this.httpOptions)
       .pipe(retry(2), catchError(this.handleError));
   }
 

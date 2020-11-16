@@ -16,7 +16,7 @@ export class AppUtils {
   }
 
   getStorage(key: string) {
-    var value = localStorage.getItem(key);
+    let value = localStorage.getItem(key);
     return JSON.parse(value || null);
   }
 

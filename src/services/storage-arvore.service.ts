@@ -36,7 +36,7 @@ export class StorageArvoreService {
         let arvore = new ArvoreList();
         arvore.key = key;
         arvore.arvore = value;
-        if (value.parentID === id) {
+        if (value.ownID === value.parentID) {
           filhos.push(arvore);
         }
       })
@@ -71,11 +71,11 @@ export class StorageArvoreService {
 export class Arvore {
   AplicacaoID: string;
   Nome: string;
-  Descricao: string;
   PossuiSubNivel: boolean;
   Caminho: string;
   CategoryNames: string | null;
   parentID: string;
+  ownID: string;
 }
 
 export class ArvoreList {

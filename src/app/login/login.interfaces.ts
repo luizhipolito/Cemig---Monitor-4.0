@@ -3,9 +3,9 @@ export interface Login {
 }
 
 export interface Autorizacao {
-  Autenticado: boolean;
-  Identificador: string;
-  Nome: string;
+  // Autenticado: boolean;
+  // Identificador: string;
+  // Nome: string;
   Token: string;
 }
 
