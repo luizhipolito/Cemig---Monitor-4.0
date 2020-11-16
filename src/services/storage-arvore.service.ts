@@ -17,6 +17,10 @@ export class StorageArvoreService {
     this.storage.set(key, value);
   }
 
+  public removeAll() {
+    this.storage.clear();
+  }
+
   public update(key: string, arvore: Arvore) {
     return this.save(key, arvore);
   }
@@ -36,7 +40,7 @@ export class StorageArvoreService {
         let arvore = new ArvoreList();
         arvore.key = key;
         arvore.arvore = value;
-        if (value.ownID === value.parentID) {
+        if (id === value.parentID) {
           filhos.push(arvore);
         }
       })
@@ -55,7 +59,7 @@ export class StorageArvoreService {
         let arvore = new ArvoreList();
         arvore.key = key;
         arvore.arvore = value;
-        if (value.parentID === undefined) {
+        if (value.Nome === 'Usinas') {
           arvores.push(arvore);
         }
       })

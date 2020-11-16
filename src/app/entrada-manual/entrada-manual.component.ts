@@ -3,7 +3,6 @@ import { ApiService } from 'src/services/api.service';
 import { AppUtils } from 'src/utils/app.utils';
 import { Router } from '@angular/router';
 import { MatSnackBar, MatSnackBarConfig } from '@angular/material/snack-bar';
-// import { Authorization } from '../login/login.interfaces';
 import {
   Resposta,
   arvore,
@@ -50,62 +49,14 @@ export class EntradaManualComponent implements OnInit {
   dataAtual = this.utils.formatDateTime(new Date());
 
   fillOfAplicacao = () => {
-    this.api.getData().subscribe((data) => {
-      console.log(data);
-      if (data) {
-        this.aplicacaoData = data['Items'];
-        let arr = this.aplicacaoData.map((arLocal) => {
-          let arvore = new Arvore();
-          arvore.AplicacaoID = arLocal['WebId'];
-          arvore.parentID = arLocal['Links']['Parent'];
-          arvore.ownID = arLocal['Links']['Self'];
-          arvore.Nome = arLocal['Name'];
-          arvore.Caminho = arLocal['Path'];
-          return arvore;
-        });
-        arr.forEach((arvore) => {
-          this.storageService.insert(arvore);
-        });
-        // for (let ar of arr) {
-        //   let pathSplit = ar.Caminho.split('\\');
-        //   let index = pathSplit.indexOf('Usinas');
-        //   if (pathSplit.length === index + 1) continue;
-        //   if (pathSplit.length === index + 2) {
-        //     //Raiz: ex: Usinas/PCH...
-        //     //Não precisa salvar ipdParent
-        //     this.storageService.insert(ar);
-        //   } else {
-        //     const prevPath = pathSplit
-        //       .slice(0, pathSplit.length - 1)
-        //       .join('\\');
-        //     parentId = arr.find((a) => a.Caminho === prevPath).AplicacaoID;
-        //     ar.parentID = parentId;
-        //     //Salvar idParent, que tem que ser sempre o idApplication anterior
-        //     this.storageService.insert(ar);
-        //   }
-        // }
-        this.api.hideLoader();
-      } else {
-        this.showMessageBox('Dados Invalidos');
-      }
-    });
-  };
-
-  // comparePath(a: arvore, b: arvore) {
-  //   if (a.Caminho < b.Caminho) {
-  //     return -1;
-  //   }
-  //   if (a.Caminho > b.Caminho) {
-  //     return 1;
-  //   }
-  //   return 0;
-  // }
-
-  ngAfterViewInit() {
     this.storageService.getAll().then((result) => {
       this.arvoreLocal = result;
       console.log('Arvore local', this.arvoreLocal);
     });
+  };
+
+  ionViewWillEnter() {
+    this.fillOfAplicacao();
   }
 
   onClickId = (e) => {
@@ -113,9 +64,7 @@ export class EntradaManualComponent implements OnInit {
     console.log(Idparent);
     this.storageService.getFilhos(Idparent).then((result) => {
       this.arvoreLocal = result;
-      if (result === undefined) {
-        console.log(result);
-      }
+      console.log(this.arvoreLocal);
     });
   };
 
@@ -153,9 +102,6 @@ export class EntradaManualComponent implements OnInit {
       'Authorization'
     ) as Autorizacao;
     this.api.setAuth(this.autorizacaoStored);
-
-    this.fillOfAplicacao();
-    console.log('autorizado', this.autorizacaoStored);
   }
   ngOnDestroy() {}
 }
