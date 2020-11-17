@@ -80,6 +80,7 @@ export class Arvore {
   CategoryNames: string | null;
   parentID: string;
   ownID: string;
+  atributos: string;
 }
 
 export class ArvoreList {

@@ -53,7 +53,7 @@ ion-icon {
 
 .routeSelect {
   font-size: 1.5rem;
-  margin: 10px;
+  margin: 15px;
   color: #008f45;
   background: yellow;
 }
@@ -64,11 +64,10 @@ ion-icon {
 
 /* data box route */
 .boxData {
-  padding: 20px;
   margin: 10px;
   border: 2px solid black;
   overflow: auto;
-  height: 618px;
+  height: 400px;
 }
 
 ion-list {
@@ -77,4 +76,29 @@ ion-list {
   list-style: none;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   color: rgb(95, 95, 95);
+}
+
+@media screen and(max-width: 450px) {
+  .nomeCentro {
+    margin-left: 20px;
+    font-size: 1rem;
+  }
+  .logoCemig > img {
+    width: 150px !important;
+  }
+  ion-list {
+    font-size: 1.5rem;
+  }
+
+  .route {
+    margin: 0;
+  }
+  .routeSelect {
+    font-size: 20px;
+    margin: 15px;
+  }
+  ion-icon {
+    font-size: 40px;
+    margin-top: 10px;
+  }
 }

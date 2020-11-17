@@ -54,6 +54,7 @@ export class LoginComponent implements OnInit {
                 arvore.AplicacaoID = arLocal['WebId'];
                 arvore.parentID = arLocal['Links']['Parent'];
                 arvore.ownID = arLocal['Links']['Self'];
+                arvore.atributos = arLocal['Links']['Attributes'];
                 arvore.Nome = arLocal['Name'];
                 arvore.Caminho = arLocal['Path'];
                 return arvore;

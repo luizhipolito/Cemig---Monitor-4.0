@@ -3,19 +3,17 @@
   background-position: center;
   background-repeat: no-repeat;
   background-size: cover;
-  overflow: hidden;
-  height: 100vh;
+  // overflow: hidden;
+  height: 100%;
 }
 
 .login {
   width: 600px;
-  margin: 0 auto !important;
-  margin-top: 150px;
+  margin: 12% auto;
   font-size: 16px;
 }
 
 .inputs {
-  margin-top: 250px;
 }
 
 .pass {
@@ -80,4 +78,41 @@
   color: teal;
   margin-left: 20%;
   margin-top: 50px;
+}
+
+@media screen and(max-width: 800px) {
+  .login {
+    margin-top: 65%;
+  }
+  .inputs {
+    margin: 0 auto;
+    width: 90%;
+  }
+}
+
+@media screen and(max-width: 450px) {
+  .login {
+    margin-top: 50%;
+    width: 90%;
+  }
+  .name > label {
+    font-size: 1rem;
+  }
+  .name > input {
+    height: 5%;
+    font-size: 1rem;
+  }
+  .pass > label {
+    font-size: 1rem;
+  }
+  .pass > input {
+    height: 5%;
+    font-size: 1rem;
+    margin-left: 10px;
+  }
+
+  .btn > button {
+    font-size: 1.2rem;
+    height: 50px;
+  }
 }
