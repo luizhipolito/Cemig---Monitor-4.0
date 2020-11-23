@@ -3,6 +3,7 @@ import {
   HttpClient,
   HttpHeaders,
   HttpErrorResponse,
+  HttpParams,
 } from '@angular/common/http';
 import { throwError } from 'rxjs';
 import { retry, catchError } from 'rxjs/operators';
@@ -12,8 +13,11 @@ import { StorageArvoreService } from './storage-arvore.service';
   providedIn: 'root',
 })
 export class ApiService {
-  public baseUrl =
-    'https://34.233.235.92/piwebapi/assetdatabases/D0Yfc0jetNdUKgzx5SiPQwKAjcpntrnuOUKBew1cDt4krwRUMyQU1BWi1UMU41RUo1XFRFU1RFUw/elements?searchFullHierarchy=true';
+  public baseUrl = `${''}`;
+
+  setBaseUrl(server: string, config: string) {
+    this.baseUrl = `${server}/elements/?path=${config}`;
+  }
 
   constructor(
     private http: HttpClient,
@@ -56,11 +60,49 @@ export class ApiService {
       .pipe(retry(2), catchError(this.handleError));
   }
 
+  getLink(
+    data,
+    name: string,
+    endPoints: Array<string>,
+    type: string = 'Links'
+  ) {
+    let item = data;
+    if ('Items' in data) {
+      let items = data['Items'] as Array<object>;
+      if (Array.isArray(items)) {
+        item = items.find(
+          (item) => item['Path'] == name || item['Name'] == name
+        );
+      }
+    }
+    if (item) {
+      return endPoints.map((endPoint) => {
+        return item[type][endPoint];
+      });
+    }
+  }
+
+  get(url: string, params: HttpParams = new HttpParams()) {
+    this.showLoader();
+    return this.http
+      .get(url, { ...this.httpOptions, params: params })
+      .pipe(retry(2), catchError(this.handleError));
+  }
+
   getData() {
     this.showLoader();
     return this.http
       .get(this.baseUrl, this.httpOptions)
       .pipe(retry(2), catchError(this.handleError));
+  }
+
+  getCatagoryParams(categoryName: string): HttpParams {
+    let params = new HttpParams();
+    params = params.append('searchFullHierarchy', 'true');
+    params = params.append('maxCount', '10000');
+    params = params.append('categoryName', categoryName);
+
+    return params;
   }
 
   handleError(error: HttpErrorResponse) {

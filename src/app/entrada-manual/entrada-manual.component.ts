@@ -20,6 +20,7 @@ import {
   Arvore,
 } from 'src/services/storage-arvore.service';
 import { Autorizacao } from '../login/login.interfaces';
+import { ConfigService } from 'src/services/config.service';
 
 @Component({
   selector: 'app-entrada-manual',
@@ -94,7 +95,8 @@ export class EntradaManualComponent implements OnInit {
     private messageBox: MatSnackBar,
     private menu: MenuController,
     public navCtrl: NavController,
-    public storageService: StorageArvoreService
+    public storageService: StorageArvoreService,
+    public config: ConfigService
   ) {}
 
   ngOnInit() {
@@ -102,6 +104,132 @@ export class EntradaManualComponent implements OnInit {
       'Authorization'
     ) as Autorizacao;
     this.api.setAuth(this.autorizacaoStored);
+
+    this.api.getData().subscribe((data) => {
+      const firstOrNull = () => true;
+
+      let linkUrl = this.api.getLink(
+        data,
+        this.config.config,
+        this.config.endPoint['value']
+      );
+      let url = linkUrl.find(firstOrNull);
+
+      this.api.get(url).subscribe((data) => {
+        let attributes = this.config.attributes;
+        for (let attribute in attributes) {
+          let nameOrPath = attributes[attribute];
+          let value = this.api.getLink(
+            data,
+            nameOrPath,
+            this.config.endPoint['value'],
+            'Value'
+          );
+          console.log(value);
+          this.config[attribute] = value.find(firstOrNull);
+        }
+
+        // this.config.ElementoRaiz = this.config.ElementoRaiz.split('\\').join(
+        //   '\\\\'
+        // );
+
+        console.log(this.config.ElementoRaiz);
+
+        this.api.setBaseUrl(
+          'https://' + this.config.afServer + '/piwebapi',
+          this.config.ElementoRaiz
+        );
+
+        this.api.getData().subscribe((data) => {
+          linkUrl = this.api.getLink(
+            data,
+            this.config.ElementoRaiz,
+            this.config.endPoint.database
+          );
+          let insercaoParams = this.api.getCatagoryParams(this.config.Insercao);
+          let elementUrl = linkUrl.find(firstOrNull);
+          this.api.get(elementUrl, insercaoParams).subscribe((data) => {
+            data['Items'] = data['Items'].map((e) => {
+              return {
+                ...e,
+                relativePath: e.Path.replace(this.config.ElementoRaiz, ''),
+              };
+            });
+            console.log(data);
+            if (data) {
+              this.aplicacaoData = data['Items'];
+              let arr = this.aplicacaoData.map((arLocal) => {
+                let arvore = new Arvore();
+                arvore.AplicacaoID = arLocal['WebId'];
+                arvore.parentID = arLocal['Links']['Parent'];
+                arvore.ownID = arLocal['Links']['Self'];
+                arvore.atributos = arLocal['Links']['Attributes'];
+                arvore.value = arLocal['Links']['Value'];
+                arvore.Nome = arLocal['Name'];
+                arvore.Caminho = arLocal['Path'];
+                arvore.relativePath = arLocal['relativePath'];
+                return arvore;
+              });
+              arr.forEach((arvore) => {
+                this.storageService.insert(arvore);
+              });
+              this.api.hideLoader();
+            } else {
+              this.showMessageBox('Dados Invalidos');
+            }
+          });
+        });
+
+        // let url = linkUrl.find((link) => true);
+        //   this.api.get(url).subscribe((data) => {
+        //     linkUrl = this.api.getLink(
+        //       data,
+        //       this.config.config,
+        //       this.config.endPoint['Elementos']
+        //     );
+        //     console.log('link2', linkUrl);
+        //     let url = linkUrl.find((link) => true);
+        //     this.api.get(url).subscribe((data) => {
+        //       linkUrl = this.api.getLink(data, 'Categoria Elemento Inserção', [
+        //         'Value',
+        //       ]);
+        //       this.api.get(linkUrl[0]).subscribe((data) => {
+        //         let value = data['Value'];
+        //         this.config.Insercao = value;
+        //         console.log(value);
+        //       });
+        //       linkUrl = this.api.getLink(data, 'Categoria Elemento Navegação', [
+        //         'Value',
+        //       ]);
+        //       this.api.get(linkUrl[0]).subscribe((data) => {
+        //         let value = data['Value'];
+        //         this.config.Navegacao = value;
+        //         console.log(value);
+        //       });
+        //       linkUrl = this.api.getLink(data, 'Descrição Atributo Escrita', [
+        //         'Value',
+        //       ]);
+        //       this.api.get(linkUrl[0]).subscribe((data) => {
+        //         let value = data['Value'];
+        //         this.config.Escrita = value;
+        //         console.log(value);
+        //       });
+        //       linkUrl = this.api.getLink(data, 'Elemento Raiz', ['Value']);
+        //       this.api.get(linkUrl[0]).subscribe((data) => {
+        //         let value = data['Value'];
+        //         this.config.ElementoRaiz = value;
+        //         console.log(value);
+        //       });
+        //       linkUrl = this.api.getLink(data, 'Senha Offline', ['Value']);
+        //       this.api.get(linkUrl[0]).subscribe((data) => {
+        //         let value = data['Value'];
+        //         this.config.SenhaOff = value;
+        //         console.log(value);
+        //       });
+        //     });
+        // });
+      });
+    });
   }
   ngOnDestroy() {}
 }

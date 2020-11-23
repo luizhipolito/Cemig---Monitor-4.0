@@ -2,6 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { NgForm } from '@angular/forms';
 import { StorageArvoreService } from 'src/services/storage-arvore.service';
+import { MatSnackBar, MatSnackBarConfig } from '@angular/material/snack-bar';
+import { ApiService } from 'src/services/api.service';
+import { ConfigService } from 'src/services/config.service';
 
 @Component({
   selector: 'app-data-config',
@@ -11,7 +14,10 @@ import { StorageArvoreService } from 'src/services/storage-arvore.service';
 export class DataConfigComponent implements OnInit {
   constructor(
     private router: Router,
-    private storageService: StorageArvoreService
+    private storageService: StorageArvoreService,
+    private messageBox: MatSnackBar,
+    public api: ApiService,
+    public config: ConfigService
   ) {}
 
   backHome() {
@@ -20,10 +26,29 @@ export class DataConfigComponent implements OnInit {
 
   onSubmit(f: NgForm) {
     if (f.valid) {
-      console.log(f.value.server);
-      this.storageService.saveConfig('baseUrl', f.value.server);
+      let server = 'https://ec2amaz-t1n5ej5/piwebapi';
+
+      let config = '\\\\EC2AMAZ-T1N5EJ5\\Testes\\APP Entrada Manual';
+
+      this.api.setBaseUrl(server, config);
+      this.config.server = server;
+      this.config.config = config;
+
+      console.log(server, config);
       this.router.navigate(['/home']);
+    } else {
+      this.showMessageBox('Não existem dados preenchidos');
     }
   }
+
+  private configError: MatSnackBarConfig = {
+    panelClass: ['style-error'],
+    duration: 2000,
+    verticalPosition: 'top',
+  };
+
+  showMessageBox = (message: string) => {
+    this.messageBox.open(message, null, this.configError);
+  };
   ngOnInit() {}
 }

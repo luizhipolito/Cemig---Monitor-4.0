@@ -18,6 +18,13 @@ export interface arvore {
   parentID: string;
 }
 
+export interface dataEnumeration {
+  ID: string;
+  Nome: string;
+  caminho: string;
+  value: string;
+}
+
 export class ArvoreLocal {
   AplicacaoID: string;
   Nome: string;

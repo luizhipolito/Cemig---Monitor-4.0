@@ -8,11 +8,11 @@ import { MatSnackBar, MatSnackBarConfig } from '@angular/material/snack-bar';
 import {
   StorageArvoreService,
   Arvore,
-  ArvoreList,
+  Enumeration,
 } from '../../services/storage-arvore.service';
 import {
   arvore,
-  ArvoreLocal,
+  dataEnumeration,
 } from '../entrada-manual/entrada-manual.interfaces';
 
 @Component({
@@ -23,6 +23,7 @@ import {
 export class LoginComponent implements OnInit {
   private loginData: Login = {};
   aplicacaoData: Array<arvore>;
+  enumerationData: Array<dataEnumeration>;
 
   private configError: MatSnackBarConfig = {
     panelClass: ['style-error'],
@@ -36,39 +37,37 @@ export class LoginComponent implements OnInit {
       console.log(f.value.username + ':' + f.value.password);
       var Authorization = btoa(f.value.username + ':' + f.value.password);
       this.api.setAuth(Authorization);
-      console.log(Authorization);
       this.loginData.Autorizacao = Authorization;
       this.storage.removeAll();
       this.api.getData().subscribe((data: Resposta) => {
-        console.log(data);
         if (data) {
           this.utils.saveStorage('Authorization', Authorization);
           this.utils.usuarioLogado = this.utils.getStorage(
             'Authorization'
           ) as Autorizacao;
-          this.api.getData().subscribe((data) => {
-            if (data) {
-              this.aplicacaoData = data['Items'];
-              let arr = this.aplicacaoData.map((arLocal) => {
-                let arvore = new Arvore();
-                arvore.AplicacaoID = arLocal['WebId'];
-                arvore.parentID = arLocal['Links']['Parent'];
-                arvore.ownID = arLocal['Links']['Self'];
-                arvore.atributos = arLocal['Links']['Attributes'];
-                arvore.Nome = arLocal['Name'];
-                arvore.Caminho = arLocal['Path'];
-                return arvore;
-              });
-              arr.forEach((arvore) => {
-                this.storage.insert(arvore);
-              });
-              this.router.navigate(['/entrada-manual']);
-              this.api.hideLoader();
-            } else {
-              this.showMessageBox('Dados Invalidos');
-            }
-          });
-
+          // this.api.getData().subscribe((data) => {
+          //   if (data) {
+          //     this.aplicacaoData = data['Items'];
+          //     let arr = this.aplicacaoData.map((arLocal) => {
+          //       let arvore = new Arvore();
+          //       arvore.AplicacaoID = arLocal['WebId'];
+          //       arvore.parentID = arLocal['Links']['Parent'];
+          //       arvore.ownID = arLocal['Links']['Self'];
+          //       arvore.atributos = arLocal['Links']['Attributes'];
+          //       arvore.Nome = arLocal['Name'];
+          //       arvore.Caminho = arLocal['Path'];
+          //       return arvore;
+          //     });
+          //     arr.forEach((arvore) => {
+          //       this.storage.insert(arvore);
+          //     });
+          //     this.router.navigate(['/entrada-manual']);
+          //     this.api.hideLoader();
+          //   } else {
+          //     this.showMessageBox('Dados Invalidos');
+          //   }
+          // });
+          this.router.navigate(['/entrada-manual']);
           this.api.hideLoader();
 
           // redireciona para pagina de entrada manual

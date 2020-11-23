@@ -59,9 +59,9 @@ export class StorageArvoreService {
         let arvore = new ArvoreList();
         arvore.key = key;
         arvore.arvore = value;
-        if (value.Nome === 'Usinas') {
-          arvores.push(arvore);
-        }
+        arvore.arvore.relativePath.split('\\');
+
+        arvores.push(arvore);
       })
       .then(() => {
         return Promise.resolve(arvores);
@@ -81,6 +81,15 @@ export class Arvore {
   parentID: string;
   ownID: string;
   atributos: string;
+  relativePath: string;
+  value: string;
+}
+
+export class Enumeration {
+  ID: string;
+  Nome: string;
+  caminho: string;
+  value: string;
 }
 
 export class ArvoreList {

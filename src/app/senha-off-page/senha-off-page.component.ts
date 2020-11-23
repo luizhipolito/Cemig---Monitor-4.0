@@ -6,6 +6,7 @@ import { MatSnackBar, MatSnackBarConfig } from '@angular/material/snack-bar';
 import { StorageArvoreService } from 'src/services/storage-arvore.service';
 // import { Autorizacao, Resposta, Login } from '../login/login.interfaces';
 import { NgForm } from '@angular/forms';
+import { ConfigService } from 'src/services/config.service';
 
 @Component({
   selector: 'app-senha-off-page',
@@ -20,7 +21,8 @@ export class SenhaOffPageComponent implements OnInit {
   };
 
   onSubmit(f: NgForm) {
-    if (f.value.password === 'ihm123!@#') {
+    let senhaOff = this.config.SenhaOff;
+    if (f.value.password === senhaOff) {
       this.storage.getAll();
       this.router.navigate(['/entrada-manual']);
     }
@@ -39,7 +41,8 @@ export class SenhaOffPageComponent implements OnInit {
     private api: ApiService,
     public utils: AppUtils,
     private messageBox: MatSnackBar,
-    public storage: StorageArvoreService
+    public storage: StorageArvoreService,
+    public config: ConfigService
   ) {}
 
   ngOnInit() {

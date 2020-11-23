@@ -78,6 +78,12 @@ ion-list {
   color: rgb(95, 95, 95);
 }
 
+@media screen and(max-width: 700px) {
+  .boxData {
+    height: 800px;
+  }
+}
+
 @media screen and(max-width: 450px) {
   .nomeCentro {
     margin-left: 20px;
@@ -89,7 +95,9 @@ ion-list {
   ion-list {
     font-size: 1.5rem;
   }
-
+  .boxData {
+    height: 500px;
+  }
   .route {
     margin: 0;
   }
