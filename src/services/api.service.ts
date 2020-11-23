@@ -8,12 +8,13 @@ import {
 import { throwError } from 'rxjs';
 import { retry, catchError } from 'rxjs/operators';
 import { StorageArvoreService } from './storage-arvore.service';
+import { AppUtils } from 'src/utils/app.utils';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ApiService {
-  public baseUrl = `${''}`;
+  public baseUrl = this.utils.getStorage('baseUrl');
 
   setBaseUrl(server: string, config: string) {
     this.baseUrl = `${server}/elements/?path=${config}`;
@@ -21,7 +22,8 @@ export class ApiService {
 
   constructor(
     private http: HttpClient,
-    private storageService: StorageArvoreService
+    private storageService: StorageArvoreService,
+    public utils: AppUtils
   ) {}
 
   httpOptions = {

@@ -5,6 +5,7 @@ import { StorageArvoreService } from 'src/services/storage-arvore.service';
 import { MatSnackBar, MatSnackBarConfig } from '@angular/material/snack-bar';
 import { ApiService } from 'src/services/api.service';
 import { ConfigService } from 'src/services/config.service';
+import { AppUtils } from 'src/utils/app.utils';
 
 @Component({
   selector: 'app-data-config',
@@ -17,7 +18,8 @@ export class DataConfigComponent implements OnInit {
     private storageService: StorageArvoreService,
     private messageBox: MatSnackBar,
     public api: ApiService,
-    public config: ConfigService
+    public config: ConfigService,
+    public utils: AppUtils
   ) {}
 
   backHome() {
@@ -35,7 +37,8 @@ export class DataConfigComponent implements OnInit {
       this.config.config = config;
 
       console.log(server, config);
-      this.router.navigate(['/home']);
+      this.utils.saveStorage('baseUrl', `${server}/elements/?path=${config}`);
+      this.router.navigate(['/login']);
     } else {
       this.showMessageBox('Não existem dados preenchidos');
     }

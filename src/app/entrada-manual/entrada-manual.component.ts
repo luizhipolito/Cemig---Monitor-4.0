@@ -56,10 +56,6 @@ export class EntradaManualComponent implements OnInit {
     });
   };
 
-  ionViewWillEnter() {
-    this.fillOfAplicacao();
-  }
-
   onClickId = (e) => {
     let Idparent = e.ownID;
     console.log(Idparent);
@@ -68,6 +64,10 @@ export class EntradaManualComponent implements OnInit {
       console.log(this.arvoreLocal);
     });
   };
+
+  ionViewWillEnter() {
+    this.fillOfAplicacao();
+  }
 
   showMessageBox = (message: string) => {
     this.messageBox.open(message, null, {
@@ -161,18 +161,21 @@ export class EntradaManualComponent implements OnInit {
               let arr = this.aplicacaoData.map((arLocal) => {
                 let arvore = new Arvore();
                 arvore.AplicacaoID = arLocal['WebId'];
-                arvore.parentID = arLocal['Links']['Parent'];
                 arvore.ownID = arLocal['Links']['Self'];
                 arvore.atributos = arLocal['Links']['Attributes'];
+                arvore.CategoryNames = arLocal['CategoryNames'];
                 arvore.value = arLocal['Links']['Value'];
                 arvore.Nome = arLocal['Name'];
                 arvore.Caminho = arLocal['Path'];
                 arvore.relativePath = arLocal['relativePath'];
+
                 return arvore;
               });
+
               arr.forEach((arvore) => {
                 this.storageService.insert(arvore);
               });
+
               this.api.hideLoader();
             } else {
               this.showMessageBox('Dados Invalidos');
@@ -231,5 +234,6 @@ export class EntradaManualComponent implements OnInit {
       });
     });
   }
+
   ngOnDestroy() {}
 }

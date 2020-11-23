@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Storage } from '@ionic/storage';
 import { HttpClient } from '@angular/common/http';
+import { stringify } from 'querystring';
 
 @Injectable({
   providedIn: 'root',
@@ -40,7 +41,7 @@ export class StorageArvoreService {
         let arvore = new ArvoreList();
         arvore.key = key;
         arvore.arvore = value;
-        if (id === value.parentID) {
+        if (id === value.AplicacaoID) {
           filhos.push(arvore);
         }
       })
@@ -59,7 +60,6 @@ export class StorageArvoreService {
         let arvore = new ArvoreList();
         arvore.key = key;
         arvore.arvore = value;
-        arvore.arvore.relativePath.split('\\');
 
         arvores.push(arvore);
       })
@@ -78,11 +78,11 @@ export class Arvore {
   PossuiSubNivel: boolean;
   Caminho: string;
   CategoryNames: string | null;
-  parentID: string;
   ownID: string;
   atributos: string;
   relativePath: string;
   value: string;
+  pathSplit: string;
 }
 
 export class Enumeration {

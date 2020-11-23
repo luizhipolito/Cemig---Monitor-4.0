@@ -24,7 +24,6 @@ export class ConfigService {
 
   attributes = {
     Insercao: 'Categoria Elemento Inserção',
-    Navegacao: 'Categoria Elemento Navegação',
     Escrita: 'Descrição Atributo Escrita',
     ElementoRaiz: 'Elemento Raiz',
     SenhaOff: 'Senha Offline',

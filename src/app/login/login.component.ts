@@ -45,28 +45,7 @@ export class LoginComponent implements OnInit {
           this.utils.usuarioLogado = this.utils.getStorage(
             'Authorization'
           ) as Autorizacao;
-          // this.api.getData().subscribe((data) => {
-          //   if (data) {
-          //     this.aplicacaoData = data['Items'];
-          //     let arr = this.aplicacaoData.map((arLocal) => {
-          //       let arvore = new Arvore();
-          //       arvore.AplicacaoID = arLocal['WebId'];
-          //       arvore.parentID = arLocal['Links']['Parent'];
-          //       arvore.ownID = arLocal['Links']['Self'];
-          //       arvore.atributos = arLocal['Links']['Attributes'];
-          //       arvore.Nome = arLocal['Name'];
-          //       arvore.Caminho = arLocal['Path'];
-          //       return arvore;
-          //     });
-          //     arr.forEach((arvore) => {
-          //       this.storage.insert(arvore);
-          //     });
-          //     this.router.navigate(['/entrada-manual']);
-          //     this.api.hideLoader();
-          //   } else {
-          //     this.showMessageBox('Dados Invalidos');
-          //   }
-          // });
+
           this.router.navigate(['/entrada-manual']);
           this.api.hideLoader();
 
