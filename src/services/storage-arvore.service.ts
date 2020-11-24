@@ -58,6 +58,7 @@ export class StorageArvoreService {
     return this.storage
       .forEach((value: Arvore, key: string) => {
         let arvore = new ArvoreList();
+
         arvore.key = key;
         arvore.arvore = value;
 
@@ -75,14 +76,11 @@ export class StorageArvoreService {
 export class Arvore {
   AplicacaoID: string;
   Nome: string;
-  PossuiSubNivel: boolean;
-  Caminho: string;
+  Caminho: string[];
   CategoryNames: string | null;
-  ownID: string;
   atributos: string;
   relativePath: string;
   value: string;
-  pathSplit: string;
 }
 
 export class Enumeration {

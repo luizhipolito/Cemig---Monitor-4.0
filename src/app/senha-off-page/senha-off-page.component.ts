@@ -21,10 +21,13 @@ export class SenhaOffPageComponent implements OnInit {
   };
 
   onSubmit(f: NgForm) {
-    let senhaOff = this.config.SenhaOff;
+    let senhaOff = this.utils.getStorage('senhaOff');
+    console.log(senhaOff);
     if (f.value.password === senhaOff) {
       this.storage.getAll();
       this.router.navigate(['/entrada-manual']);
+    } else {
+      this.showMessageBox('Senha incorreta');
     }
   }
 

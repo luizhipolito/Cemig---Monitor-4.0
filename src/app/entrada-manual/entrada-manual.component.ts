@@ -146,6 +146,7 @@ export class EntradaManualComponent implements OnInit {
             this.config.ElementoRaiz,
             this.config.endPoint.database
           );
+          this.utils.saveStorage('senhaOff', this.config.SenhaOff);
           let insercaoParams = this.api.getCatagoryParams(this.config.Insercao);
           let elementUrl = linkUrl.find(firstOrNull);
           this.api.get(elementUrl, insercaoParams).subscribe((data) => {
@@ -161,13 +162,8 @@ export class EntradaManualComponent implements OnInit {
               let arr = this.aplicacaoData.map((arLocal) => {
                 let arvore = new Arvore();
                 arvore.AplicacaoID = arLocal['WebId'];
-                arvore.ownID = arLocal['Links']['Self'];
-                arvore.atributos = arLocal['Links']['Attributes'];
-                arvore.CategoryNames = arLocal['CategoryNames'];
-                arvore.value = arLocal['Links']['Value'];
-                arvore.Nome = arLocal['Name'];
-                arvore.Caminho = arLocal['Path'];
                 arvore.relativePath = arLocal['relativePath'];
+                arvore.Caminho = arvore.relativePath.split('\\');
 
                 return arvore;
               });
