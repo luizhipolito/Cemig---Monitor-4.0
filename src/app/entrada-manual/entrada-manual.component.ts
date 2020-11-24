@@ -22,6 +22,8 @@ import {
 import { Autorizacao } from '../login/login.interfaces';
 import { ConfigService } from 'src/services/config.service';
 
+const firstOrNull = () => true;
+
 @Component({
   selector: 'app-entrada-manual',
   templateUrl: './entrada-manual.component.html',
@@ -46,28 +48,48 @@ export class EntradaManualComponent implements OnInit {
   autorizacaoStored: any;
   aplicacaoData: Array<arvore>;
   arvoreLocal: Array<ArvoreList>;
+  navigation: Array<{ path: Array<string>; name: string }>;
 
   dataAtual = this.utils.formatDateTime(new Date());
 
   fillOfAplicacao = () => {
     this.storageService.getAll().then((result) => {
       this.arvoreLocal = result;
+      this.navigation = new Array<{ path: Array<string>; name: string }>();
+      this.arvoreLocal.forEach((arvore) => {
+        let caminho = arvore.arvore.Caminho.find(firstOrNull);
+        if (!this.navigation.find((n) => n.name == caminho)) {
+          this.navigation.push({
+            path: [arvore.arvore.Caminho.find(firstOrNull)],
+            name: arvore.arvore.Caminho.find(firstOrNull),
+          });
+        }
+      });
+
       console.log('Arvore local', this.arvoreLocal);
     });
   };
 
   onClickId = (e) => {
-    let Idparent = e.ownID;
-    console.log(Idparent);
-    this.storageService.getFilhos(Idparent).then((result) => {
-      this.arvoreLocal = result;
-      console.log(this.arvoreLocal);
+    console.log(e);
+    this.storageService.getFilhos(e.path).then((result) => {
+      let pathLength = e.path.length;
+
+      this.navigation = new Array<{ path: Array<string>; name: string }>();
+      result.forEach((arvore) => {
+        let caminho = arvore.Caminho[pathLength];
+        if (!this.navigation.find((n) => n.name == caminho)) {
+          let path = e.path.concat([caminho]);
+          this.navigation.push({
+            path: path,
+            name: caminho,
+          });
+        }
+      });
     });
   };
 
-  ionViewWillEnter() {
-    this.fillOfAplicacao();
-  }
+  onInit() {}
 
   showMessageBox = (message: string) => {
     this.messageBox.open(message, null, {
@@ -105,9 +127,9 @@ export class EntradaManualComponent implements OnInit {
     ) as Autorizacao;
     this.api.setAuth(this.autorizacaoStored);
 
-    this.api.getData().subscribe((data) => {
-      const firstOrNull = () => true;
+    this.fillOfAplicacao();
 
+    this.api.getData().subscribe((data) => {
       let linkUrl = this.api.getLink(
         data,
         this.config.config,
@@ -163,7 +185,9 @@ export class EntradaManualComponent implements OnInit {
                 let arvore = new Arvore();
                 arvore.AplicacaoID = arLocal['WebId'];
                 arvore.relativePath = arLocal['relativePath'];
-                arvore.Caminho = arvore.relativePath.split('\\');
+                arvore.Caminho = arvore.relativePath
+                  .split('\\')
+                  .filter((c) => Boolean(c));
 
                 return arvore;
               });
