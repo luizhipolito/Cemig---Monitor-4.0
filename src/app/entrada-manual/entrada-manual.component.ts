@@ -89,8 +89,6 @@ export class EntradaManualComponent implements OnInit {
     });
   };
 
-  onInit() {}
-
   showMessageBox = (message: string) => {
     this.messageBox.open(message, null, {
       duration: 2000,
@@ -102,8 +100,7 @@ export class EntradaManualComponent implements OnInit {
   }
 
   logoutUsuario = () => {
-    this.utils.usuarioLogado = null;
-    this.utils.removeStorgare('Autorizacao');
+    this.menu.close();
     this.router.navigate(['/']);
   };
   onSairClick = (ev) => {
@@ -126,8 +123,6 @@ export class EntradaManualComponent implements OnInit {
       'Authorization'
     ) as Autorizacao;
     this.api.setAuth(this.autorizacaoStored);
-
-    this.fillOfAplicacao();
 
     this.api.getData().subscribe((data) => {
       let linkUrl = this.api.getLink(
@@ -200,6 +195,9 @@ export class EntradaManualComponent implements OnInit {
             } else {
               this.showMessageBox('Dados Invalidos');
             }
+            if (ArvoreList) {
+              this.fillOfAplicacao();
+            }
           });
         });
 
@@ -254,6 +252,4 @@ export class EntradaManualComponent implements OnInit {
       });
     });
   }
-
-  ngOnDestroy() {}
 }

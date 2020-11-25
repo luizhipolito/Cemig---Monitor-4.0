@@ -9,6 +9,7 @@ import {
   StorageArvoreService,
   Arvore,
   Enumeration,
+  ArvoreList,
 } from '../../services/storage-arvore.service';
 import {
   arvore,
@@ -38,7 +39,7 @@ export class LoginComponent implements OnInit {
       var Authorization = btoa(f.value.username + ':' + f.value.password);
       this.api.setAuth(Authorization);
       this.loginData.Autorizacao = Authorization;
-      this.storage.removeAll();
+      // this.storage.removeAll();
       this.api.getData().subscribe((data: Resposta) => {
         if (data) {
           this.utils.saveStorage('Authorization', Authorization);
@@ -46,6 +47,7 @@ export class LoginComponent implements OnInit {
             'Authorization'
           ) as Autorizacao;
 
+          this.storage.removeAll();
           this.router.navigate(['/entrada-manual']);
           this.api.hideLoader();
 

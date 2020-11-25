@@ -53,21 +53,6 @@ export class StorageArvoreService {
       .catch((error) => {
         return Promise.reject(error);
       });
-    // return this.storage
-    //   .forEach((value: Arvore, key: string) => {
-    //     let arvore = new ArvoreList();
-    //     arvore.key = key;
-    //     arvore.arvore = value;
-    //     if (id === value.AplicacaoID) {
-    //       filhos.push(arvore);
-    //     }
-    //   })
-    //   .then(() => {
-    //     return Promise.resolve(filhos);
-    //   })
-    //   .catch((error) => {
-    //     return Promise.reject(error);
-    //   });
   }
   // [''] return todos os niveis 0
 

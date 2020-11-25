@@ -58,47 +58,10 @@ export class AppUtils {
     return valueOfDuration;
   };
 
-  convertValueToStringTime = (value: number): string => {
-    const timeValue = value; // / 10;
-    let result = [
-      this.pad(Math.floor(timeValue / 3600)),
-      this.pad(Math.floor(timeValue / 60) % 60),
-      this.pad(Math.floor(timeValue % 60)),
-    ].join(':');
-
-    return result;
-  };
-
-  nl2br = (str) => {
-    return str.replace(/(?:\r\n|\r|\n)/g, '<br>');
-  };
-
-  exportDataToCsv = (data: any[], fileName: string) => {
-    var csv = '';
-    var keys =
-      (data[0] && Object.keys(data[0])).filter((r) => r != '$$hashKey') || [];
-    csv += keys.join(';') + '\n';
-    for (var line of data) {
-      csv +=
-        keys
-          .map((key) => {
-            return line[key];
-          })
-          .join(';') + '\n';
-    }
-
-    // saveAs(
-    //   new Blob([this.stringToArrayBuffer(csv)], {
-    //     type: 'application/octet-stream',
-    //   }),
-    //   fileName
-    // );
-  };
-
-  stringToArrayBuffer(s) {
-    let buf = new ArrayBuffer(s.length);
-    let view = new Uint8Array(buf);
-    for (let i = 0; i < s.length; i++) view[i] = s.charCodeAt(i) & 0xff;
-    return buf;
-  }
+  // saveAs(
+  //   new Blob([this.stringToArrayBuffer(csv)], {
+  //     type: 'application/octet-stream',
+  //   }),
+  //   fileName
+  // );
 }
