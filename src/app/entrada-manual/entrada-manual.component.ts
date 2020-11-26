@@ -116,7 +116,9 @@ export class EntradaManualComponent implements OnInit {
     public navCtrl: NavController,
     public storageService: StorageArvoreService,
     public config: ConfigService
-  ) {}
+  ) {
+    this.fillOfAplicacao();
+  }
 
   ngOnInit() {
     this.autorizacaoStored = this.utils.getStorage(
@@ -194,9 +196,6 @@ export class EntradaManualComponent implements OnInit {
               this.api.hideLoader();
             } else {
               this.showMessageBox('Dados Invalidos');
-            }
-            if (ArvoreList) {
-              this.fillOfAplicacao();
             }
           });
         });
