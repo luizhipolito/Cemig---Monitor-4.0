@@ -20,11 +20,23 @@ export class SenhaOffPageComponent implements OnInit {
     verticalPosition: 'top',
   };
 
+  
+
+  constructor(
+    private router: Router,
+    private api: ApiService,
+    public utils: AppUtils,
+    private messageBox: MatSnackBar,
+    public storage: StorageArvoreService,
+    public configService: ConfigService
+  ) {}
+
+
   onSubmit(f: NgForm) {
     let senhaOff = this.utils.getStorage('senhaOff');
-    console.log(senhaOff);
     if (f.value.password === senhaOff) {
       this.storage.getAll();
+       this.configService.isToLoadFromPI = false;
       this.router.navigate(['/entrada-manual']);
     } else {
       this.showMessageBox('Senha incorreta');
@@ -38,15 +50,6 @@ export class SenhaOffPageComponent implements OnInit {
   showMessageBox = (message: string) => {
     this.messageBox.open(message, null, this.configError);
   };
-
-  constructor(
-    private router: Router,
-    private api: ApiService,
-    public utils: AppUtils,
-    private messageBox: MatSnackBar,
-    public storage: StorageArvoreService,
-    public config: ConfigService
-  ) {}
 
   ngOnInit() {
     this.utils.usuarioLogado = null;

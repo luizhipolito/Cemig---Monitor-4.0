@@ -58,6 +58,8 @@ export class AppUtils {
     return valueOfDuration;
   };
 
+  firstOrNull = () => true;
+
   // saveAs(
   //   new Blob([this.stringToArrayBuffer(csv)], {
   //     type: 'application/octet-stream',

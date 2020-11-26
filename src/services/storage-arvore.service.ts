@@ -7,11 +7,16 @@ import { stringify } from 'querystring';
   providedIn: 'root',
 })
 export class StorageArvoreService {
+  navigation: string = 'navigation';
   constructor(private storage: Storage, private http: HttpClient) {}
 
   public insert(arvore: Arvore) {
     let key = arvore.AplicacaoID;
     return this.save(key, arvore);
+  }
+
+  public store(key: string, arvore: Array<Arvore>) {
+    this.storage.set(key, arvore);
   }
 
   public saveConfig(key, value: string) {
@@ -34,27 +39,36 @@ export class StorageArvoreService {
     return this.storage.get(key);
   }
 
-  public getFilhos(caminhos: Array<string>) {
-    let filhos: Arvore[] = [];
-
-    return this.storage
-      .forEach((value: Arvore, key: string) => {
-        let validPath = true;
-        caminhos.forEach((path, index) => {
-          validPath = validPath && value.Caminho[index] == path;
+  public getFilhos(pathList: Array<string>) {
+    return this.getByKey('navigation')
+      .then((treelist: Array<Arvore>) => {
+        let children: Array<Arvore> = new Array<Arvore>();
+        treelist.forEach((tree: Arvore) => {
+          let validPath = true;
+          pathList.forEach((path, index) => {
+            validPath = validPath && tree.Caminho[index] == path;
+          });
+          if (validPath) {
+            children.push(tree);
+          }
         });
-        if (validPath) {
-          filhos.push(value);
-        }
-      })
-      .then(() => {
-        return Promise.resolve(filhos);
+        return Promise.resolve(children);
       })
       .catch((error) => {
         return Promise.reject(error);
       });
   }
-  // [''] return todos os niveis 0
+
+  public getByKey(key): Promise<Array<Arvore>> {
+    return this.storage
+      .get(key)
+      .then((result) => {
+        return Promise.resolve(result);
+      })
+      .catch((error) => {
+        return Promise.reject(error);
+      });
+  }
 
   public getAll() {
     let arvores: ArvoreList[] = [];
