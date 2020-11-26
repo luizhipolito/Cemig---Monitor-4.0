@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { ApiService } from 'src/services/api.service';
 import { AppUtils } from 'src/utils/app.utils';
 import { Router } from '@angular/router';
@@ -21,6 +21,9 @@ import {
 } from 'src/services/storage-arvore.service';
 import { Autorizacao } from '../login/login.interfaces';
 import { ConfigService } from 'src/services/config.service';
+import { PIWebObject } from 'src/model/PIWebObject.model';
+import { PIWebAttribute } from 'src/model/PIWebAttribute.model';
+import { map } from 'rxjs/operators';
 
 const firstOrNull = () => true;
 
@@ -30,14 +33,12 @@ const firstOrNull = () => true;
   styleUrls: ['./entrada-manual.component.scss'],
 })
 export class EntradaManualComponent implements OnInit {
-  elements: Elements[] = [];
-
-  Elemento = {};
-
-  selectedViews = 'elemento';
-
   @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
   @ViewChild(MatSort, { static: true }) sort: MatSort;
+
+  elements: Elements[] = [];
+  Elemento = {};
+  selectedViews = 'elemento';
 
   private configError: MatSnackBarConfig = {
     panelClass: ['style-error'],
@@ -45,33 +46,133 @@ export class EntradaManualComponent implements OnInit {
     verticalPosition: 'top',
   };
 
-  autorizacaoStored: any;
-  aplicacaoData: Array<arvore>;
-  arvoreLocal: Array<ArvoreList>;
+  authToken: string;
+  navigationData: Array<PIWebObject>;
+  navigationTree: Array<Arvore>;
+  arvoreLocal: Array<Arvore>;
   navigation: Array<{ path: Array<string>; name: string }>;
-
   dataAtual = this.utils.formatDateTime(new Date());
+  isToSyncDataFromPI: boolean;
 
-  fillOfAplicacao = () => {
-    this.storageService.getAll().then((result) => {
-      this.arvoreLocal = result;
-      this.navigation = new Array<{ path: Array<string>; name: string }>();
-      this.arvoreLocal.forEach((arvore) => {
-        let caminho = arvore.arvore.Caminho.find(firstOrNull);
-        if (!this.navigation.find((n) => n.name == caminho)) {
-          this.navigation.push({
-            path: [arvore.arvore.Caminho.find(firstOrNull)],
-            name: arvore.arvore.Caminho.find(firstOrNull),
-          });
-        }
-      });
+  constructor(
+    private api: ApiService,
+    public utils: AppUtils,
+    private router: Router,
+    private messageBox: MatSnackBar,
+    private menu: MenuController,
+    public navCtrl: NavController,
+    public storageService: StorageArvoreService,
+    public config: ConfigService
+  ) {}
 
-      console.log('Arvore local', this.arvoreLocal);
+  ionViewWillEnter() {
+    this.isToSyncDataFromPI = this.config.isToLoadFromPI;
+    this.loadAuthFromStorage();
+
+    if (this.isToSyncDataFromPI) {
+      this.syncDataFromPI();
+    } else {
+      //this.loadConfigFromStorage();
+      this.loadDataFromStorage();
+    }
+  }
+  loadAuthFromStorage() {
+    this.authToken = this.utils.getStorage('Authorization');
+    this.api.setAuth(this.authToken);
+  }
+
+  async syncDataFromPI() {
+    await this.loadConfigFromPI();
+    await this.loadNavigationData();
+  }
+
+  async loadConfigFromPI() {
+    let configHome = await this.api.getData().toPromise();
+    let configUrlValues = this.api
+      .getLink(configHome, this.config.config, this.config.endPoint['value'])
+      .find(firstOrNull);
+    let attributes = this.config.attributes;
+    let configData = await this.api.get(configUrlValues).toPromise();
+    for (let attribute in attributes) {
+      let nameOrPath = attributes[attribute];
+      let value = this.api.getLink(
+        configData,
+        nameOrPath,
+        this.config.endPoint['value'],
+        'Value'
+      );
+      this.config[attribute] = value.find(firstOrNull);
+    }
+
+    this.api.setBaseUrl(
+      'https://' + this.config.afServer + '/piwebapi',
+      this.config.ElementoRaiz
+    );
+    this.utils.saveStorage('senhaOff', this.config.SenhaOff);
+  }
+
+  async loadNavigationData() {
+    let rootData = await this.api.getData().toPromise();
+    let rootUrl = this.api
+      .getLink(
+        rootData,
+        this.config.ElementoRaiz,
+        this.config.endPoint.database
+      )
+      .find(firstOrNull);
+    let insertParams = this.api.getCatagoryParams(this.config.Insercao);
+    let navigationData = await this.api
+      .get(rootUrl, insertParams)
+      .pipe(map(this.generateRelativePath))
+      .toPromise();
+    this.navigationData = navigationData;
+
+    await this.loadAttributes(navigationData);
+    this.navigationTree = navigationData.map((nav) => {
+      let tree = new Arvore();
+      tree.AplicacaoID = nav.WebId;
+      tree.relativePath = nav.relativePath;
+      tree.Caminho = tree.relativePath.split('\\').filter((c) => Boolean(c));
+      return tree;
+    });
+
+    this.storageService.store(
+      this.storageService.navigation,
+      this.navigationTree
+    );
+    this.api.hideLoader();
+    await this.loadDataFromStorage();
+  }
+
+  async loadDataFromStorage() {
+    this.arvoreLocal = await this.storageService.getByKey(
+      this.storageService.navigation
+    );
+
+    this.navigation = new Array<{ path: Array<string>; name: string }>();
+    this.arvoreLocal.forEach((arvore: Arvore) => {
+      let path = arvore.Caminho.find(firstOrNull);
+      if (!this.navigation.find((n) => n.name == path)) {
+        this.navigation.push({
+          path: [path],
+          name: path,
+        });
+      }
+    });
+  }
+
+  generateRelativePath = (data): Array<PIWebObject> => {
+    return data['Items'].map((e) => {
+      return {
+        ...e,
+        relativePath: e.Path.replace(this.config.ElementoRaiz, ''),
+      };
     });
   };
 
+  ngOnInit() {}
+
   onClickId = (e) => {
-    console.log(e);
     this.storageService.getFilhos(e.path).then((result) => {
       let pathLength = e.path.length;
 
@@ -107,148 +208,17 @@ export class EntradaManualComponent implements OnInit {
     this.logoutUsuario();
   };
 
-  constructor(
-    private api: ApiService,
-    public utils: AppUtils,
-    private router: Router,
-    private messageBox: MatSnackBar,
-    private menu: MenuController,
-    public navCtrl: NavController,
-    public storageService: StorageArvoreService,
-    public config: ConfigService
-  ) {
-    this.fillOfAplicacao();
-  }
-
-  ngOnInit() {
-    this.autorizacaoStored = this.utils.getStorage(
-      'Authorization'
-    ) as Autorizacao;
-    this.api.setAuth(this.autorizacaoStored);
-
-    this.api.getData().subscribe((data) => {
-      let linkUrl = this.api.getLink(
-        data,
-        this.config.config,
-        this.config.endPoint['value']
-      );
-      let url = linkUrl.find(firstOrNull);
-
-      this.api.get(url).subscribe((data) => {
-        let attributes = this.config.attributes;
-        for (let attribute in attributes) {
-          let nameOrPath = attributes[attribute];
-          let value = this.api.getLink(
-            data,
-            nameOrPath,
-            this.config.endPoint['value'],
-            'Value'
-          );
-          console.log(value);
-          this.config[attribute] = value.find(firstOrNull);
-        }
-
-        // this.config.ElementoRaiz = this.config.ElementoRaiz.split('\\').join(
-        //   '\\\\'
-        // );
-
-        console.log(this.config.ElementoRaiz);
-
-        this.api.setBaseUrl(
-          'https://' + this.config.afServer + '/piwebapi',
-          this.config.ElementoRaiz
-        );
-
-        this.api.getData().subscribe((data) => {
-          linkUrl = this.api.getLink(
-            data,
-            this.config.ElementoRaiz,
-            this.config.endPoint.database
-          );
-          this.utils.saveStorage('senhaOff', this.config.SenhaOff);
-          let insercaoParams = this.api.getCatagoryParams(this.config.Insercao);
-          let elementUrl = linkUrl.find(firstOrNull);
-          this.api.get(elementUrl, insercaoParams).subscribe((data) => {
-            data['Items'] = data['Items'].map((e) => {
-              return {
-                ...e,
-                relativePath: e.Path.replace(this.config.ElementoRaiz, ''),
-              };
-            });
-            console.log(data);
-            if (data) {
-              this.aplicacaoData = data['Items'];
-              let arr = this.aplicacaoData.map((arLocal) => {
-                let arvore = new Arvore();
-                arvore.AplicacaoID = arLocal['WebId'];
-                arvore.relativePath = arLocal['relativePath'];
-                arvore.Caminho = arvore.relativePath
-                  .split('\\')
-                  .filter((c) => Boolean(c));
-
-                return arvore;
-              });
-
-              arr.forEach((arvore) => {
-                this.storageService.insert(arvore);
-              });
-
-              this.api.hideLoader();
-            } else {
-              this.showMessageBox('Dados Invalidos');
-            }
-          });
-        });
-
-        // let url = linkUrl.find((link) => true);
-        //   this.api.get(url).subscribe((data) => {
-        //     linkUrl = this.api.getLink(
-        //       data,
-        //       this.config.config,
-        //       this.config.endPoint['Elementos']
-        //     );
-        //     console.log('link2', linkUrl);
-        //     let url = linkUrl.find((link) => true);
-        //     this.api.get(url).subscribe((data) => {
-        //       linkUrl = this.api.getLink(data, 'Categoria Elemento Inserção', [
-        //         'Value',
-        //       ]);
-        //       this.api.get(linkUrl[0]).subscribe((data) => {
-        //         let value = data['Value'];
-        //         this.config.Insercao = value;
-        //         console.log(value);
-        //       });
-        //       linkUrl = this.api.getLink(data, 'Categoria Elemento Navegação', [
-        //         'Value',
-        //       ]);
-        //       this.api.get(linkUrl[0]).subscribe((data) => {
-        //         let value = data['Value'];
-        //         this.config.Navegacao = value;
-        //         console.log(value);
-        //       });
-        //       linkUrl = this.api.getLink(data, 'Descrição Atributo Escrita', [
-        //         'Value',
-        //       ]);
-        //       this.api.get(linkUrl[0]).subscribe((data) => {
-        //         let value = data['Value'];
-        //         this.config.Escrita = value;
-        //         console.log(value);
-        //       });
-        //       linkUrl = this.api.getLink(data, 'Elemento Raiz', ['Value']);
-        //       this.api.get(linkUrl[0]).subscribe((data) => {
-        //         let value = data['Value'];
-        //         this.config.ElementoRaiz = value;
-        //         console.log(value);
-        //       });
-        //       linkUrl = this.api.getLink(data, 'Senha Offline', ['Value']);
-        //       this.api.get(linkUrl[0]).subscribe((data) => {
-        //         let value = data['Value'];
-        //         this.config.SenhaOff = value;
-        //         console.log(value);
-        //       });
-        //     });
-        // });
-      });
-    });
+  async loadAttributes(items: Array<PIWebObject>) {
+    // await items.forEach(async (item) => {
+    //   let attributesLink = item.Links.Attributes;
+    //   let attr = await this.api.get(attributesLink).toPromise();
+    //   let attributes = attr['Items'] as Array<PIWebAttribute>;
+    //   //let attributesLeitura = attributes.filter(att=> att.Description == this.config.Leitura);
+    //   let attributesEscrita = attributes.filter(
+    //     (att) => att.Description == this.config.Escrita
+    //   );
+    //   //let attributesEscritaELeitura =  attributes.filter(att=> att.Description == this.config.LeituraEscrita);
+    //   console.log(attributesEscrita);
+    // });
   }
 }

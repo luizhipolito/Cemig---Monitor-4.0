@@ -4,10 +4,9 @@ import { Injectable } from '@angular/core';
   providedIn: 'root',
 })
 export class ConfigService {
+  isToLoadFromPI: boolean = false;
   server: string;
-
   config: string;
-
   Insercao: string;
   Navegacao: string;
   Escrita: string;

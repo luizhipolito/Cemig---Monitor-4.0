@@ -53,7 +53,7 @@
 
     <!-- box data -->
     <div class="boxData">
-      <div *ngIf="!navigation" class="spinner">
+      <div *ngIf="!navigation || navigation.length == 0" class="spinner">
         <ion-spinner name="bubbles"></ion-spinner>
       </div>
       <div *ngFor="let app of navigation">

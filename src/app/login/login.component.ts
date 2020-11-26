@@ -15,6 +15,7 @@ import {
   arvore,
   dataEnumeration,
 } from '../entrada-manual/entrada-manual.interfaces';
+import { ConfigService } from 'src/services/config.service';
 
 @Component({
   selector: 'app-login',
@@ -33,13 +34,21 @@ export class LoginComponent implements OnInit {
   };
   storageService: any;
 
-  onSubmit(f: NgForm) {
+ 
+  constructor(
+    private router: Router,
+    private api: ApiService,
+    public utils: AppUtils,
+    private messageBox: MatSnackBar,
+    public storage: StorageArvoreService,
+    public configService: ConfigService
+  ) {}
+
+ onSubmit(f: NgForm) {
     if (f.valid) {
-      console.log(f.value.username + ':' + f.value.password);
       var Authorization = btoa(f.value.username + ':' + f.value.password);
       this.api.setAuth(Authorization);
       this.loginData.Autorizacao = Authorization;
-      // this.storage.removeAll();
       this.api.getData().subscribe((data: Resposta) => {
         if (data) {
           this.utils.saveStorage('Authorization', Authorization);
@@ -48,6 +57,7 @@ export class LoginComponent implements OnInit {
           ) as Autorizacao;
 
           this.storage.removeAll();
+          this.configService.isToLoadFromPI = true;
           this.router.navigate(['/entrada-manual']);
           this.api.hideLoader();
 
@@ -66,13 +76,6 @@ export class LoginComponent implements OnInit {
     this.messageBox.open(message, null, this.configError);
   };
 
-  constructor(
-    private router: Router,
-    private api: ApiService,
-    public utils: AppUtils,
-    private messageBox: MatSnackBar,
-    public storage: StorageArvoreService
-  ) {}
 
   ngOnInit() {
     this.utils.usuarioLogado = null;
