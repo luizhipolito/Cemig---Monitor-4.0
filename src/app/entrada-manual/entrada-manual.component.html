@@ -47,7 +47,10 @@
 
     <!-- rote and search -->
     <div class="route">
-      <div class="routeSelect">Select</div>
+      <div *ngIf="navigation && navigation.length > 0" class="routeSelect">
+        Início/{{ navigation[0].path }}
+      </div>
+
       <div class="search"><ion-icon name="search-outline"></ion-icon></div>
     </div>
 
@@ -56,6 +59,7 @@
       <div *ngIf="!navigation || navigation.length == 0" class="spinner">
         <ion-spinner name="bubbles"></ion-spinner>
       </div>
+
       <div *ngFor="let app of navigation">
         <ion-list (click)="onClickId(app)">
           <div>
