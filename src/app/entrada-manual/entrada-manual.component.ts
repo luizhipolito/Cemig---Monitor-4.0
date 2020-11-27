@@ -1,29 +1,22 @@
-import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { ApiService } from 'src/services/api.service';
 import { AppUtils } from 'src/utils/app.utils';
 import { Router } from '@angular/router';
 import { MatSnackBar, MatSnackBarConfig } from '@angular/material/snack-bar';
-import {
-  Resposta,
-  arvore,
-  dados,
-  ArvoreLocal,
-} from './entrada-manual.interfaces';
-import { MatTableDataSource } from '@angular/material/table';
+
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MenuController, NavController } from '@ionic/angular';
-import { Elements, DataBaseService } from 'src/services/data-base.service';
+import { Elements } from 'src/services/data-base.service';
 import {
   StorageArvoreService,
-  ArvoreList,
   Arvore,
 } from 'src/services/storage-arvore.service';
-import { Autorizacao } from '../login/login.interfaces';
 import { ConfigService } from 'src/services/config.service';
 import { PIWebObject } from 'src/model/PIWebObject.model';
 import { PIWebAttribute } from 'src/model/PIWebAttribute.model';
 import { map } from 'rxjs/operators';
+import { Attribute } from 'src/model/Attribute.model';
 
 const firstOrNull = () => true;
 
@@ -125,11 +118,11 @@ export class EntradaManualComponent implements OnInit {
       .get(rootUrl, insertParams)
       .pipe(map(this.generateRelativePath))
       .toPromise();
+    let attributes = await this.loadAttributes(navigationData);
     this.navigationData = navigationData;
-
-    await this.loadAttributes(navigationData);
     this.navigationTree = navigationData.map((nav) => {
       let tree = new Arvore();
+      tree.atributos = attributes.find((att) => att.WebId == nav.WebId);
       tree.AplicacaoID = nav.WebId;
       tree.relativePath = nav.relativePath;
       tree.Caminho = tree.relativePath.split('\\').filter((c) => Boolean(c));
@@ -175,18 +168,29 @@ export class EntradaManualComponent implements OnInit {
   onClickId = (e) => {
     this.storageService.getFilhos(e.path).then((result) => {
       let pathLength = e.path.length;
-
       this.navigation = new Array<{ path: Array<string>; name: string }>();
-      result.forEach((arvore) => {
-        let caminho = arvore.Caminho[pathLength];
-        if (!this.navigation.find((n) => n.name == caminho)) {
-          let path = e.path.concat([caminho]);
-          this.navigation.push({
-            path: path,
-            name: caminho,
-          });
-        }
-      });
+      if (result.length == 1) {
+        let item = result.find(firstOrNull);
+        this.navigation.push({
+          path: e.path,
+          name: item.Nome,
+        });
+
+        console.log(item.atributos);
+
+        //this.tela
+      } else {
+        result.forEach((arvore) => {
+          let caminho = arvore.Caminho[pathLength];
+          if (!this.navigation.find((n) => n.name == caminho)) {
+            let path = e.path.concat([caminho]);
+            this.navigation.push({
+              path: path,
+              name: caminho,
+            });
+          }
+        });
+      }
     });
   };
 
@@ -209,16 +213,26 @@ export class EntradaManualComponent implements OnInit {
   };
 
   async loadAttributes(items: Array<PIWebObject>) {
-    // await items.forEach(async (item) => {
-    //   let attributesLink = item.Links.Attributes;
-    //   let attr = await this.api.get(attributesLink).toPromise();
-    //   let attributes = attr['Items'] as Array<PIWebAttribute>;
-    //   //let attributesLeitura = attributes.filter(att=> att.Description == this.config.Leitura);
-    //   let attributesEscrita = attributes.filter(
-    //     (att) => att.Description == this.config.Escrita
-    //   );
-    //   //let attributesEscritaELeitura =  attributes.filter(att=> att.Description == this.config.LeituraEscrita);
-    //   console.log(attributesEscrita);
-    // });
+    let attributesData: Array<Attribute> = new Array<Attribute>();
+
+    for (let item of items) {
+      let attributesLink = item.Links.Attributes;
+      let attr = await this.api.get(attributesLink).toPromise();
+      let attributes = attr['Items'] as Array<PIWebAttribute>;
+      let newAttribute: Attribute = new Attribute();
+      newAttribute.WebId = item.WebId;
+      newAttribute.escrita = attributes.filter(
+        (att) => att.Description == this.config.Escrita
+      );
+      newAttribute.leitura = attributes.filter(
+        (att) => att.Description == this.config.Leitura
+      );
+
+      newAttribute.leituraEscrita = attributes.filter(
+        (att) => att.Description == this.config.EscritaLeitura
+      );
+      attributesData.push(newAttribute);
+    }
+    return attributesData;
   }
 }
