@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { Storage } from '@ionic/storage';
 import { HttpClient } from '@angular/common/http';
 import { stringify } from 'querystring';
+import { Attribute } from 'src/model/Attribute.model';
 
 @Injectable({
   providedIn: 'root',
@@ -95,9 +96,9 @@ export class Arvore {
   Nome: string;
   Caminho: string[];
   CategoryNames: string | null;
-  atributos: string;
   relativePath: string;
   value: string;
+  atributos: Attribute;
 }
 
 export class Enumeration {

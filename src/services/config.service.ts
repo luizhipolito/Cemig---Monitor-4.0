@@ -13,6 +13,8 @@ export class ConfigService {
   ElementoRaiz: string;
   SenhaOff: string;
   afServer: string;
+  Leitura: string;
+  EscritaLeitura: string;
 
   endPoint = {
     asset: ['Databases'],
@@ -27,6 +29,8 @@ export class ConfigService {
     ElementoRaiz: 'Elemento Raiz',
     SenhaOff: 'Senha Offline',
     afServer: 'AF Server',
+    Leitura: 'Descrição Atributo Leitura',
+    EscritaLeitura: 'Descrição Atributo Leitura Escrita',
   };
   constructor() {}
 }
