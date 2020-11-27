@@ -29,7 +29,6 @@ export class EntradaManualComponent implements OnInit {
   @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
   @ViewChild(MatSort, { static: true }) sort: MatSort;
 
-  elements: Elements[] = [];
   Elemento = {};
   selectedViews = 'elemento';
 
@@ -40,6 +39,7 @@ export class EntradaManualComponent implements OnInit {
   };
 
   authToken: string;
+  elements: Attribute;
   navigationData: Array<PIWebObject>;
   navigationTree: Array<Arvore>;
   arvoreLocal: Array<Arvore>;
@@ -175,11 +175,10 @@ export class EntradaManualComponent implements OnInit {
           path: e.path,
           name: item.Nome,
         });
-
-        console.log(item.atributos);
-
-        //this.tela
+        this.elements = item.atributos;
+        console.log(this.elements);
       } else {
+        this.elements = null;
         result.forEach((arvore) => {
           let caminho = arvore.Caminho[pathLength];
           if (!this.navigation.find((n) => n.name == caminho)) {
@@ -215,24 +214,59 @@ export class EntradaManualComponent implements OnInit {
   async loadAttributes(items: Array<PIWebObject>) {
     let attributesData: Array<Attribute> = new Array<Attribute>();
 
-    for (let item of items) {
+    // for (let item of items) {
+
+    for (let item of items.filter((a, i) => i < 25)) {
       let attributesLink = item.Links.Attributes;
+      let attributesValue = item.Links.Value;
       let attr = await this.api.get(attributesLink).toPromise();
+      let values = await this.api.get(attributesValue).toPromise();
       let attributes = attr['Items'] as Array<PIWebAttribute>;
+      let valuesItems = values['Items'] as Array<PIWebAttribute>;
+
       let newAttribute: Attribute = new Attribute();
       newAttribute.WebId = item.WebId;
       newAttribute.escrita = attributes.filter(
         (att) => att.Description == this.config.Escrita
       );
-      newAttribute.leitura = attributes.filter(
-        (att) => att.Description == this.config.Leitura
-      );
 
-      newAttribute.leituraEscrita = attributes.filter(
-        (att) => att.Description == this.config.EscritaLeitura
-      );
+      newAttribute.leitura = attributes
+        .filter((att) => att.Description == this.config.Leitura)
+        .map((att) => this.getAttValue(att, valuesItems));
+
+      newAttribute.leituraEscrita = attributes
+        .filter((att) => att.Description == this.config.EscritaLeitura)
+        .map((att) => this.getAttValue(att, valuesItems));
+
       attributesData.push(newAttribute);
     }
     return attributesData;
+  }
+  getAttValue(
+    att: PIWebAttribute,
+    valuesItems: Array<PIWebAttribute>
+  ): PIWebAttribute {
+    let valueAtt = valuesItems.find(
+      (a) => a.Name == att.Name && a.Path == att.Path
+    );
+    let attValue = valueAtt.Value;
+    let attValueString = '';
+    att.Value = attValue;
+
+    if (attValue && attValue.Value) {
+      if (attValue.Value.Value) {
+        attValueString = attValue.Value.Value;
+      } else {
+        attValueString = new String(attValue.Value).toString();
+      }
+
+      if (attValue.UnitsAbbreviation) {
+        attValueString = attValueString + ' ' + attValue.UnitsAbbreviation;
+      }
+    }
+
+    att.ValueString = attValueString;
+
+    return att;
   }
 }
