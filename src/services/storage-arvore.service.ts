@@ -16,7 +16,7 @@ export class StorageArvoreService {
   }
 
   public store(key: string, arvore: Array<Arvore>) {
-    this.storage.set(key, arvore);
+    return this.storage.set(key, arvore);
   }
 
   public saveConfig(key, value: string) {

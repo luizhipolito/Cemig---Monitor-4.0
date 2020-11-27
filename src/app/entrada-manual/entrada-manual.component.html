@@ -47,8 +47,16 @@
 
     <!-- rote and search -->
     <div class="route">
-      <div *ngIf="navigation && navigation.length > 0" class="routeSelect">
-        Início/{{ navigation[0].path }}
+      <div class="routeSelect" *ngIf="navigation || pathNavigation">
+        <span (click)="onClickId({ path: [] })">Início/</span>
+        <span
+          *ngFor="let nav of pathNavigation.path; let i = index"
+          (click)="
+            onClickId({ name: nav, path: pathNavigation.path.slice(0, i + 1) })
+          "
+        >
+          {{ nav }} -
+        </span>
       </div>
 
       <div class="search"><ion-icon name="search-outline"></ion-icon></div>

@@ -53,6 +53,11 @@ export class EntradaManualComponent implements OnInit {
   navigation: Array<{ path: Array<string>; name: string }>;
   dataAtual = this.utils.formatDateTime(new Date());
   isToSyncDataFromPI: boolean;
+  pathNavigation: { path: Array<string>; name: string } = {
+    path: [],
+    name: '',
+  };
+  clickNavigation: string;
 
   constructor(
     private api: ApiService,
@@ -136,7 +141,7 @@ export class EntradaManualComponent implements OnInit {
       return tree;
     });
 
-    this.storageService.store(
+    await this.storageService.store(
       this.storageService.navigation,
       this.navigationTree
     );
@@ -173,6 +178,8 @@ export class EntradaManualComponent implements OnInit {
   ngOnInit() {}
 
   onClickId = (e) => {
+    this.pathNavigation = e;
+    console.log(this.pathNavigation);
     this.storageService.getFilhos(e.path).then((result) => {
       let pathLength = e.path.length;
 
