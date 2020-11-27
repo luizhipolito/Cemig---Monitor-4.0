@@ -214,9 +214,8 @@ export class EntradaManualComponent implements OnInit {
   async loadAttributes(items: Array<PIWebObject>) {
     let attributesData: Array<Attribute> = new Array<Attribute>();
 
-    // for (let item of items) {
-
-    for (let item of items.filter((a, i) => i < 25)) {
+    for (let item of items) {
+      //for (let item of items.filter((a, i) => i < 25)) {
       let attributesLink = item.Links.Attributes;
       let attributesValue = item.Links.Value;
       let attr = await this.api.get(attributesLink).toPromise();
