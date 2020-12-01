@@ -1,3 +1,8 @@
+ion-content{
+  margin: 0;
+  height: 100vh;
+}
+
 .head {
   display: flex;
   flex-direction: row;
@@ -23,13 +28,14 @@ ion-menu-button {
 
 ion-icon {
   color: #008f45;
-  margin-top: -10px;
+  // margin-top: -10px;
   background-repeat: no-repeat;
   display: inline-block;
   font-size: 60px;
   font-weight: 900;
   margin: 0;
 }
+
 
 .logoCemig > img {
   margin-top: 15px;
@@ -56,12 +62,13 @@ ion-spinner {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
-  margin-top: 20px;
+  height: 8%;
+  max-height: 9%;
 }
 
 .routeSelect {
   font-size: 1.2rem;
-  margin: 15px;
+  margin: 10px;
   color: #008f45;
 }
 
@@ -74,7 +81,8 @@ ion-spinner {
   margin: 10px;
   border: 2px solid black;
   overflow: auto;
-  height: 400px;
+  height: 68%;
+  max-height: 68%;
 }
 
 ion-list {
@@ -85,13 +93,36 @@ ion-list {
   color: rgb(95, 95, 95);
 }
 
-@media screen and(max-width: 700px) {
-  .boxData {
-    height: 800px;
+@media screen and(max-width: 800px) {
+  .logoCemig > img{
+    width: 180px !important;
   }
+  .nomeCentro{
+    font-size: 1.2rem;
+  }
+
+  .route{
+    max-height: 8%;
+  }
+  .routeSelect{
+    font-size: 0.8rem;
+  }
+  .search > ion-icon{
+    margin-top: 8px;
+    font-size: 30px;
+  }
+
+  .boxData {
+    height: 60%;
+  }
+  ion-list{
+    font-size: 1.2rem;
+    padding: 10px;
+  }
+  
 }
 
-@media screen and(max-width: 450px) {
+@media screen and(max-width: 500px) {
   .nomeCentro {
     margin-left: 20px;
     font-size: 1rem;
@@ -103,7 +134,8 @@ ion-list {
     font-size: 1.5rem;
   }
   .boxData {
-    height: 500px;
+    height: 75%;
+    max-height: 75%;
   }
   .route {
     margin: 0;
@@ -115,5 +147,8 @@ ion-list {
   ion-icon {
     font-size: 40px;
     margin-top: 10px;
+  }
+  .routeSelect {
+    font-size: 1rem;
   }
 }

@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 import { of } from 'rxjs';
-// import { saveAs } from 'file-saver';
 
 @Injectable({
   providedIn: 'root',
@@ -47,23 +46,5 @@ export class AppUtils {
     }
   }
 
-  convertStringTimeToValue = (stringTime: string): number => {
-    let timeValue = new Date(stringTime).toLocaleTimeString().split(':');
-
-    let valueOfDuration =
-      parseInt(timeValue[0]) * 3600 +
-      parseInt(timeValue[1]) * 60 +
-      parseInt(timeValue[2]);
-
-    return valueOfDuration;
-  };
-
   firstOrNull = () => true;
-
-  // saveAs(
-  //   new Blob([this.stringToArrayBuffer(csv)], {
-  //     type: 'application/octet-stream',
-  //   }),
-  //   fileName
-  // );
 }

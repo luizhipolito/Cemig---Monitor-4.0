@@ -1,19 +1,22 @@
 .tudo {
   background-image: url(../../assets/backgroundCemig.PNG);
   background-position: center;
-  background-repeat: no-repeat;
+  // background-repeat: no-repeat;
   background-size: cover;
-  // overflow: hidden;
+  overflow: hidden;
   height: 100%;
+}
+
+.iconBack{
+  margin: 5%;
+  font-size: 1.5rem;
+  color: white;
 }
 
 .login {
   width: 600px;
-  margin: 12% auto;
+  margin: 0 auto;
   font-size: 16px;
-}
-
-.inputs {
 }
 
 .pass {
@@ -77,42 +80,78 @@
   font-weight: 800;
   color: teal;
   margin-left: 20%;
-  margin-top: 50px;
+  margin-top: 4%;
 }
 
-@media screen and(max-width: 800px) {
-  .login {
-    margin-top: 65%;
-  }
-  .inputs {
-    margin: 0 auto;
-    width: 90%;
-  }
-}
 
 @media screen and(max-width: 450px) {
+  
   .login {
-    margin-top: 50%;
-    width: 90%;
+    margin-top: 40%;
+   
+  }
+  .name{
+    margin-left: -5%;
   }
   .name > label {
+    margin-left: -10px !important;
     font-size: 1rem;
   }
   .name > input {
+    width: 40% !important;
     height: 5%;
     font-size: 1rem;
+    margin-left: 100px !important;
+  }
+  .pass{
+    margin-left: -5%;
   }
   .pass > label {
+    margin-left: -10px !important;
     font-size: 1rem;
   }
   .pass > input {
+    width: 40% !important;
     height: 5%;
     font-size: 1rem;
-    margin-left: 10px;
+    margin-left: 15px !important;
   }
 
   .btn > button {
     font-size: 1.2rem;
     height: 50px;
+    margin-left: 15% !important;
+  }
+}
+
+
+@media screen and(max-width: 800px) {
+  .inputs{
+    margin-left: 10%;
+    margin-top: -20px;
+  }
+  .name > input {
+    margin: 0 auto;
+    width: 60%;
+    height: 30% !important;
+  }
+  .name > label{
+    font-size: 1.5rem;
+    margin-right: -85px;
+  }
+  .pass > input{
+    width: 60%;
+    height: 30%;
+  }
+  .pass > label{
+    font-size: 1.5rem;
+  }
+
+  .btn > button{
+    
+    font-size: 1.2rem;
+    width: 40%;
+    height: 50px;
+    margin-left: 30%;
   }
 }

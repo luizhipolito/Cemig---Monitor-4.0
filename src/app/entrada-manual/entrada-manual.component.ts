@@ -7,7 +7,6 @@ import { MatSnackBar, MatSnackBarConfig } from '@angular/material/snack-bar';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MenuController, NavController } from '@ionic/angular';
-import { Elements } from 'src/services/data-base.service';
 import {
   StorageArvoreService,
   Arvore,
@@ -61,11 +60,12 @@ export class EntradaManualComponent implements OnInit {
     public navCtrl: NavController,
     public storageService: StorageArvoreService,
     public config: ConfigService
-  ) {}
+  ) { }
 
   ionViewWillEnter() {
     this.isToSyncDataFromPI = this.config.isToLoadFromPI;
     this.loadAuthFromStorage();
+    this.loadDataFromStorage();
 
     if (this.isToSyncDataFromPI) {
       this.syncDataFromPI();
@@ -168,7 +168,7 @@ export class EntradaManualComponent implements OnInit {
     });
   };
 
-  ngOnInit() {}
+  ngOnInit() { }
 
   onClickId = (e) => {
     this.pathNavigation = e;
