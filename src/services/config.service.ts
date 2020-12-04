@@ -11,16 +11,23 @@ export class ConfigService {
   Navegacao: string;
   Escrita: string;
   ElementoRaiz: string;
+  EnumerationSets: string;
+  EnumValues: string;
   SenhaOff: string;
   afServer: string;
   Leitura: string;
   EscritaLeitura: string;
+  Enumeration: string = 'Testes';
+  descricaoEnumerationSets: string;
 
   endPoint = {
     asset: ['Databases'],
     database: ['Elements'],
     Elementos: ['Attributes'],
     value: ['Value'],
+    values: ['Values'],
+    enumeration: ['Database'],
+    enumerationSetsRoot: ['EnumerationSets']
   };
 
   attributes = {
@@ -31,6 +38,7 @@ export class ConfigService {
     afServer: 'AF Server',
     Leitura: 'Descrição Atributo Leitura',
     EscritaLeitura: 'Descrição Atributo Leitura Escrita',
+    descricaoEnumerationSets: 'Descrição Enumeration Sets',
   };
-  constructor() {}
+  constructor() { }
 }

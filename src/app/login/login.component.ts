@@ -8,7 +8,6 @@ import { MatSnackBar, MatSnackBarConfig } from '@angular/material/snack-bar';
 import {
   StorageArvoreService,
   Arvore,
-  Enumeration,
   ArvoreList,
 } from '../../services/storage-arvore.service';
 import {

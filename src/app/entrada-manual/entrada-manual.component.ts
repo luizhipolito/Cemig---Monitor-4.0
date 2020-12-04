@@ -16,6 +16,9 @@ import { PIWebObject } from 'src/model/PIWebObject.model';
 import { PIWebAttribute } from 'src/model/PIWebAttribute.model';
 import { map } from 'rxjs/operators';
 import { Attribute } from 'src/model/Attribute.model';
+import { PIWebValue } from 'src/model/PIWebValue.model';
+import { EnumerationValue } from 'src/model/EnumerationValue.model';
+import { __await } from 'tslib';
 
 const firstOrNull = () => true;
 
@@ -40,6 +43,9 @@ export class EntradaManualComponent implements OnInit {
   authToken: string;
   elements: Attribute;
   navigationData: Array<PIWebObject>;
+  enumerationSets: Array<PIWebObject>;
+  enumerationValues: Array<EnumerationValue>
+  enumerationTree: Array<Arvore>;
   navigationTree: Array<Arvore>;
   arvoreLocal: Array<Arvore>;
   navigation: Array<{ path: Array<string>; name: string }>;
@@ -50,6 +56,7 @@ export class EntradaManualComponent implements OnInit {
     name: '',
   };
   clickNavigation: string;
+  urlValues = '';
 
   constructor(
     private api: ApiService,
@@ -65,7 +72,7 @@ export class EntradaManualComponent implements OnInit {
   ionViewWillEnter() {
     this.isToSyncDataFromPI = this.config.isToLoadFromPI;
     this.loadAuthFromStorage();
-    this.loadDataFromStorage();
+
 
     if (this.isToSyncDataFromPI) {
       this.syncDataFromPI();
@@ -82,15 +89,20 @@ export class EntradaManualComponent implements OnInit {
   async syncDataFromPI() {
     await this.loadConfigFromPI();
     await this.loadNavigationData();
+    await this.loadEnumerationSetFromPI();
+
   }
+
 
   async loadConfigFromPI() {
     let configHome = await this.api.getData().toPromise();
     let configUrlValues = this.api
       .getLink(configHome, this.config.config, this.config.endPoint['value'])
       .find(firstOrNull);
+    console.log(configUrlValues)
     let attributes = this.config.attributes;
     let configData = await this.api.get(configUrlValues).toPromise();
+    console.log(configData)
     for (let attribute in attributes) {
       let nameOrPath = attributes[attribute];
       let value = this.api.getLink(
@@ -99,6 +111,7 @@ export class EntradaManualComponent implements OnInit {
         this.config.endPoint['value'],
         'Value'
       );
+      console.log(value)
       this.config[attribute] = value.find(firstOrNull);
     }
 
@@ -107,7 +120,9 @@ export class EntradaManualComponent implements OnInit {
       this.config.ElementoRaiz
     );
     this.utils.saveStorage('senhaOff', this.config.SenhaOff);
+
   }
+
 
   async loadNavigationData() {
     let rootData = await this.api.getData().toPromise();
@@ -123,9 +138,11 @@ export class EntradaManualComponent implements OnInit {
       .get(rootUrl, insertParams)
       .pipe(map(this.generateRelativePath))
       .toPromise();
+    console.log(navigationData)
     let attributes = await this.loadAttributes(navigationData);
     this.navigationData = navigationData;
     this.navigationTree = navigationData.map((nav) => {
+
       let tree = new Arvore();
       tree.atributos = attributes.find((att) => att.WebId == nav.WebId);
       tree.AplicacaoID = nav.WebId;
@@ -140,7 +157,48 @@ export class EntradaManualComponent implements OnInit {
     );
     this.api.hideLoader();
     await this.loadDataFromStorage();
+
   }
+
+  async loadEnumerationSetFromPI() {
+    let rootDataEnumeration = await this.api.getData().toPromise();
+    let rootEnumeration = await this.api.getLink(
+      rootDataEnumeration,
+      this.config.EnumerationSets,
+      this.config.endPoint.enumeration
+    ).find(firstOrNull)
+    let enumerationSetsData = await this.api.get(rootEnumeration).toPromise();
+    let enumerationRootData = await this.api.getLink(
+      enumerationSetsData,
+      this.config.EnumerationSets,
+      this.config.endPoint.enumerationSetsRoot
+    ).find(firstOrNull)
+    this.urlValues = enumerationRootData;
+    let enumerationSets = await this.api.get(enumerationRootData).toPromise();
+    this.enumerationSets = enumerationSets['Items'] as Array<PIWebObject>;
+    this.enumerationTree = await this.enumerationSets.map(enums => {
+
+      let data = new Arvore();
+      data.Description = enums.Description;
+      data.Nome = enums.Name;
+
+      return data;
+
+    })
+
+    await this.storageService.store(
+      this.storageService.enumerationSets,
+      this.enumerationTree
+    )
+
+  }
+
+  loadEnumerationSetsValues = (data): Array<PIWebObject> => {
+    return data['Items'].map(e => {
+      return { ...e, values: e.Links.Values }
+    });
+  }
+
 
   async loadDataFromStorage() {
     this.arvoreLocal = await this.storageService.getByKey(
@@ -275,4 +333,6 @@ export class EntradaManualComponent implements OnInit {
 
     return att;
   }
+
+
 }

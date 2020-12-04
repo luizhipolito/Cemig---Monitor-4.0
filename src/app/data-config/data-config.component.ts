@@ -20,11 +20,14 @@ export class DataConfigComponent implements OnInit {
     public api: ApiService,
     public config: ConfigService,
     public utils: AppUtils
-  ) { }
+  ) {
+
+  }
 
   backHome() {
     this.router.navigate(['/home']);
   }
+
 
   onSubmit(f: NgForm) {
     if (f.valid) {
