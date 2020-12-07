@@ -1,4 +1,8 @@
 export class EnumerationValue {
-    Name: any;
-    Value: any;
+    WebId: string;
+    Id: string;
+    Name: string;
+    Value: number;
+    Path: string;
+    Links: any;
 }

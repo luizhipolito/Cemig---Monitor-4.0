@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, ɵConsole } from '@angular/core';
 import { ApiService } from 'src/services/api.service';
 import { AppUtils } from 'src/utils/app.utils';
 import { Router } from '@angular/router';
@@ -45,6 +45,7 @@ export class EntradaManualComponent implements OnInit {
   navigationData: Array<PIWebObject>;
   enumerationSets: Array<PIWebObject>;
   enumerationValues: Array<EnumerationValue>
+  value: Array<EnumerationValue>;
   enumerationTree: Array<Arvore>;
   navigationTree: Array<Arvore>;
   arvoreLocal: Array<Arvore>;
@@ -56,7 +57,6 @@ export class EntradaManualComponent implements OnInit {
     name: '',
   };
   clickNavigation: string;
-  urlValues = '';
 
   constructor(
     private api: ApiService,
@@ -90,7 +90,6 @@ export class EntradaManualComponent implements OnInit {
     await this.loadConfigFromPI();
     await this.loadNavigationData();
     await this.loadEnumerationSetFromPI();
-
   }
 
 
@@ -173,18 +172,18 @@ export class EntradaManualComponent implements OnInit {
       this.config.EnumerationSets,
       this.config.endPoint.enumerationSetsRoot
     ).find(firstOrNull)
-    this.urlValues = enumerationRootData;
     let enumerationSets = await this.api.get(enumerationRootData).toPromise();
-    this.enumerationSets = enumerationSets['Items'] as Array<PIWebObject>;
+
+    console.log(this.value)
     this.enumerationTree = await this.enumerationSets.map(enums => {
 
       let data = new Arvore();
+
       data.Description = enums.Description;
       data.Nome = enums.Name;
-
       return data;
-
     })
+    console.log(this.enumerationTree)
 
     await this.storageService.store(
       this.storageService.enumerationSets,
