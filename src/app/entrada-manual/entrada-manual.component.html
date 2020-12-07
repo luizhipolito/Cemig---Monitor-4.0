@@ -30,43 +30,76 @@
               </ion-buttons>
             </ion-toolbar>
           </ion-header>
-          <ion-content class="ion-padding"> </ion-content>
+          <!-- <ion-content class="ion-padding"> </ion-content> -->
         </div>
       </div>
 
       <div class="nomeCentro">ADB Móvel</div>
 
       <div class="logoCemig">
-        <img
-          style="width: 100%; margin-right: -60px"
-          src="../../../assets/logo-cemig-2048.png"
-          alt="logo"
-        />
+        <img style="width: 100%; margin-right: -60px" src="../../../assets/logo-cemig-2048.png" alt="logo" />
       </div>
     </div>
 
     <!-- rote and search -->
+
     <div class="route">
-      <div *ngIf="navigation && navigation.length > 0" class="routeSelect">
-        Início/{{ navigation[0].path }}
+      <div class="routeSelect" *ngIf="navigation || pathNavigation">
+        <span (click)="onClickId({ path: [] })">Início &#9654;</span>
+        <span *ngFor="let nav of pathNavigation.path; let i = index" (click)="
+            onClickId({ name: nav, path: pathNavigation.path.slice(0, i + 1) })
+          ">
+          {{ nav }} &#9654;
+        </span>
       </div>
 
-      <div class="search"><ion-icon name="search-outline"></ion-icon></div>
+      <div class="search">
+        <ion-icon name="search-outline"></ion-icon>
+      </div>
     </div>
 
     <!-- box data -->
-    <div class="boxData">
-      <div *ngIf="!navigation || navigation.length == 0" class="spinner">
-        <ion-spinner name="bubbles"></ion-spinner>
-      </div>
+    <ion-content>
+      <div class="boxData">
+        <div *ngIf="!navigation || navigation.length == 0" class="spinner">
+          <ion-spinner name="bubbles"></ion-spinner>
+        </div>
 
-      <div *ngFor="let app of navigation">
-        <ion-list (click)="onClickId(app)">
-          <div>
-            {{ app.name }}
-          </div>
-        </ion-list>
+        <div *ngIf="elements != null">
+          <ion-list>
+            <ion-item *ngFor="let leitura of elements.leitura">
+              <ion-item>
+                <ion-label> {{ leitura.Name }}:</ion-label>
+              </ion-item>
+              <ion-item>
+                <ion-label color="gray"> {{ leitura.ValueString }}</ion-label>
+              </ion-item>
+            </ion-item>
+
+            <div *ngFor="let leituraEscrita of elements.leituraEscrita">
+              <ion-item>
+                <ion-label position="floating">
+                  {{ leituraEscrita.Name }}:</ion-label>
+                <ion-input></ion-input>
+              </ion-item>
+
+              {{ leituraEscrita.ValueString }}
+            </div>
+
+            <div *ngFor="let escrita of elements.escrita">
+              {{ escrita.Name }}:
+            </div>
+          </ion-list>
+        </div>
+
+        <div *ngFor="let app of navigation">
+          <ion-list (click)="onClickId(app)">
+            <div>
+              {{ app.name }}
+            </div>
+          </ion-list>
+        </div>
       </div>
-    </div>
+    </ion-content>
   </div>
 </ion-app>

@@ -24,7 +24,7 @@ export class ApiService {
     private http: HttpClient,
     private storageService: StorageArvoreService,
     public utils: AppUtils
-  ) {}
+  ) { }
 
   httpOptions = {
     headers: new HttpHeaders({ 'Content-Type': 'application/json' }),

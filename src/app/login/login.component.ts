@@ -8,7 +8,6 @@ import { MatSnackBar, MatSnackBarConfig } from '@angular/material/snack-bar';
 import {
   StorageArvoreService,
   Arvore,
-  Enumeration,
   ArvoreList,
 } from '../../services/storage-arvore.service';
 import {
@@ -34,7 +33,7 @@ export class LoginComponent implements OnInit {
   };
   storageService: any;
 
- 
+
   constructor(
     private router: Router,
     private api: ApiService,
@@ -42,9 +41,9 @@ export class LoginComponent implements OnInit {
     private messageBox: MatSnackBar,
     public storage: StorageArvoreService,
     public configService: ConfigService
-  ) {}
+  ) { }
 
- onSubmit(f: NgForm) {
+  onSubmit(f: NgForm) {
     if (f.valid) {
       var Authorization = btoa(f.value.username + ':' + f.value.password);
       this.api.setAuth(Authorization);
@@ -75,6 +74,10 @@ export class LoginComponent implements OnInit {
   showMessageBox = (message: string) => {
     this.messageBox.open(message, null, this.configError);
   };
+
+  iconBack() {
+    this.router.navigate(['home'])
+  }
 
 
   ngOnInit() {

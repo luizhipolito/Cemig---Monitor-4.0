@@ -20,16 +20,19 @@ export class DataConfigComponent implements OnInit {
     public api: ApiService,
     public config: ConfigService,
     public utils: AppUtils
-  ) {}
+  ) {
+
+  }
 
   backHome() {
     this.router.navigate(['/home']);
   }
 
+
   onSubmit(f: NgForm) {
     if (f.valid) {
       // let server = f.value.server;
-      let server = 'https://ec2amaz-t1n5ej5/piwebapi';
+      let server = 'https://34.233.235.92/piwebapi';
 
       // let config = f.value.configuracoes;
       let config = '\\\\EC2AMAZ-T1N5EJ5\\Testes\\APP Entrada Manual';
@@ -55,5 +58,5 @@ export class DataConfigComponent implements OnInit {
   showMessageBox = (message: string) => {
     this.messageBox.open(message, null, this.configError);
   };
-  ngOnInit() {}
+  ngOnInit() { }
 }

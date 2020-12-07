@@ -4,7 +4,6 @@ import { ApiService } from 'src/services/api.service';
 import { AppUtils } from 'src/utils/app.utils';
 import { MatSnackBar, MatSnackBarConfig } from '@angular/material/snack-bar';
 import { StorageArvoreService } from 'src/services/storage-arvore.service';
-// import { Autorizacao, Resposta, Login } from '../login/login.interfaces';
 import { NgForm } from '@angular/forms';
 import { ConfigService } from 'src/services/config.service';
 
@@ -20,8 +19,6 @@ export class SenhaOffPageComponent implements OnInit {
     verticalPosition: 'top',
   };
 
-  
-
   constructor(
     private router: Router,
     private api: ApiService,
@@ -29,18 +26,21 @@ export class SenhaOffPageComponent implements OnInit {
     private messageBox: MatSnackBar,
     public storage: StorageArvoreService,
     public configService: ConfigService
-  ) {}
-
+  ) { }
 
   onSubmit(f: NgForm) {
     let senhaOff = this.utils.getStorage('senhaOff');
     if (f.value.password === senhaOff) {
       this.storage.getAll();
-       this.configService.isToLoadFromPI = false;
+      this.configService.isToLoadFromPI = false;
       this.router.navigate(['/entrada-manual']);
     } else {
       this.showMessageBox('Senha incorreta');
     }
+  }
+
+  iconBack() {
+    this.router.navigate(['home'])
   }
 
   goEntrada() {

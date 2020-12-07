@@ -1,16 +1,12 @@
 <div class="tudo">
+  <ion-icon class="iconBack" (click)="iconBack()" name="arrow-back-outline"></ion-icon>
+
   <div class="login">
     <form #f="ngForm" (ngSubmit)="onSubmit(f)">
       <div class="inputs">
         <div class="pass">
           <label>Senha: </label>
-          <input
-            type="password"
-            name="password"
-            ngModel
-            placeholder="Senha"
-            required
-          />
+          <input type="password" name="password" ngModel placeholder="Senha" required />
         </div>
       </div>
       <div class="btn">

@@ -2,13 +2,16 @@ import { Injectable } from '@angular/core';
 import { Storage } from '@ionic/storage';
 import { HttpClient } from '@angular/common/http';
 import { stringify } from 'querystring';
+import { Attribute } from 'src/model/Attribute.model';
+import { PIWebValue } from 'src/model/PIWebValue.model';
 
 @Injectable({
   providedIn: 'root',
 })
 export class StorageArvoreService {
   navigation: string = 'navigation';
-  constructor(private storage: Storage, private http: HttpClient) {}
+  enumerationSets: string = 'enumerationSets';
+  constructor(private storage: Storage, private http: HttpClient) { }
 
   public insert(arvore: Arvore) {
     let key = arvore.AplicacaoID;
@@ -16,7 +19,7 @@ export class StorageArvoreService {
   }
 
   public store(key: string, arvore: Array<Arvore>) {
-    this.storage.set(key, arvore);
+    return this.storage.set(key, arvore);
   }
 
   public saveConfig(key, value: string) {
@@ -93,19 +96,17 @@ export class StorageArvoreService {
 export class Arvore {
   AplicacaoID: string;
   Nome: string;
+  Description: string;
   Caminho: string[];
   CategoryNames: string | null;
-  atributos: string;
   relativePath: string;
   value: string;
+  atributos: Attribute;
 }
 
-export class Enumeration {
-  ID: string;
-  Nome: string;
-  caminho: string;
-  value: string;
-}
+
+
+
 
 export class ArvoreList {
   key: string;
