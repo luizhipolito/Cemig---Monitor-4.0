@@ -19,6 +19,7 @@ export class ConfigService {
   EscritaLeitura: string;
   Enumeration: string = 'Testes';
   descricaoEnumerationSets: string;
+  DataBase: string;
 
   endPoint = {
     asset: ['Databases'],
@@ -39,6 +40,7 @@ export class ConfigService {
     Leitura: 'Descrição Atributo Leitura',
     EscritaLeitura: 'Descrição Atributo Leitura Escrita',
     descricaoEnumerationSets: 'Descrição Enumeration Sets',
+    DataBase: 'Database'
   };
   constructor() { }
 }

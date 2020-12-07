@@ -4,6 +4,7 @@ import { HttpClient } from '@angular/common/http';
 import { stringify } from 'querystring';
 import { Attribute } from 'src/model/Attribute.model';
 import { PIWebValue } from 'src/model/PIWebValue.model';
+import { EnumerationValue } from 'src/model/EnumerationValue.model';
 
 @Injectable({
   providedIn: 'root',
@@ -100,7 +101,7 @@ export class Arvore {
   Caminho: string[];
   CategoryNames: string | null;
   relativePath: string;
-  value: string;
+  value: Array<EnumerationValue>;
   atributos: Attribute;
 }
 
