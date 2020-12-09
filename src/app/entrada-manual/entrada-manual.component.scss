@@ -11,13 +11,22 @@ ion-content{
   padding: 8px;
   background-color: rgb(245, 247, 231);
 }
-
-.menu-button {
-  background-color: rgb(245, 247, 231);
+ion-menu-button{
+  color: yellow ;
 }
 
-.toolbar-container {
-  background-color: rgb(245, 247, 231);
+ion-toolbar{
+  height: none !important;
+}
+
+ion-toolbar{
+  min-height: none;
+}
+
+.iconCalendar{
+  font-size: 1.5rem;
+  margin-top: -5px;
+  margin-left: 5px;
 }
 
 
@@ -74,8 +83,10 @@ ion-spinner {
   color: #008f45;
 }
 
-.search {
+.search > ion-icon {
+  font-size: 1.5rem;
   margin-right: 20px;
+  margin-top: 10px;
 }
 
 /* data box route */
@@ -95,6 +106,12 @@ ion-list {
   color: rgb(95, 95, 95);
 }
 
+.select{
+  font-size: 1rem;
+}
+
+
+
 @media screen and(max-width: 800px) {
   .logoCemig > img{
     width: 180px !important;
@@ -107,7 +124,7 @@ ion-list {
     max-height: 8%;
   }
   .routeSelect{
-    font-size: 0.8rem;
+    font-size: 0.6rem;
   }
   .search > ion-icon{
     margin-top: 8px;
@@ -143,14 +160,13 @@ ion-list {
     margin: 0;
   }
   .routeSelect {
-    font-size: 20px;
+    font-size: 0.7rem;
+
     margin: 15px;
   }
   ion-icon {
     font-size: 40px;
     margin-top: 10px;
   }
-  .routeSelect {
-    font-size: 1rem;
-  }
+  
 }
