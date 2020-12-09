@@ -70,6 +70,8 @@ export class EntradaManualComponent implements OnInit {
   ) { }
 
   ionViewWillEnter() {
+
+
     this.isToSyncDataFromPI = this.config.isToLoadFromPI;
     this.loadAuthFromStorage();
 
@@ -173,7 +175,7 @@ export class EntradaManualComponent implements OnInit {
       this.config.endPoint.enumerationSetsRoot
     ).find(firstOrNull)
     let enumerationSets = await this.api.get(enumerationRootData).toPromise();
-
+    this.enumerationSets = enumerationSets['Items'] as Array<PIWebObject>
     console.log(this.value)
     this.enumerationTree = await this.enumerationSets.map(enums => {
 

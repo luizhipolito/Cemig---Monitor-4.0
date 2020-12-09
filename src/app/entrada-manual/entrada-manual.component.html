@@ -1,37 +1,30 @@
 <ion-app>
   <div class="app-entrada-manual-container">
     <div class="head">
-      <div class="menu">
-        <ion-menu side="start" content-id="main-content">
-          <ion-header>
-            <ion-toolbar translucent>
-              <ion-title>Menu</ion-title>
-            </ion-toolbar>
-          </ion-header>
-          <ion-content>
-            <ion-list>
-              <ion-item>
-                <ion-icon name="mail" slot="start"></ion-icon>
-                <ion-label>Inbox</ion-label>
-              </ion-item>
+      <ion-menu side="start" content-id="main-content">
+        <ion-header>
+          <ion-toolbar translucent>
+            <ion-title>Menu</ion-title>
+          </ion-toolbar>
+        </ion-header>
+        <ion-content>
+          <ion-list>
+            <ion-item>
+              <ion-icon name="mail" slot="start"></ion-icon>
+              <ion-label>Inbox</ion-label>
+            </ion-item>
 
-              <ion-item name="logout" slot="start" (click)="logoutUsuario()">
-                <ion-icon name="log-out-outline"></ion-icon>
-                <ion-label>Sair</ion-label>
-              </ion-item>
-            </ion-list>
-          </ion-content>
-        </ion-menu>
-        <div id="main-content">
-          <ion-header>
-            <ion-toolbar>
-              <ion-buttons slot="start">
-                <ion-menu-button></ion-menu-button>
-              </ion-buttons>
-            </ion-toolbar>
-          </ion-header>
-          <!-- <ion-content class="ion-padding"> </ion-content> -->
-        </div>
+            <ion-item name="logout" slot="start" (click)="logoutUsuario()">
+              <ion-icon name="log-out-outline"></ion-icon>
+              <ion-label>Sair</ion-label>
+            </ion-item>
+          </ion-list>
+        </ion-content>
+      </ion-menu>
+      <div id="main-content">
+        <ion-buttons slot="start">
+          <ion-menu-button></ion-menu-button>
+        </ion-buttons>
       </div>
 
       <div class="nomeCentro">ADB Móvel</div>
@@ -66,7 +59,24 @@
         </div>
 
         <div *ngIf="elements != null">
+
           <ion-list>
+            <ion-item>
+              <ion-label>Data da Leitura:</ion-label>
+              <ion-datetime displayFormat="DD/MM/YYYY" value="data" display-timezone="utc" [(ngModel)]="dataAtual">
+              </ion-datetime>
+              <ion-icon class="iconCalendar" name="calendar-outline"></ion-icon>
+            </ion-item>
+            <ion-item>
+              <ion-label>Observação</ion-label>
+              <ion-select class="select" [(ngModel)]="escrita">
+                <ion-select-option *ngFor="let escrita of elements.escrita">{{escrita.Name}}</ion-select-option>
+              </ion-select>
+            </ion-item>
+            <ion-item>
+              <ion-label position="floating">dados</ion-label>
+              <ion-input></ion-input>
+            </ion-item>
             <ion-item *ngFor="let leitura of elements.leitura">
               <ion-item>
                 <ion-label> {{ leitura.Name }}:</ion-label>
@@ -80,14 +90,9 @@
               <ion-item>
                 <ion-label position="floating">
                   {{ leituraEscrita.Name }}:</ion-label>
-                <ion-input></ion-input>
+                <ion-input placeholder="{{leituraEscrita.ValueString}}"></ion-input>
               </ion-item>
 
-              {{ leituraEscrita.ValueString }}
-            </div>
-
-            <div *ngFor="let escrita of elements.escrita">
-              {{ escrita.Name }}:
             </div>
           </ion-list>
         </div>
