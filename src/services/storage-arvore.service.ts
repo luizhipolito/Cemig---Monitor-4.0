@@ -5,6 +5,7 @@ import { stringify } from 'querystring';
 import { Attribute } from 'src/model/Attribute.model';
 import { PIWebValue } from 'src/model/PIWebValue.model';
 import { EnumerationValue } from 'src/model/EnumerationValue.model';
+import { PIWebObject } from 'src/model/PIWebObject.model';
 
 @Injectable({
   providedIn: 'root',
@@ -12,7 +13,7 @@ import { EnumerationValue } from 'src/model/EnumerationValue.model';
 export class StorageArvoreService {
   navigation: string = 'navigation';
   enumerationSets: string = 'enumerationSets';
-  constructor(private storage: Storage, private http: HttpClient) { }
+  constructor(private storage: Storage, private http: HttpClient) {}
 
   public insert(arvore: Arvore) {
     let key = arvore.AplicacaoID;
@@ -99,15 +100,10 @@ export class Arvore {
   Nome: string;
   Description: string;
   Caminho: string[];
-  CategoryNames: string | null;
   relativePath: string;
-  value: Array<EnumerationValue>;
+  value: Array<PIWebObject>;
   atributos: Attribute;
 }
-
-
-
-
 
 export class ArvoreList {
   key: string;

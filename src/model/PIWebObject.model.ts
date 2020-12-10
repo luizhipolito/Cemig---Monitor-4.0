@@ -2,7 +2,7 @@ import { PIWebLink } from './PIWebLink.model';
 
 export class PIWebObject {
   CategoryNames: Array<string>;
-  Description: string
+  Description: string;
   ExtendedProperties: object;
   HasChildren: boolean;
   Id: string;
@@ -13,6 +13,5 @@ export class PIWebObject {
   WebId: string;
   relativePath: string;
   values: string;
+  valuesSets?: Array<PIWebObject>;
 }
-
-

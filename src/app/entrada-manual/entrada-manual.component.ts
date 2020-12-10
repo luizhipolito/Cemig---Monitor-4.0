@@ -72,14 +72,14 @@ export class EntradaManualComponent implements OnInit {
   async ionViewWillEnter() {
     this.isToSyncDataFromPI = this.config.isToLoadFromPI;
     await this.loadAuthFromStorage();
-    await this.loadConfigFromPI();
-    await this.loadDataFromStorage();
-    await this.loadEnumerationSetFromPI();
-    // if (this.isToSyncDataFromPI) {
-    //   this.syncDataFromPI();
-    // } else {
-    //   this.loadDataFromStorage();
-    // }
+    // await this.syncConfigFromPI();
+    // await this.loadDataFromStorage();
+    // await this.syncEnumerationSets();
+    if (this.isToSyncDataFromPI) {
+      this.syncDataFromPI();
+    } else {
+      this.loadDataFromStorage();
+    }
   }
   async loadAuthFromStorage() {
     this.authToken = await this.utils.getStorage('Authorization');
@@ -87,12 +87,12 @@ export class EntradaManualComponent implements OnInit {
   }
 
   async syncDataFromPI() {
-    await this.loadConfigFromPI();
-    await this.loadNavigationData();
-    await this.loadEnumerationSetFromPI();
+    await this.syncConfigFromPI();
+    await this.syncNavigationData();
+    await this.syncEnumerationSets();
   }
 
-  async loadConfigFromPI() {
+  async syncConfigFromPI() {
     let configHome = await this.api.getData().toPromise();
     let configUrlValues = this.api
       .getLink(configHome, this.config.config, this.config.endPoint['value'])
@@ -107,7 +107,7 @@ export class EntradaManualComponent implements OnInit {
         this.config.endPoint['value'],
         'Value'
       );
-      console.log(attribute, value);
+      //console.log(attribute, value);
       this.config[attribute] = value.find(firstOrNull);
     }
 
@@ -118,7 +118,7 @@ export class EntradaManualComponent implements OnInit {
     this.utils.saveStorage('senhaOff', this.config.SenhaOff);
   }
 
-  async loadNavigationData() {
+  async syncNavigationData() {
     let rootData = await this.api.getData().toPromise();
     let rootUrl = this.api
       .getLink(
@@ -173,29 +173,24 @@ export class EntradaManualComponent implements OnInit {
     return enumerationSets;
   }
 
-  async loadEnumerationSetFromPI() {
+  async syncEnumerationSets() {
     let qualifyers = this.getEnumerationSetsQualyfiers();
     let enumerationSets = await this.getEnumarationSets(qualifyers);
-    let enumerationValues = await this.getEnumerationSetsValues(
-      enumerationSets
+    this.enumerationSets = await this.getEnumerationSetsValues(enumerationSets);
+    this.enumerationTree = this.enumerationSets.map((enumSet) => {
+      let tree = new Arvore();
+      tree.AplicacaoID = enumSet.WebId;
+      tree.relativePath = enumSet.Path;
+      tree.Caminho = tree.relativePath.split('\\').filter((c) => Boolean(c));
+      tree.value = enumSet.valuesSets;
+      tree.Nome = enumSet.Name;
+      return tree;
+    });
+
+    await this.storageService.store(
+      this.storageService.enumerationSets,
+      this.enumerationTree
     );
-
-    // console.log(enumerationSets);
-
-    // this.enumerationSets = enumerationSets['Items'] as Array<PIWebObject>;
-    // console.log(this.value);
-    // this.enumerationTree = await this.enumerationSets.map((enums) => {
-    //   let data = new Arvore();
-
-    //   data.Description = enums.Description;
-    //   data.Nome = enums.Name;
-    //   return data;
-    // });
-
-    // await this.storageService.store(
-    //   this.storageService.enumerationSets,
-    //   this.enumerationTree
-    // );
   }
   async getEnumerationSetsValues(enumerationSets: Array<PIWebObject>) {
     let batchRequest = this.createBatch(enumerationSets, 'EnumerationSets');
@@ -203,7 +198,14 @@ export class EntradaManualComponent implements OnInit {
       .executeBatch(this.config.afServer, batchRequest)
       .toPromise();
 
-    console.log(batchResponse);
+    enumerationSets.forEach((enumset, index) => {
+      let response = batchResponse[index];
+      if (response && response['Status'] == 200) {
+        enumset.valuesSets = this.utils.getItems(response['Content']);
+      }
+    });
+
+    return enumerationSets;
   }
   getEnumerationSetsQualyfiers(): Array<string> {
     if (this.arvoreLocal) {
@@ -230,7 +232,7 @@ export class EntradaManualComponent implements OnInit {
     });
   };
 
-  async loadDataFromStorage() {
+  async loadNavigationDataFromStorage() {
     this.arvoreLocal = await this.storageService.getByKey(
       this.storageService.navigation
     );
@@ -245,6 +247,17 @@ export class EntradaManualComponent implements OnInit {
         });
       }
     });
+  }
+
+  async loadDataFromStorage() {
+    await this.loadNavigationDataFromStorage();
+    await this.loadEnumerationSetsFromStorage();
+  }
+  async loadEnumerationSetsFromStorage() {
+    this.enumerationTree = await this.storageService.getByKey(
+      this.storageService.enumerationSets
+    );
+    this.getOptions('Instrumento_PC');
   }
 
   generateRelativePath = (data): Array<PIWebObject> => {
@@ -320,7 +333,7 @@ export class EntradaManualComponent implements OnInit {
     for (let key of Object.keys(batchResponseAttributes)) {
       let response = batchResponseAttributes[key];
       let valueResponse = batchResponseValues[key];
-      const isResult = (r) =>
+      const isResult = (r: any) =>
         r['Status'] == 200 &&
         r['Content'] &&
         r['Content']['Items'] &&
@@ -402,5 +415,17 @@ export class EntradaManualComponent implements OnInit {
     att.ValueString = attValueString;
 
     return att;
+  }
+
+  getOptions(qualifyer: string) {
+    let enumerationSet = this.enumerationTree.find(
+      (enumset) => enumset.Nome == qualifyer
+    );
+
+    console.log(enumerationSet.value);
+    if (enumerationSet) {
+      return enumerationSet.value;
+    }
+    return [];
   }
 }
