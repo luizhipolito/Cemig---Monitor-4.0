@@ -77,9 +77,7 @@ export class EntradaManualComponent implements OnInit {
   async ionViewWillEnter() {
     this.isToSyncDataFromPI = this.config.isToLoadFromPI;
     await this.loadAuthFromStorage();
-    // await this.syncConfigFromPI();
-    // await this.loadDataFromStorage();
-    // await this.syncEnumerationSets();
+
     if (this.isToSyncDataFromPI) {
       this.syncDataFromPI();
     } else {
@@ -112,7 +110,6 @@ export class EntradaManualComponent implements OnInit {
         this.config.endPoint['value'],
         'Value'
       );
-      //console.log(attribute, value);
       this.config[attribute] = value.find(firstOrNull);
     }
 
@@ -461,7 +458,6 @@ export class EntradaManualComponent implements OnInit {
       (enumset) => enumset.Nome == qualifyer
     );
 
-    console.log(enumerationSet.value);
     if (enumerationSet) {
       return enumerationSet.value;
     }
