@@ -36,7 +36,7 @@ export class EntradaManualComponent implements OnInit {
     [7, 8, 9],
     [4, 5, 6],
     [1, 2, 3],
-    [0, '<', 'Enter']
+    [0, '<', 'Enter'],
   ];
 
   onButtonPress(symbol) {
@@ -83,7 +83,7 @@ export class EntradaManualComponent implements OnInit {
     public navCtrl: NavController,
     public storageService: StorageArvoreService,
     public config: ConfigService
-  ) { }
+  ) {}
 
   async ionViewWillEnter() {
     this.isToSyncDataFromPI = this.config.isToLoadFromPI;
@@ -269,7 +269,6 @@ export class EntradaManualComponent implements OnInit {
     this.enumerationTree = await this.storageService.getByKey(
       this.storageService.enumerationSets
     );
-    this.getOptions('Instrumento_PC');
   }
 
   generateRelativePath = (data): Array<PIWebObject> => {
@@ -281,7 +280,7 @@ export class EntradaManualComponent implements OnInit {
     });
   };
 
-  ngOnInit() { }
+  ngOnInit() {}
 
   print() {
     console.log(this.elements);
@@ -465,13 +464,16 @@ export class EntradaManualComponent implements OnInit {
   }
 
   getOptions(qualifyer: string) {
-    let enumerationSet = this.enumerationTree.find(
-      (enumset) => enumset.Nome == qualifyer
-    );
+    if (this.enumerationTree) {
+      let enumerationSet = this.enumerationTree.find(
+        (enumset) => enumset.Nome == qualifyer
+      );
 
-    if (enumerationSet) {
-      return enumerationSet.value;
+      if (enumerationSet) {
+        return enumerationSet.value;
+      }
     }
+
     return [];
   }
 }
