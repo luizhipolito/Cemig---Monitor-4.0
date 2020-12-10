@@ -31,6 +31,17 @@ export class EntradaManualComponent implements OnInit {
   @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
   @ViewChild(MatSort, { static: true }) sort: MatSort;
 
+  numberGroups = [
+    [7, 8, 9],
+    [4, 5, 6],
+    [1, 2, 3],
+    [0, '<', 'Enter']
+  ];
+
+  onButtonPress(symbol) {
+    console.log(symbol);
+  }
+
   Elemento = {};
   selectedViews = 'elemento';
 
@@ -67,7 +78,7 @@ export class EntradaManualComponent implements OnInit {
     public navCtrl: NavController,
     public storageService: StorageArvoreService,
     public config: ConfigService
-  ) {}
+  ) { }
 
   async ionViewWillEnter() {
     this.isToSyncDataFromPI = this.config.isToLoadFromPI;
@@ -269,7 +280,7 @@ export class EntradaManualComponent implements OnInit {
     });
   };
 
-  ngOnInit() {}
+  ngOnInit() { }
 
   onClickId = (e) => {
     this.pathNavigation = e;

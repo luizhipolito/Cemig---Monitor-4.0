@@ -90,11 +90,10 @@ ion-spinner {
 }
 
 .boxShort{
-  width: 65%;
-  margin: 0;
+  width: 70%;
 }
 .boxTotal{
-  width: 100%;
+  margin-left: 10px;
 }
 
 
@@ -110,19 +109,32 @@ ion-list {
   font-size: 1rem;
 }
 
-.btns{
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
+.controlKeyboard{
   position: absolute;
-  justify-items: center;
   top: 0;
+  margin-left: calc(76% - 10px);
+  margin-top: 8px;
+}
+
+.calc-button {
+  width: 54px;
+  height: 54px;
+  margin: 1px;
+  margin-top: 3px;
+  font-size: 10px;
+}
+
+.btns{
+ display: flex;
+ flex-direction: column;
+ align-items: center;
 }
 .btns > ion-button{
-  width: 20%;
-  margin: 5px;
+  width: 80%;
+  margin: 3px;
   background: #008f45 !important;
+  font-size: 10px;
+  border-radius: 10px;
 }
 
 

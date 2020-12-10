@@ -104,10 +104,18 @@
             </div>
           </ion-list>
         </div>
-        <div *ngIf="elements != null" class="btns">
-          <ion-button>Salvar</ion-button>
-          <ion-button>Sincronizar</ion-button>
-          <ion-button>Inserir Comentario</ion-button>
+        <div *ngIf="elements != null" class="controlKeyboard">
+          <div class="keyboard">
+            <div *ngFor="let numGroup of numberGroups">
+              <ion-button *ngFor="let num of numGroup" (click)="onButtonPress(num)" class="calc-button">{{num}}
+              </ion-button>
+            </div>
+          </div>
+          <div class="btns">
+            <ion-button>Salvar</ion-button>
+            <ion-button>Sincronizar</ion-button>
+            <ion-button>Inserir Comentario</ion-button>
+          </div>
         </div>
       </div>
 
