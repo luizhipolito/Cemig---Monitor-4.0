@@ -21,6 +21,7 @@ import { EnumerationValue } from 'src/model/EnumerationValue.model';
 import { __await } from 'tslib';
 
 const firstOrNull = () => true;
+const typeEnumeration = 'EnumerationValue';
 
 @Component({
   selector: 'app-entrada-manual',
@@ -57,6 +58,10 @@ export class EntradaManualComponent implements OnInit {
     name: '',
   };
   clickNavigation: string;
+
+  firstSelection: string = 'Observação';
+  conditionSelection: string = 'Observação <> "Não Observado"';
+  conditionFirstSelection: string = 'Não Observado';
 
   constructor(
     private api: ApiService,
@@ -215,7 +220,6 @@ export class EntradaManualComponent implements OnInit {
           .concat(cur.atributos.leitura)
           .concat(cur.atributos.leituraEscrita);
 
-      const typeEnumeration = 'EnumerationValue';
       let qualifyers = this.arvoreLocal
         .reduce(aggregateAttributes, [])
         .filter((att) => att.Type == typeEnumeration)
@@ -271,6 +275,10 @@ export class EntradaManualComponent implements OnInit {
 
   ngOnInit() {}
 
+  print() {
+    console.log(this.elements);
+  }
+
   onClickId = (e) => {
     this.pathNavigation = e;
     this.storageService.getFilhos(e.path).then((result) => {
@@ -282,8 +290,39 @@ export class EntradaManualComponent implements OnInit {
           path: e.path,
           name: item.Nome,
         });
+
         this.elements = item.atributos;
-        console.log(this.elements);
+        this.elements.escrita.forEach((esc) => {
+          if (esc.Type == typeEnumeration) {
+            let selectOptions = this.getOptions(esc.TypeQualifier);
+            esc.valuesSets = selectOptions;
+          }
+        });
+
+        this.elements.leitura.forEach((esc) => {
+          if (esc.Type == typeEnumeration) {
+            let selectOptions = this.getOptions(esc.TypeQualifier);
+            esc.valuesSets = selectOptions;
+          }
+        });
+
+        this.elements.leituraEscrita.forEach((esc) => {
+          if (esc.Type == typeEnumeration) {
+            let selectOptions = this.getOptions(esc.TypeQualifier);
+            esc.valuesSets = selectOptions;
+          }
+        });
+
+        let firstSelectionIndex = this.elements.escrita.findIndex(
+          (esc) => esc.Name == this.firstSelection
+        );
+        this.elements.firstSection = this.elements.escrita[firstSelectionIndex];
+        if (this.elements.firstSection) {
+          this.elements.firstSection.Selected = this.elements.firstSection.valuesSets.find(
+            (f) => f.Name == this.conditionFirstSelection
+          );
+        }
+        this.elements.escrita.splice(firstSelectionIndex);
       } else {
         this.elements = null;
         result.forEach((arvore) => {

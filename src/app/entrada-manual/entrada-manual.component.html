@@ -30,7 +30,11 @@
       <div class="nomeCentro">ADB Móvel</div>
 
       <div class="logoCemig">
-        <img style="width: 100%; margin-right: -60px" src="../../../assets/logo-cemig-2048.png" alt="logo" />
+        <img
+          style="width: 100%; margin-right: -60px"
+          src="../../../assets/logo-cemig-2048.png"
+          alt="logo"
+        />
       </div>
     </div>
 
@@ -39,9 +43,12 @@
     <div class="route">
       <div class="routeSelect" *ngIf="navigation || pathNavigation">
         <span (click)="onClickId({ path: [] })">Início &#9654;</span>
-        <span *ngFor="let nav of pathNavigation.path; let i = index" (click)="
+        <span
+          *ngFor="let nav of pathNavigation.path; let i = index"
+          (click)="
             onClickId({ name: nav, path: pathNavigation.path.slice(0, i + 1) })
-          ">
+          "
+        >
           {{ nav }} &#9654;
         </span>
       </div>
@@ -53,48 +60,99 @@
 
     <!-- box data -->
     <ion-content>
-      <div class="boxData" [ngClass]="elements == null ? 'boxTotal' : 'boxShort'">
+      <div
+        class="boxData"
+        [ngClass]="elements == null ? 'boxTotal' : 'boxShort'"
+      >
         <div *ngIf="!navigation || navigation.length == 0" class="spinner">
           <ion-spinner name="bubbles"></ion-spinner>
         </div>
 
         <div *ngIf="elements != null">
-
           <ion-list w-50>
             <ion-item>
               <ion-label>Data da Leitura:</ion-label>
-              <ion-datetime displayFormat="DD/MM/YYYY" value="data" display-timezone="utc" [(ngModel)]="dataAtual">
+              <ion-datetime
+                displayFormat="DD/MM/YYYY"
+                value="data"
+                display-timezone="utc"
+                [(ngModel)]="dataAtual"
+              >
               </ion-datetime>
               <ion-icon class="iconCalendar" name="calendar-outline"></ion-icon>
             </ion-item>
-            <ion-item>
-              <ion-label>Observação</ion-label>
-              <ion-select class="select" [(ngModel)]="escrita">
-                <ion-select-option *ngFor="let escrita of elements.escrita">{{escrita.Name}}</ion-select-option>
+
+            <ion-item *ngIf="elements.firstSection">
+              <ion-label (click)="print()">
+                {{ elements.firstSection.Name }}:</ion-label
+              >
+              <ion-input
+                *ngIf="elements.firstSection.Type == 'Double'"
+                type="number"
+                [value]="elements.firstSection.Selected"
+              ></ion-input>
+
+              <ion-select
+                *ngIf="elements.firstSection.Type == 'EnumerationValue'"
+                class="select"
+                [(ngModel)]="elements.firstSection.Selected"
+                (click)="print()"
+              >
+                <ion-select-option
+                  *ngFor="let valueSet of elements.firstSection.valuesSets"
+                  [value]="valueSet"
+                  >{{ valueSet.Name }}</ion-select-option
+                >
               </ion-select>
             </ion-item>
-            <ion-item>
-              <ion-label position="floating">dados</ion-label>
-              <ion-input></ion-input>
-            </ion-item>
-            <ion-item *ngFor="let leitura of elements.leitura">
-              <ion-item>
-                <ion-label> {{ leitura.Name }}:</ion-label>
-              </ion-item>
-              <ion-item>
-                <ion-label color="gray"> {{ leitura.ValueString }}</ion-label>
-              </ion-item>
-            </ion-item>
+            <div
+              *ngIf="
+                elements.firstSection.Selected &&
+                elements.firstSection.Selected.Name != conditionFirstSelection
+              "
+            >
+              <ion-item *ngFor="let escrita of elements.escrita">
+                <ion-label> {{ escrita.Name }}:</ion-label>
+                <ion-input
+                  *ngIf="escrita.Type == 'Double'"
+                  type="number"
+                  [value]="escrita.Selected"
+                ></ion-input>
 
-            <div *ngFor="let leituraEscrita of elements.leituraEscrita">
-              <ion-item>
-                <ion-label position="floating">
-                  {{ leituraEscrita.Name }}:</ion-label>
-                <ion-input type='number' value="{{leituraEscrita.ValueString}}"></ion-input>
+                <ion-select
+                  *ngIf="escrita.Type == 'EnumerationValue'"
+                  class="select"
+                  [value]="escrita.Selected"
+                >
+                  <ion-select-option
+                    *ngFor="let valueSet of escrita.valuesSets"
+                    >{{ valueSet.Name }}</ion-select-option
+                  >
+                </ion-select>
               </ion-item>
+
+              <ion-item *ngFor="let leitura of elements.leitura">
+                <ion-item>
+                  <ion-label> {{ leitura.Name }}:</ion-label>
+                </ion-item>
+                <ion-item>
+                  <ion-label color="gray"> {{ leitura.ValueString }}</ion-label>
+                </ion-item>
+              </ion-item>
+
+              <div *ngFor="let leituraEscrita of elements.leituraEscrita">
+                <ion-item>
+                  <ion-label position="floating">
+                    {{ leituraEscrita.Name }}:</ion-label
+                  >
+                  <ion-input
+                    type="number"
+                    value="{{ leituraEscrita.ValueString }}"
+                  ></ion-input>
+                </ion-item>
+              </div>
             </div>
           </ion-list>
-
         </div>
 
         <div *ngFor="let app of navigation">
@@ -104,13 +162,12 @@
             </div>
           </ion-list>
         </div>
-        <div *ngIf="elements != null" class="btns">
+        <!-- <div *ngIf="elements != null" class="btns">
           <ion-button>Salvar</ion-button>
           <ion-button>Sincronizar</ion-button>
           <ion-button>Inserir Comentario</ion-button>
-        </div>
+        </div> -->
       </div>
-
     </ion-content>
   </div>
 </ion-app>
