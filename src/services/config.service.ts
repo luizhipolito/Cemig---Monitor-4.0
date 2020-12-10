@@ -27,8 +27,8 @@ export class ConfigService {
     Elementos: ['Attributes'],
     value: ['Value'],
     values: ['Values'],
-    enumeration: ['Database'],
-    enumerationSetsRoot: ['EnumerationSets']
+    enumeration: 'Database',
+    enumerationSets: 'EnumerationSets',
   };
 
   attributes = {
@@ -40,7 +40,7 @@ export class ConfigService {
     Leitura: 'Descrição Atributo Leitura',
     EscritaLeitura: 'Descrição Atributo Leitura Escrita',
     descricaoEnumerationSets: 'Descrição Enumeration Sets',
-    DataBase: 'Database'
+    DataBase: 'Database',
   };
-  constructor() { }
+  constructor() {}
 }

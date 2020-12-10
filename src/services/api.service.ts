@@ -9,7 +9,8 @@ import { throwError } from 'rxjs';
 import { retry, catchError } from 'rxjs/operators';
 import { StorageArvoreService } from './storage-arvore.service';
 import { AppUtils } from 'src/utils/app.utils';
-
+const prefix = 'https:\\\\';
+const sufix = '/piwebapi';
 @Injectable({
   providedIn: 'root',
 })
@@ -24,7 +25,7 @@ export class ApiService {
     private http: HttpClient,
     private storageService: StorageArvoreService,
     public utils: AppUtils
-  ) { }
+  ) {}
 
   httpOptions = {
     headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
@@ -53,6 +54,26 @@ export class ApiService {
       .post<any>(this.baseUrl, JSON.stringify(data), this.httpOptions)
 
       .pipe(retry(2), catchError(this.handleError));
+  }
+
+  executeBatch(server: string, data: any) {
+    let batchUrl = '/batch';
+    let url = `${prefix}${server}${sufix}${batchUrl}`;
+    let selectedFieldsParam = new HttpParams();
+    return this.post(url, data, selectedFieldsParam);
+  }
+
+  post(url: string, data: any, params?: HttpParams) {
+    this.showLoader();
+    let reqOptions = this.httpOptions;
+
+    if (params) {
+      reqOptions['params'] = params;
+    }
+
+    return this.http
+      .post<any>(url, JSON.stringify(data), reqOptions)
+      .pipe(catchError(this.handleError));
   }
 
   putData(url: string, data: any) {

@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { of } from 'rxjs';
+import { PIWebObject } from 'src/model/PIWebObject.model';
 
 @Injectable({
   providedIn: 'root',
@@ -47,4 +48,31 @@ export class AppUtils {
   }
 
   firstOrNull = () => true;
+  distinct = (value, index, self) => self.indexOf(value) === index;
+
+  getItems(response: any): Array<PIWebObject> {
+    let items = response;
+    if ('Items' in response) {
+      items = response['Items'] as Array<PIWebObject>;
+    }
+    return items;
+  }
+
+  getValue(
+    response: any,
+    name: string,
+    endPoint: string,
+    type: string = 'Links'
+  ) {
+    let item = response;
+    if ('Items' in response) {
+      let items = response['Items'] as Array<PIWebObject>;
+      if (Array.isArray(items)) {
+        item = items.find((item) => item.Path == name || item.Name == name);
+      }
+    }
+    if (item) {
+      return item[type][endPoint];
+    }
+  }
 }
