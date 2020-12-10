@@ -11,17 +11,7 @@ ion-content{
   padding: 8px;
   background-color: rgb(245, 247, 231);
 }
-ion-menu-button{
-  color: yellow ;
-}
 
-ion-toolbar{
-  height: none !important;
-}
-
-ion-toolbar{
-  min-height: none;
-}
 
 .iconCalendar{
   font-size: 1.5rem;
@@ -50,6 +40,7 @@ ion-icon {
 
 .logoCemig > img {
   margin-top: 15px;
+  width: 70%;
 }
 
 .nomeCentro {
@@ -98,6 +89,15 @@ ion-spinner {
   max-height: 68%;
 }
 
+.boxShort{
+  width: 65%;
+  margin: 0;
+}
+.boxTotal{
+  width: 100%;
+}
+
+
 ion-list {
   font-size: 2.6rem;
   padding: 20px;
@@ -109,6 +109,25 @@ ion-list {
 .select{
   font-size: 1rem;
 }
+
+.btns{
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: absolute;
+  justify-items: center;
+  top: 0;
+}
+.btns > ion-button{
+  width: 20%;
+  margin: 5px;
+  background: #008f45 !important;
+}
+
+
+
+
 
 
 
