@@ -463,6 +463,10 @@ export class EntradaManualComponent implements OnInit {
     return att;
   }
 
+  saveElement() {
+    console.log(this.elements);
+  }
+
   getOptions(qualifyer: string) {
     if (this.enumerationTree) {
       let enumerationSet = this.enumerationTree.find(
