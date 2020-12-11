@@ -17,4 +17,5 @@ export class PIWebAttribute extends PIWebObject {
   Value?: PIWebValue;
   ValueString: string;
   Selected: any;
+  config: Array<PIWebObject>;
 }

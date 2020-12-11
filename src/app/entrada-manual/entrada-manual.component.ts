@@ -46,21 +46,19 @@ export class EntradaManualComponent implements OnInit {
   onButtonPress(symbol) {
     if (isNumber(symbol) || symbol === '.') {
       this.keyboardValue += '' + symbol;
-    }
-    else if (symbol == '<') {
-      this.oldValue = this.keyboardValue.split("");
-      this.oldValue.pop()
+    } else if (symbol == '<') {
+      this.oldValue = this.keyboardValue.split('');
+      this.oldValue.pop();
 
-      console.log()
-      console.log(this.lastNumber)
+      console.log();
+      console.log(this.lastNumber);
       console.log(this.keyboardValue);
     }
   }
 
   goInserirComentario() {
-    this.router.navigate(['/inserir-comentario'])
+    this.router.navigate(['/inserir-comentario']);
   }
-
 
   Elemento = {};
   selectedViews = 'elemento';
@@ -102,10 +100,10 @@ export class EntradaManualComponent implements OnInit {
     public navCtrl: NavController,
     public storageService: StorageArvoreService,
     public config: ConfigService
-  ) { }
+  ) {}
 
   async ionViewWillEnter() {
-    this.isToSyncDataFromPI = this.config.isToLoadFromPI;
+    this.isToSyncDataFromPI = true; //this.config.isToLoadFromPI;
     await this.loadAuthFromStorage();
 
     if (this.isToSyncDataFromPI) {
@@ -165,6 +163,7 @@ export class EntradaManualComponent implements OnInit {
       .pipe(map(this.generateRelativePath))
       .toPromise();
     let attributes = await this.loadAttributes(navigationData);
+    console.log(attributes);
 
     this.navigationData = navigationData;
     this.navigationTree = navigationData.map((nav) => {
@@ -299,7 +298,7 @@ export class EntradaManualComponent implements OnInit {
     });
   };
 
-  ngOnInit() { }
+  ngOnInit() {}
 
   print() {
     console.log(this.elements);
@@ -384,16 +383,19 @@ export class EntradaManualComponent implements OnInit {
   };
 
   async loadAttributes(items: Array<PIWebObject>) {
+    let server = this.config.afServer;
     let attributesData: Array<Attribute> = new Array<Attribute>();
     let bacthRequestAttributes = this.createBatch(items, 'Attributes');
     let batchResponseAttributes = await this.api
-      .executeBatch(this.config.afServer, bacthRequestAttributes)
+      .executeBatch(server, bacthRequestAttributes)
       .toPromise();
 
     let batchRequestValues = this.createBatch(items, 'Value');
     let batchResponseValues = await this.api
-      .executeBatch(this.config.afServer, batchRequestValues)
+      .executeBatch(server, batchRequestValues)
       .toPromise();
+
+    const hasChildren = (piwebObj: PIWebObject) => piwebObj.HasChildren;
 
     for (let key of Object.keys(batchResponseAttributes)) {
       let response = batchResponseAttributes[key];
@@ -412,17 +414,58 @@ export class EntradaManualComponent implements OnInit {
         let valuesItems = valueResponse['Content'][
           'Items'
         ] as Array<PIWebAttribute>;
-        let newAttribute: Attribute = new Attribute();
-        newAttribute.WebId = items[key].WebId;
-        newAttribute.escrita = attributes.filter(
-          (att) => att.Description == this.config.Escrita
+
+        let childrenBatch = this.createBatch(
+          attributes.filter(hasChildren),
+          'Attributes'
         );
 
+        if (attributes.some(hasChildren)) {
+          let childrenBatchResponse = await this.api
+            .executeBatch(server, childrenBatch)
+            .toPromise();
+          let configList = {};
+
+          for (let batchKey of Object.keys(childrenBatchResponse)) {
+            let configAtt = isResult(childrenBatchResponse[batchKey])
+              ? (childrenBatchResponse[batchKey]['Content'][
+                  'Items'
+                ] as Array<PIWebAttribute>)
+              : [];
+            let batchValueChildren = this.createBatch(
+              configAtt,
+              'ChildrenValue'
+            );
+            let batchValue = await this.api
+              .executeBatch(server, batchValueChildren)
+              .toPromise();
+
+            configAtt.forEach((child, cIndex) => {
+              child.Value = batchValue[cIndex]['Content'];
+            });
+            let parentPath = configAtt.find(firstOrNull).Path;
+            parentPath = parentPath.split('|').slice(0, -1).join('|');
+
+            configList[parentPath] = configAtt;
+          }
+
+          attributes.forEach((att) => {
+            att.config = configList[att.Path] || [];
+          });
+
+          console.log(attributes);
+        }
+
+        let newAttribute: Attribute = new Attribute();
+        newAttribute.WebId = items[key].WebId;
+        newAttribute.escrita = attributes.filter((att) =>
+          att.Description.includes(this.config.Escrita)
+        );
         newAttribute.leitura = attributes
-          .filter((att) => att.Description == this.config.Leitura)
+          .filter((att) => att.Description.includes(this.config.Leitura))
           .map((att) => this.getAttValue(att, valuesItems));
         newAttribute.leituraEscrita = attributes
-          .filter((att) => att.Description == this.config.EscritaLeitura)
+          .filter((att) => att.Description.includes(this.config.EscritaLeitura))
           .map((att) => this.getAttValue(att, valuesItems));
 
         attributesData.push(newAttribute);
@@ -435,16 +478,21 @@ export class EntradaManualComponent implements OnInit {
   createBatch(items: Array<PIWebObject>, type: string) {
     let batchItem = {};
     let selectedFieldsParam =
-      '?selectedFields=Items.Description;Items.Name;Items.Path;Items.Type;Items.TypeQualifier';
+      '?selectedFields=Items.Description;Items.Name;Items.Path;Items.Type;Items.TypeQualifier;Items.HasChildren;Items.Links.Attributes;Items.Links.Value';
 
     if (type == 'Value') {
-      selectedFieldsParam = '?selectedFields=Items.Name;Items.Value;Items.Path';
+      selectedFieldsParam =
+        '?selectedFields=Items.Name;Items.Value;Items.Path;Items.HasChildren';
     }
     if (type == 'EnumerationSets') {
       selectedFieldsParam = '';
       type = 'Values';
     }
 
+    if (type == 'ChildrenValue') {
+      selectedFieldsParam = '';
+      type = 'Value';
+    }
     items.forEach((item, index) => {
       batchItem[index] = {
         Method: 'GET',
