@@ -4,6 +4,7 @@ import { LoginComponent } from './login/login.component';
 import { EntradaManualComponent } from './entrada-manual/entrada-manual.component';
 import { SenhaOffPageComponent } from './senha-off-page/senha-off-page.component';
 import { DataConfigComponent } from './data-config/data-config.component';
+import { InserirComentarioComponent } from './inserir-comentario/inserir-comentario.component';
 
 const routes: Routes = [
   {
@@ -32,6 +33,10 @@ const routes: Routes = [
     path: 'data-config',
     component: DataConfigComponent,
   },
+  {
+    path: 'inserir-comentario',
+    component: InserirComentarioComponent,
+  }
 ];
 
 @NgModule({
@@ -40,4 +45,4 @@ const routes: Routes = [
   ],
   exports: [RouterModule],
 })
-export class AppRoutingModule {}
+export class AppRoutingModule { }

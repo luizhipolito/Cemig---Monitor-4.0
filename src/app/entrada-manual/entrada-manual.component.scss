@@ -169,6 +169,17 @@ ion-list {
     font-size: 1.2rem;
     padding: 10px;
   }
+  .calc-button{
+    width: 35px;
+    height: 35px;
+    font-size: 8px;
+  }
+
+  .btns> ion-button{
+    width: 70%;
+    height: 20px;
+    font-size: 6px;
+  }
   
 }
 
@@ -199,5 +210,7 @@ ion-list {
     font-size: 40px;
     margin-top: 10px;
   }
+
+  
   
 }
