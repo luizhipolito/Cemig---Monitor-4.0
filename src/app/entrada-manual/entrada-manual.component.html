@@ -101,7 +101,8 @@
                 <ion-select-option
                   *ngFor="let valueSet of elements.firstSection.valuesSets"
                   [value]="valueSet"
-                  >{{ valueSet.Name }}</ion-select-option
+                >
+                  {{ valueSet.Name }}</ion-select-option
                 >
               </ion-select>
             </ion-item>
@@ -149,7 +150,8 @@
                   <ion-input
                     type="number"
                     value="{{ leituraEscrita.ValueString }}"
-                  ></ion-input>
+                    >{{ keyboardValue }}
+                  </ion-input>
                 </ion-item>
               </div>
             </div>
@@ -176,8 +178,9 @@
           </div>
           <div class="btns">
             <ion-button (click)="saveElement()">Salvar</ion-button>
-            <ion-button>Sincronizar</ion-button>
-            <ion-button>Inserir Comentario</ion-button>
+            <ion-button (click)="goInserirComentario()"
+              >Inserir Comentario</ion-button
+            >
           </div>
         </div>
       </div>

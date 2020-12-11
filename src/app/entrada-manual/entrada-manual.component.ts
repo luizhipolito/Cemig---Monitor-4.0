@@ -19,6 +19,7 @@ import { Attribute } from 'src/model/Attribute.model';
 import { PIWebValue } from 'src/model/PIWebValue.model';
 import { EnumerationValue } from 'src/model/EnumerationValue.model';
 import { __await } from 'tslib';
+import { isNumber } from 'util';
 
 const firstOrNull = () => true;
 const typeEnumeration = 'EnumerationValue';
@@ -32,16 +33,34 @@ export class EntradaManualComponent implements OnInit {
   @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
   @ViewChild(MatSort, { static: true }) sort: MatSort;
 
+  keyboardValue = '';
+  oldValue = [''];
+  lastNumber = '';
   numberGroups = [
     [7, 8, 9],
     [4, 5, 6],
     [1, 2, 3],
-    [0, '<', 'Enter'],
+    [0, '<', '.'],
   ];
 
   onButtonPress(symbol) {
-    console.log(symbol);
+    if (isNumber(symbol) || symbol === '.') {
+      this.keyboardValue += '' + symbol;
+    }
+    else if (symbol == '<') {
+      this.oldValue = this.keyboardValue.split("");
+      this.oldValue.pop()
+
+      console.log()
+      console.log(this.lastNumber)
+      console.log(this.keyboardValue);
+    }
   }
+
+  goInserirComentario() {
+    this.router.navigate(['/inserir-comentario'])
+  }
+
 
   Elemento = {};
   selectedViews = 'elemento';
@@ -83,7 +102,7 @@ export class EntradaManualComponent implements OnInit {
     public navCtrl: NavController,
     public storageService: StorageArvoreService,
     public config: ConfigService
-  ) {}
+  ) { }
 
   async ionViewWillEnter() {
     this.isToSyncDataFromPI = this.config.isToLoadFromPI;
@@ -280,7 +299,7 @@ export class EntradaManualComponent implements OnInit {
     });
   };
 
-  ngOnInit() {}
+  ngOnInit() { }
 
   print() {
     console.log(this.elements);
