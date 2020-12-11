@@ -133,14 +133,13 @@
                 </ion-select>
               </ion-item>
 
-              <ion-item *ngFor="let leitura of elements.leitura">
+              <div *ngFor="let leitura of elements.leitura">
                 <ion-item>
                   <ion-label> {{ leitura.Name }}:</ion-label>
-                </ion-item>
-                <ion-item>
+
                   <ion-label color="gray"> {{ leitura.ValueString }}</ion-label>
                 </ion-item>
-              </ion-item>
+              </div>
 
               <div *ngFor="let leituraEscrita of elements.leituraEscrita">
                 <ion-item>
