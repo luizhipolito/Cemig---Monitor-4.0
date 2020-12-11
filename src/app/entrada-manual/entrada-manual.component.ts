@@ -34,7 +34,7 @@ export class EntradaManualComponent implements OnInit {
   @ViewChild(MatSort, { static: true }) sort: MatSort;
 
   keyboardValue = '';
-  oldValue = [''];
+  oldValue = '';
   lastNumber = '';
   numberGroups = [
     [7, 8, 9],
@@ -48,10 +48,8 @@ export class EntradaManualComponent implements OnInit {
       this.keyboardValue += '' + symbol;
     }
     else if (symbol == '<') {
-      this.oldValue = this.keyboardValue.split("");
-      this.oldValue.pop()
+      this.oldValue = this.keyboardValue;
 
-      console.log()
       console.log(this.lastNumber)
       console.log(this.keyboardValue);
     }
@@ -484,6 +482,7 @@ export class EntradaManualComponent implements OnInit {
 
   saveElement() {
     console.log(this.elements);
+    this.router.navigate(['/salvar-dados'])
   }
 
   getOptions(qualifyer: string) {

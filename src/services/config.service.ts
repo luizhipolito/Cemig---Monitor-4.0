@@ -42,5 +42,5 @@ export class ConfigService {
     descricaoEnumerationSets: 'Descrição Enumeration Sets',
     DataBase: 'Database',
   };
-  constructor() {}
+  constructor() { }
 }
