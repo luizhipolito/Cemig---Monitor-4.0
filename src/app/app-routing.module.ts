@@ -5,6 +5,7 @@ import { EntradaManualComponent } from './entrada-manual/entrada-manual.componen
 import { SenhaOffPageComponent } from './senha-off-page/senha-off-page.component';
 import { DataConfigComponent } from './data-config/data-config.component';
 import { InserirComentarioComponent } from './inserir-comentario/inserir-comentario.component';
+import { SalvarDadosComponent } from './salvar-dados/salvar-dados.component';
 
 const routes: Routes = [
   {
@@ -36,6 +37,10 @@ const routes: Routes = [
   {
     path: 'inserir-comentario',
     component: InserirComentarioComponent,
+  },
+  {
+    path: 'salvar-dados',
+    component: SalvarDadosComponent
   }
 ];
 

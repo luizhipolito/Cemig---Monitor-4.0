@@ -1,0 +1,32 @@
+.boxData{
+    border: 2px solid black;
+    width: calc(100% - 10px);
+    height: calc(100% - 60px);
+    margin: 5px;
+    overflow: auto;
+}
+
+.btn{
+    display: flex;
+    flex-direction: row;
+    float: right;
+    margin: 5px;
+    margin-right: 20px;
+}
+
+.checkConfirm{
+    margin: 5px;
+}
+
+.checkConfirm > ion-label{
+    margin-right: 10px;
+    margin-left: 3px;
+    font-size: 1.3rem;
+}
+
+.btn > ion-button{
+    width: 150px;
+}
+
+
+

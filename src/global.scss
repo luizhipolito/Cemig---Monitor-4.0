@@ -26,3 +26,101 @@
 @import "~@ionic/angular/css/text-alignment.css";
 @import "~@ionic/angular/css/text-transformation.css";
 @import "~@ionic/angular/css/flex-utils.css";
+
+.head {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    border-bottom: 2px solid black;
+    padding: 8px;
+    background-color: rgb(245, 247, 231);
+  }
+ion-menu-button {
+    background-color: rgb(245, 247, 231);
+    color: #008f45;
+    font-size: 50px;
+  }
+  
+  ion-icon {
+    color: #008f45;
+    // margin-top: -10px;
+    background-repeat: no-repeat;
+    display: inline-block;
+    font-size: 60px;
+    font-weight: 900;
+    margin: 0;
+  }
+
+.logoCemig > img {
+    margin-top: 15px;
+    width: 70%;
+  }
+  
+  .nomeCentro {
+    color: #008f45;
+    font-size: 2.2rem;
+    font-weight: 800;
+    margin: auto 0;
+    margin-left: 90px;
+  }
+  .spinner {
+    margin-top: 10%;
+    margin-left: 46%;
+  }
+
+  /* routes and search */
+.route {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    height: 8%;
+    max-height: 9%;
+  }
+  
+  .routeSelect {
+    font-size: 1.2rem;
+    margin: 10px;
+    color: #008f45;
+  }
+  
+  .search > ion-icon {
+    font-size: 1.5rem;
+    margin-right: 20px;
+    margin-top: 10px;
+  }
+
+  @media screen and(max-width: 800px) {
+    .logoCemig > img{
+      width: 180px !important;
+    }
+    .nomeCentro{
+      font-size: 1.2rem;
+    }
+    ion-list{
+      font-size: 1.2rem;
+      padding: 10px;
+    }
+    
+  }
+  
+  @media screen and(max-width: 500px) {
+    .nomeCentro {
+      margin-left: 20px;
+      font-size: 1rem;
+    }
+    .logoCemig > img {
+      width: 150px !important;
+    }
+    ion-list {
+      font-size: 1.5rem;
+    }
+    
+    ion-icon {
+      font-size: 40px;
+      margin-top: 10px;
+    }
+  
+    
+    
+  }
+  

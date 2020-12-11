@@ -44,5 +44,5 @@ export class ConfigService {
     DataBase: 'Database',
     AppAttributes: 'Descrição Atributo',
   };
-  constructor() {}
+  constructor() { }
 }

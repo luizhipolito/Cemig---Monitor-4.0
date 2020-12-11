@@ -33,8 +33,10 @@ export class EntradaManualComponent implements OnInit {
   @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
   @ViewChild(MatSort, { static: true }) sort: MatSort;
 
+  leituraeEscrita: any;
+
   keyboardValue = '';
-  oldValue = [''];
+  oldValue = '';
   lastNumber = '';
   numberGroups = [
     [7, 8, 9],
@@ -44,11 +46,12 @@ export class EntradaManualComponent implements OnInit {
   ];
 
   onButtonPress(symbol) {
+    console.log(this.keyboardValue);
     if (isNumber(symbol) || symbol === '.') {
       this.keyboardValue += '' + symbol;
     } else if (symbol == '<') {
-      this.oldValue = this.keyboardValue.split('');
-      this.oldValue.pop();
+      // this.oldValue = this.keyboardValue.split('');
+      // this.oldValue.pop();
 
       console.log();
       console.log(this.lastNumber);
@@ -546,6 +549,7 @@ export class EntradaManualComponent implements OnInit {
 
   saveElement() {
     console.log(this.elements);
+    this.router.navigate(['/salvar-dados']);
   }
 
   getOptions(qualifyer: string) {

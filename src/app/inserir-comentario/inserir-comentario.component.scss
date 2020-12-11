@@ -1,0 +1,28 @@
+.boxData{
+    border: 2px solid black;
+    width: calc(100% - 10px);
+    height: calc(100% - 65px);
+    margin: 5px;
+    margin-top: 60px;
+    display: flex;
+
+}
+
+.coments{
+    margin: 20px;
+    // width: calc(100% - 100px);
+    height: calc(100% - 40px);
+    border-radius: 50px;
+    border: 1px solid #ccc;
+}
+
+
+.btn{
+    display: flex;
+    flex-direction: column-reverse;
+    margin: 20px;
+}
+
+.btn > ion-button{
+    margin: 5px;
+}
