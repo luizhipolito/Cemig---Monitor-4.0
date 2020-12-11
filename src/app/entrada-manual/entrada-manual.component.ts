@@ -168,7 +168,6 @@ export class EntradaManualComponent implements OnInit {
       .pipe(map(this.generateRelativePath))
       .toPromise();
     let attributes = await this.loadAttributes(navigationData);
-    console.log(attributes);
 
     this.navigationData = navigationData;
     this.navigationTree = navigationData.map((nav) => {
@@ -387,10 +386,6 @@ export class EntradaManualComponent implements OnInit {
         att.visible = true;
       }
     });
-
-    console.log($event.target.value);
-
-    console.log(this.elements);
   }
 
   async loadAttributes(items: Array<PIWebObject>) {
