@@ -88,4 +88,39 @@ ion-menu-button {
     margin-right: 20px;
     margin-top: 10px;
   }
+
+  @media screen and(max-width: 800px) {
+    .logoCemig > img{
+      width: 180px !important;
+    }
+    .nomeCentro{
+      font-size: 1.2rem;
+    }
+    ion-list{
+      font-size: 1.2rem;
+      padding: 10px;
+    }
+    
+  }
+  
+  @media screen and(max-width: 500px) {
+    .nomeCentro {
+      margin-left: 20px;
+      font-size: 1rem;
+    }
+    .logoCemig > img {
+      width: 150px !important;
+    }
+    ion-list {
+      font-size: 1.5rem;
+    }
+    
+    ion-icon {
+      font-size: 40px;
+      margin-top: 10px;
+    }
+  
+    
+    
+  }
   

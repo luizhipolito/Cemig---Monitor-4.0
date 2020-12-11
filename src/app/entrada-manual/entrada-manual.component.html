@@ -104,7 +104,8 @@
                 <ion-item>
                   <ion-label position="floating">
                     {{ leituraEscrita.Name }}:</ion-label>
-                  <ion-input type="number" value="{{ leituraEscrita.ValueString }}">{{keyboardValue}}
+                  <ion-input type="number" name="leituraeEscrita" [(ngModel)]="leituraeEscrita"
+                    value="{{ leituraEscrita.ValueString }}">
                   </ion-input>
                 </ion-item>
               </div>

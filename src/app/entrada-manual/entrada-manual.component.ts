@@ -33,6 +33,8 @@ export class EntradaManualComponent implements OnInit {
   @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
   @ViewChild(MatSort, { static: true }) sort: MatSort;
 
+  leituraeEscrita: any;
+
   keyboardValue = '';
   oldValue = '';
   lastNumber = '';
@@ -44,6 +46,7 @@ export class EntradaManualComponent implements OnInit {
   ];
 
   onButtonPress(symbol) {
+    console.log(this.keyboardValue)
     if (isNumber(symbol) || symbol === '.') {
       this.keyboardValue += '' + symbol;
     }

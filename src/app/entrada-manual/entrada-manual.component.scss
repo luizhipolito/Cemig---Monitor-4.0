@@ -64,7 +64,7 @@ ion-list {
   height: 54px;
   margin: 1px;
   margin-top: 3px;
-  font-size: 10px;
+  font-size: 20px;
 }
 
 .btns{
@@ -87,12 +87,7 @@ ion-list {
 
 
 @media screen and(max-width: 800px) {
-  .logoCemig > img{
-    width: 180px !important;
-  }
-  .nomeCentro{
-    font-size: 1.2rem;
-  }
+  
 
   
   .routeSelect{
@@ -125,13 +120,7 @@ ion-list {
 }
 
 @media screen and(max-width: 500px) {
-  .nomeCentro {
-    margin-left: 20px;
-    font-size: 1rem;
-  }
-  .logoCemig > img {
-    width: 150px !important;
-  }
+  
   ion-list {
     font-size: 1.5rem;
   }
