@@ -4,6 +4,8 @@ export class Attribute {
   leitura: Array<PIWebAttribute>;
   escrita: Array<PIWebAttribute>;
   leituraEscrita: Array<PIWebAttribute>;
+  list: Array<PIWebAttribute>;
   firstSection: PIWebAttribute;
   WebId: string;
+  firstSelection: PIWebAttribute;
 }

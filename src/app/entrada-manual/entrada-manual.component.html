@@ -82,78 +82,102 @@
               <ion-icon class="iconCalendar" name="calendar-outline"></ion-icon>
             </ion-item>
 
-            <ion-item *ngIf="elements.firstSection">
+            <ion-item *ngIf="elements.firstSelection">
               <ion-label (click)="print()">
-                {{ elements.firstSection.Name }}:</ion-label
+                {{ elements.firstSelection.Name }}:</ion-label
               >
               <ion-input
-                *ngIf="elements.firstSection.Type == 'Double'"
+                *ngIf="elements.firstSelection.Type == 'Double'"
                 type="number"
-                [value]="elements.firstSection.Selected"
+                [value]="elements.firstSelection.Selected"
               ></ion-input>
 
               <ion-select
-                *ngIf="elements.firstSection.Type == 'EnumerationValue'"
+                *ngIf="elements.firstSelection.Type == 'EnumerationValue'"
                 class="select"
-                [(ngModel)]="elements.firstSection.Selected"
+                (ionChange)="onSelect($event)"
+                [(ngModel)]="elements.firstSelection.Selected"
                 (click)="print()"
               >
                 <ion-select-option
-                  *ngFor="let valueSet of elements.firstSection.valuesSets"
+                  *ngFor="let valueSet of elements.firstSelection.valuesSets"
                   [value]="valueSet"
                 >
                   {{ valueSet.Name }}</ion-select-option
                 >
               </ion-select>
             </ion-item>
-            <div
+            <!-- <div
               *ngIf="
                 elements.firstSection &&
                 elements.firstSection.Selected &&
                 elements.firstSection.Selected.Name != conditionFirstSelection
               "
-            >
-              <ion-item *ngFor="let escrita of elements.escrita">
-                <ion-label> {{ escrita.Name }}:</ion-label>
+            > -->
+            <!-- <ion-item *ngFor="let escrita of elements.escrita">
+              <ion-label> {{ escrita.Name }}:</ion-label>
+              <ion-input
+                *ngIf="escrita.Type == 'Double'"
+                type="number"
+                [value]="escrita.Selected"
+              ></ion-input>
+
+              <ion-select
+                *ngIf="escrita.Type == 'EnumerationValue'"
+                class="select"
+                [value]="escrita.Selected"
+              >
+                <ion-select-option
+                  *ngFor="let valueSet of escrita.valuesSets"
+                  >{{ valueSet.Name }}</ion-select-option
+                >
+              </ion-select>
+            </ion-item>
+
+            <div *ngFor="let leitura of elements.leitura">
+              <ion-item>
+                <ion-label> {{ leitura.Name }}:</ion-label>
+
+                <ion-label color="gray"> {{ leitura.ValueString }}</ion-label>
+              </ion-item>
+            </div>
+
+            <div *ngFor="let leituraEscrita of elements.leituraEscrita">
+              <ion-item>
+                <ion-label position="floating">
+                  {{ leituraEscrita.Name }}:</ion-label
+                >
                 <ion-input
-                  *ngIf="escrita.Type == 'Double'"
                   type="number"
-                  [value]="escrita.Selected"
+                  value="{{ leituraEscrita.ValueString }}"
+                  >{{ keyboardValue }}
+                </ion-input>
+              </ion-item>
+            </div> -->
+
+            <!-- </div> -->
+
+            <ion-item *ngFor="let element of elements.list">
+              <div *ngIf="element.visible">
+                <ion-label> {{ element.Name }}:</ion-label>
+                <ion-input
+                  *ngIf="element.Type == 'Double'"
+                  type="number"
+                  [value]="element.Selected"
                 ></ion-input>
 
                 <ion-select
-                  *ngIf="escrita.Type == 'EnumerationValue'"
+                  *ngIf="element.Type == 'EnumerationValue'"
                   class="select"
-                  [value]="escrita.Selected"
+                  [value]="element.Selected"
                 >
                   <ion-select-option
-                    *ngFor="let valueSet of escrita.valuesSets"
+                    *ngFor="let valueSet of element.valuesSets"
                     >{{ valueSet.Name }}</ion-select-option
                   >
                 </ion-select>
-              </ion-item>
-
-              <div *ngFor="let leitura of elements.leitura">
-                <ion-item>
-                  <ion-label> {{ leitura.Name }}:</ion-label>
-
-                  <ion-label color="gray"> {{ leitura.ValueString }}</ion-label>
-                </ion-item>
               </div>
-
-              <div *ngFor="let leituraEscrita of elements.leituraEscrita">
-                <ion-item>
-                  <ion-label position="floating">
-                    {{ leituraEscrita.Name }}:</ion-label
-                  >
-                  <ion-input
-                    type="number"
-                    value="{{ leituraEscrita.ValueString }}"
-                    >{{ keyboardValue }}
-                  </ion-input>
-                </ion-item>
-              </div>
-            </div>
+            </ion-item>
           </ion-list>
         </div>
 

@@ -83,12 +83,7 @@ export class ApiService {
       .pipe(retry(2), catchError(this.handleError));
   }
 
-  getLink(
-    data,
-    name: string,
-    endPoints: Array<string>,
-    type: string = 'Links'
-  ) {
+  getLink(data, name: string, endPoint: string, type: string = 'Links') {
     let item = data;
     if ('Items' in data) {
       let items = data['Items'] as Array<object>;
@@ -99,9 +94,7 @@ export class ApiService {
       }
     }
     if (item) {
-      return endPoints.map((endPoint) => {
-        return item[type][endPoint];
-      });
+      return item[type][endPoint];
     }
   }
 

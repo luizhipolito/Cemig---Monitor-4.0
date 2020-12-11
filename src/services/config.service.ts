@@ -20,13 +20,14 @@ export class ConfigService {
   Enumeration: string = 'Testes';
   descricaoEnumerationSets: string;
   DataBase: string;
+  AppAttributes: string;
 
   endPoint = {
-    asset: ['Databases'],
-    database: ['Elements'],
-    Elementos: ['Attributes'],
-    value: ['Value'],
-    values: ['Values'],
+    asset: 'Databases',
+    database: 'Elements',
+    Elementos: 'Attributes',
+    value: 'Value',
+    values: 'Values',
     enumeration: 'Database',
     enumerationSets: 'EnumerationSets',
   };
@@ -41,6 +42,7 @@ export class ConfigService {
     EscritaLeitura: 'Descrição Atributo Leitura Escrita',
     descricaoEnumerationSets: 'Descrição Enumeration Sets',
     DataBase: 'Database',
+    AppAttributes: 'Descrição Atributo',
   };
   constructor() {}
 }

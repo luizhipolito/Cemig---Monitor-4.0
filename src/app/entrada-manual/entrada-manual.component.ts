@@ -90,6 +90,7 @@ export class EntradaManualComponent implements OnInit {
   firstSelection: string = 'Observação';
   conditionSelection: string = 'Observação <> "Não Observado"';
   conditionFirstSelection: string = 'Não Observado';
+  textCondition: string = 'Condição'; // "Comparação"
 
   constructor(
     private api: ApiService,
@@ -103,7 +104,8 @@ export class EntradaManualComponent implements OnInit {
   ) {}
 
   async ionViewWillEnter() {
-    this.isToSyncDataFromPI = true; //this.config.isToLoadFromPI;
+    this.isToSyncDataFromPI = true;
+    this.isToSyncDataFromPI = this.config.isToLoadFromPI;
     await this.loadAuthFromStorage();
 
     if (this.isToSyncDataFromPI) {
@@ -125,9 +127,11 @@ export class EntradaManualComponent implements OnInit {
 
   async syncConfigFromPI() {
     let configHome = await this.api.getData().toPromise();
-    let configUrlValues = this.api
-      .getLink(configHome, this.config.config, this.config.endPoint['value'])
-      .find(firstOrNull);
+    let configUrlValues = this.api.getLink(
+      configHome,
+      this.config.config,
+      this.config.endPoint['value']
+    );
     let attributes = this.config.attributes;
     let configData = await this.api.get(configUrlValues).toPromise();
     for (let attribute in attributes) {
@@ -138,7 +142,7 @@ export class EntradaManualComponent implements OnInit {
         this.config.endPoint['value'],
         'Value'
       );
-      this.config[attribute] = value.find(firstOrNull);
+      this.config[attribute] = value;
     }
 
     this.api.setBaseUrl(
@@ -150,13 +154,11 @@ export class EntradaManualComponent implements OnInit {
 
   async syncNavigationData() {
     let rootData = await this.api.getData().toPromise();
-    let rootUrl = this.api
-      .getLink(
-        rootData,
-        this.config.ElementoRaiz,
-        this.config.endPoint.database
-      )
-      .find(firstOrNull);
+    let rootUrl = this.utils.getValue(
+      rootData,
+      this.config.ElementoRaiz,
+      this.config.endPoint.database
+    );
     let insertParams = this.api.getCatagoryParams(this.config.Insercao);
     let navigationData = await this.api
       .get(rootUrl, insertParams)
@@ -244,7 +246,9 @@ export class EntradaManualComponent implements OnInit {
         acc
           .concat(cur.atributos.escrita)
           .concat(cur.atributos.leitura)
-          .concat(cur.atributos.leituraEscrita);
+          .concat(cur.atributos.leituraEscrita)
+          .concat(cur.atributos.list)
+          .concat([cur.atributos.firstSelection]);
 
       let qualifyers = this.arvoreLocal
         .reduce(aggregateAttributes, [])
@@ -317,24 +321,16 @@ export class EntradaManualComponent implements OnInit {
         });
 
         this.elements = item.atributos;
-        this.elements.escrita.forEach((esc) => {
-          if (esc.Type == typeEnumeration) {
-            let selectOptions = this.getOptions(esc.TypeQualifier);
-            esc.valuesSets = selectOptions;
-          }
-        });
 
-        this.elements.leitura.forEach((esc) => {
-          if (esc.Type == typeEnumeration) {
-            let selectOptions = this.getOptions(esc.TypeQualifier);
-            esc.valuesSets = selectOptions;
-          }
-        });
-
-        this.elements.leituraEscrita.forEach((esc) => {
-          if (esc.Type == typeEnumeration) {
-            let selectOptions = this.getOptions(esc.TypeQualifier);
-            esc.valuesSets = selectOptions;
+        if (this.elements.firstSelection && this.elements.firstSelection.Type) {
+          this.elements.firstSelection.valuesSets = this.getOptions(
+            this.elements.firstSelection.TypeQualifier
+          );
+        }
+        this.elements.list.forEach((elem) => {
+          if (elem.Type == typeEnumeration) {
+            let selectOptions = this.getOptions(elem.TypeQualifier);
+            elem.valuesSets = selectOptions;
           }
         });
 
@@ -381,6 +377,18 @@ export class EntradaManualComponent implements OnInit {
   onSairClick = (ev) => {
     this.logoutUsuario();
   };
+
+  onSelect($event) {
+    this.elements.list.forEach((att) => {
+      if (!att.config.some((s) => s.Name.includes(this.textCondition))) {
+        att.visible = true;
+      }
+    });
+
+    console.log($event.target.value);
+
+    console.log(this.elements);
+  }
 
   async loadAttributes(items: Array<PIWebObject>) {
     let server = this.config.afServer;
@@ -452,8 +460,6 @@ export class EntradaManualComponent implements OnInit {
           attributes.forEach((att) => {
             att.config = configList[att.Path] || [];
           });
-
-          console.log(attributes);
         }
 
         let newAttribute: Attribute = new Attribute();
@@ -468,6 +474,14 @@ export class EntradaManualComponent implements OnInit {
           .filter((att) => att.Description.includes(this.config.EscritaLeitura))
           .map((att) => this.getAttValue(att, valuesItems));
 
+        let firstSelectionIndex = attributes.findIndex(
+          (esc) => esc.Name == this.firstSelection
+        );
+        newAttribute.firstSelection = attributes[firstSelectionIndex];
+        attributes.splice(firstSelectionIndex, 1);
+        newAttribute.list = attributes.filter((att) =>
+          att.Description.includes(this.config.AppAttributes)
+        );
         attributesData.push(newAttribute);
       }
     }

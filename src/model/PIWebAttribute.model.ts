@@ -18,4 +18,5 @@ export class PIWebAttribute extends PIWebObject {
   ValueString: string;
   Selected: any;
   config: Array<PIWebObject>;
+  visible: boolean;
 }
