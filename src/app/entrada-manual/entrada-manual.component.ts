@@ -57,6 +57,10 @@ export class EntradaManualComponent implements OnInit {
     }
   }
 
+  goInserirComentario() {
+    this.router.navigate(['/inserir-comentario'])
+  }
+
 
   Elemento = {};
   selectedViews = 'elemento';
