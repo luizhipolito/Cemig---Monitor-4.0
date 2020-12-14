@@ -33,11 +33,8 @@ export class EntradaManualComponent implements OnInit {
   @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
   @ViewChild(MatSort, { static: true }) sort: MatSort;
 
-  leituraeEscrita: any;
 
   keyboardValue = '';
-  oldValue = '';
-  lastNumber = '';
   numberGroups = [
     [7, 8, 9],
     [4, 5, 6],
@@ -48,15 +45,11 @@ export class EntradaManualComponent implements OnInit {
   onButtonPress(symbol) {
     console.log(this.keyboardValue);
     if (isNumber(symbol) || symbol === '.') {
-      this.keyboardValue += '' + symbol;
-    } else if (symbol == '<') {
-      // this.oldValue = this.keyboardValue.split('');
-      // this.oldValue.pop();
-
-      console.log();
-      console.log(this.lastNumber);
-      console.log(this.keyboardValue);
+      this.keyboardValue += symbol;
+    } if (symbol == '<') {
+      this.keyboardValue = this.keyboardValue.substr(0, this.keyboardValue.length - 1);
     }
+    console.log(this.keyboardValue);
   }
 
   goInserirComentario() {
@@ -108,7 +101,7 @@ export class EntradaManualComponent implements OnInit {
     public navCtrl: NavController,
     public storageService: StorageArvoreService,
     public config: ConfigService
-  ) {}
+  ) { }
 
   async ionViewWillEnter() {
     this.isToSyncDataFromPI = true;
@@ -308,7 +301,7 @@ export class EntradaManualComponent implements OnInit {
     });
   };
 
-  ngOnInit() {}
+  ngOnInit() { }
 
   print() {
     console.log(this.elements);
@@ -499,8 +492,8 @@ export class EntradaManualComponent implements OnInit {
           for (let batchKey of Object.keys(childrenBatchResponse)) {
             let configAtt = isResult(childrenBatchResponse[batchKey])
               ? (childrenBatchResponse[batchKey]['Content'][
-                  'Items'
-                ] as Array<PIWebAttribute>)
+                'Items'
+              ] as Array<PIWebAttribute>)
               : [];
             let batchValueChildren = this.createBatch(
               configAtt,

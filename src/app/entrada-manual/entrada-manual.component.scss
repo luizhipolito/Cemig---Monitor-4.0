@@ -56,7 +56,7 @@ ion-list {
   position: absolute;
   top: 0;
   margin-left: calc(76% - 10px);
-  margin-top: 8px;
+  margin-top: 20px;
 }
 
 .calc-button {
@@ -71,6 +71,8 @@ ion-list {
  display: flex;
  flex-direction: column;
  align-items: center;
+ margin-top: 20px;
+
 }
 .btns > ion-button{
   width: 80%;
