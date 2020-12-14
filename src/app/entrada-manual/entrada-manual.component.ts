@@ -94,6 +94,10 @@ export class EntradaManualComponent implements OnInit {
   conditionSelection: string = 'Observação <> "Não Observado"';
   conditionFirstSelection: string = 'Não Observado';
   textCondition: string = 'Condição'; // "Comparação"
+  templateConditionAtt = 'Condição X Atributo';
+  templateConditionComp = 'Condição X Comparação';
+  templateConditionValue = 'Condição X Valor';
+  templateIndex = ' X ';
 
   constructor(
     private api: ApiService,
@@ -384,8 +388,68 @@ export class EntradaManualComponent implements OnInit {
     this.elements.list.forEach((att) => {
       if (!att.config.some((s) => s.Name.includes(this.textCondition))) {
         att.visible = true;
+      } else {
+        att.visible = false;
+        let hasCondition = true;
+        let index = 1;
+        while (hasCondition) {
+          let attTemp = this.templateConditionAtt.replace(
+            this.templateIndex,
+            ' ' + index + ' '
+          );
+          let valTemp = this.templateConditionValue.replace(
+            this.templateIndex,
+            ' ' + index + ' '
+          );
+          let compTemp = this.templateConditionComp.replace(
+            this.templateIndex,
+            ' ' + index + ' '
+          );
+
+          let config = att.config as PIWebAttribute[];
+          let atribute = this.getValueTemplate(attTemp, config);
+          let condition = this.getValueTemplate(compTemp, config);
+          let value = this.getValueTemplate(valTemp, config);
+
+          hasCondition =
+            Boolean(atribute) && Boolean(condition) && Boolean(value);
+
+          let selector = $event.target.value.Name;
+          console.log(selector);
+
+          if (hasCondition) {
+            att.visible =
+              att.visible || this.IsConditionValid(selector, condition, value);
+          }
+
+          index++;
+        }
       }
     });
+  }
+  IsConditionValid(selector, condition, value): boolean {
+    console.log(`'${selector}' ${condition} '${value}'`);
+    let conditionValue = eval(`'${selector}' ${condition} '${value}'`);
+
+    console.log(conditionValue);
+
+    return conditionValue;
+  }
+  getValueTemplate(attTemp: string, configs: PIWebAttribute[]): string {
+    let config = configs.find((f) => f.Name == attTemp);
+    let configValue = null;
+
+    let value =
+      config && config.Value && config.Value.Good ? config.Value.Value : null;
+
+    if (value) {
+      configValue = new String(value).toString();
+      if (value.Name) {
+        configValue = value.Name;
+      }
+    }
+
+    return configValue;
   }
 
   async loadAttributes(items: Array<PIWebObject>) {

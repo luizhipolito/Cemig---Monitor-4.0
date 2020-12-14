@@ -24,6 +24,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { StorageArvoreService } from 'src/services/storage-arvore.service';
 import { DataConfigComponent } from './data-config/data-config.component';
 import { SenhaOffPageComponent } from './senha-off-page/senha-off-page.component';
+import { FilterPipe } from 'src/utils/filters';
 
 @NgModule({
   declarations: [
@@ -32,6 +33,7 @@ import { SenhaOffPageComponent } from './senha-off-page/senha-off-page.component
     EntradaManualComponent,
     DataConfigComponent,
     SenhaOffPageComponent,
+    FilterPipe,
   ],
   entryComponents: [],
   imports: [
