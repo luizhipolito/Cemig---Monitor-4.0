@@ -25,6 +25,7 @@ import { StorageArvoreService } from 'src/services/storage-arvore.service';
 import { DataConfigComponent } from './data-config/data-config.component';
 import { SenhaOffPageComponent } from './senha-off-page/senha-off-page.component';
 import { FilterPipe } from 'src/utils/filters';
+import { SalvarDadosComponent } from './salvar-dados/salvar-dados.component';
 
 @NgModule({
   declarations: [
@@ -33,6 +34,7 @@ import { FilterPipe } from 'src/utils/filters';
     EntradaManualComponent,
     DataConfigComponent,
     SenhaOffPageComponent,
+    SalvarDadosComponent,
     FilterPipe,
   ],
   entryComponents: [],

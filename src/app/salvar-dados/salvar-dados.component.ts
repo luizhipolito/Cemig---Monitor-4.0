@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { MenuController } from '@ionic/angular';
 import { Router } from '@angular/router';
+import { StorageArvoreService } from 'src/services/storage-arvore.service';
 
 @Component({
   selector: 'app-salvar-dados',
@@ -8,10 +9,22 @@ import { Router } from '@angular/router';
   styleUrls: ['./salvar-dados.component.scss'],
 })
 export class SalvarDadosComponent implements OnInit {
+  constructor(
+    private menu: MenuController,
+    private router: Router,
+    public storageService: StorageArvoreService
+  ) {}
 
-  constructor(private menu: MenuController, private router: Router) { }
+  ngOnInit() {}
 
-  ngOnInit() { }
+  dataToWriteOnPI = [];
+
+  async ionViewWillEnter() {
+    this.dataToWriteOnPI = await this.storageService.getByKey(
+      this.storageService.writtenValues
+    );
+    console.log(this.dataToWriteOnPI);
+  }
 
   openMenu() {
     this.menu.open();
@@ -20,10 +33,8 @@ export class SalvarDadosComponent implements OnInit {
   logoutUsuario = () => {
     this.menu.close();
     this.router.navigate(['/']);
-
   };
   onSairClick = (ev) => {
     this.logoutUsuario();
   };
-
 }

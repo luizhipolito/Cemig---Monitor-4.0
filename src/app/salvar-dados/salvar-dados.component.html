@@ -29,13 +29,30 @@
     <div class="nomeCentro">ADB Móvel</div>
 
     <div class="logoCemig">
-      <img style="width: 100%; margin-right: -60px" src="../../../assets/logo-cemig-2048.png" alt="logo" />
+      <img
+        style="width: 100%; margin-right: -60px"
+        src="../../../assets/logo-cemig-2048.png"
+        alt="logo"
+      />
     </div>
   </div>
   <ion-content>
     <div class="boxData">
       <div class="dataConfirm">
-        <ion-item></ion-item>
+        <ion-list *ngFor="let element of dataToWriteOnPI">
+          <ion-item-divider> {{ element.relativePath }}</ion-item-divider>
+
+          <ion-item> Data: {{ element.date }}</ion-item>
+
+          <ion-item *ngFor="let value of element.value">
+            {{ value.Name }}:
+            {{
+              value.Selected && value.Selected.Name
+                ? value.Selected.Name
+                : value.Selected
+            }}</ion-item
+          >
+        </ion-list>
       </div>
     </div>
     <div class="btn">

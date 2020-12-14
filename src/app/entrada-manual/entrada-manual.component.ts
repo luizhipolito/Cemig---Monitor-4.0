@@ -631,10 +631,22 @@ export class EntradaManualComponent implements OnInit {
     tree.relativePath = this.elements.RelativePath;
     tree.value = this.utils.getWrittenValues(this.elements);
     tree.date = dateStr;
+
+    let hasTree = await this.storageService.hasValue(
+      this.storageService.writtenValues,
+      tree
+    );
+
+    if (hasTree) {
+      //Deseja atualizar?
+    }
     await this.storageService.insertOrUpdate(
       this.storageService.writtenValues,
       tree
     );
+
+    alert('Salvo com sucesso');
+    //Salvo com sucesso
 
     console.log(
       await this.storageService.getByKey(this.storageService.writtenValues)
