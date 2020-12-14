@@ -17,15 +17,13 @@ import {
   EnumModeAttribute,
   PIWebAttribute,
 } from 'src/model/PIWebAttribute.model';
-import { distinct, map } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 import { Attribute } from 'src/model/Attribute.model';
-import { PIWebValue } from 'src/model/PIWebValue.model';
 import { EnumerationValue } from 'src/model/EnumerationValue.model';
 import { __await } from 'tslib';
 import { isNumber } from 'util';
 import { InserirComentarioComponent } from '../inserir-comentario/inserir-comentario.component';
 
-const firstOrNull = () => true;
 const typeEnumeration = 'EnumerationValue';
 let currentModal = null;
 
@@ -133,8 +131,8 @@ export class EntradaManualComponent implements OnInit {
   ) {}
 
   async ionViewWillEnter() {
-    //this.isToSyncDataFromPI = true;
-    this.isToSyncDataFromPI = this.config.isToLoadFromPI;
+    this.isToSyncDataFromPI = true;
+    //this.isToSyncDataFromPI = this.config.isToLoadFromPI;
     await this.loadAuthFromStorage();
 
     if (this.isToSyncDataFromPI) {
@@ -254,7 +252,10 @@ export class EntradaManualComponent implements OnInit {
     );
   }
   async getEnumerationSetsValues(enumerationSets: Array<PIWebObject>) {
-    let batchRequest = this.createBatch(enumerationSets, 'EnumerationSets');
+    let batchRequest = this.utils.createBatch(
+      enumerationSets,
+      'EnumerationSets'
+    );
     let batchResponse = await this.api
       .executeBatch(this.config.afServer, batchRequest)
       .toPromise();
@@ -296,7 +297,7 @@ export class EntradaManualComponent implements OnInit {
 
     this.navigation = new Array<{ path: Array<string>; name: string }>();
     this.arvoreLocal.forEach((arvore: Arvore) => {
-      let path = arvore.Caminho.find(firstOrNull);
+      let path = arvore.Caminho.find(this.utils.firstOrNull);
       if (!this.navigation.find((n) => n.name == path)) {
         this.navigation.push({
           path: [path],
@@ -337,7 +338,7 @@ export class EntradaManualComponent implements OnInit {
       let pathLength = e.path.length;
       this.navigation = new Array<{ path: Array<string>; name: string }>();
       if (result.length == 1) {
-        let item = result.find(firstOrNull);
+        let item = result.find(this.utils.firstOrNull);
         this.navigation.push({
           path: e.path,
           name: item.Nome,
@@ -462,12 +463,12 @@ export class EntradaManualComponent implements OnInit {
   async loadAttributes(items: Array<PIWebObject>) {
     let server = this.config.afServer;
     let attributesData: Array<Attribute> = new Array<Attribute>();
-    let bacthRequestAttributes = this.createBatch(items, 'Attributes');
+    let bacthRequestAttributes = this.utils.createBatch(items, 'Attributes');
     let batchResponseAttributes = await this.api
       .executeBatch(server, bacthRequestAttributes)
       .toPromise();
 
-    let batchRequestValues = this.createBatch(items, 'Value');
+    let batchRequestValues = this.utils.createBatch(items, 'Value');
     let batchResponseValues = await this.api
       .executeBatch(server, batchRequestValues)
       .toPromise();
@@ -492,7 +493,7 @@ export class EntradaManualComponent implements OnInit {
           'Items'
         ] as Array<PIWebAttribute>;
 
-        let childrenBatch = this.createBatch(
+        let childrenBatch = this.utils.createBatch(
           attributes.filter(hasChildren),
           'Attributes'
         );
@@ -509,7 +510,7 @@ export class EntradaManualComponent implements OnInit {
                   'Items'
                 ] as Array<PIWebAttribute>)
               : [];
-            let batchValueChildren = this.createBatch(
+            let batchValueChildren = this.utils.createBatch(
               configAtt,
               'ChildrenValue'
             );
@@ -520,7 +521,7 @@ export class EntradaManualComponent implements OnInit {
             configAtt.forEach((child, cIndex) => {
               child.Value = batchValue[cIndex]['Content'];
             });
-            let parentPath = configAtt.find(firstOrNull).Path;
+            let parentPath = configAtt.find(this.utils.firstOrNull).Path;
             parentPath = parentPath.split('|').slice(0, -1).join('|');
             configList[parentPath] = configAtt;
           }
@@ -566,33 +567,6 @@ export class EntradaManualComponent implements OnInit {
     return EnumModeAttribute.Leitura;
   }
 
-  createBatch(items: Array<PIWebObject>, type: string) {
-    let batchItem = {};
-    let selectedFieldsParam =
-      '?selectedFields=Items.Description;Items.Name;Items.Path;Items.Type;Items.TypeQualifier;Items.HasChildren;Items.Links.Attributes;Items.Links.Value';
-
-    if (type == 'Value') {
-      selectedFieldsParam =
-        '?selectedFields=Items.Name;Items.Value;Items.Path;Items.HasChildren';
-    }
-    if (type == 'EnumerationSets') {
-      selectedFieldsParam = '';
-      type = 'Values';
-    }
-
-    if (type == 'ChildrenValue') {
-      selectedFieldsParam = '';
-      type = 'Value';
-    }
-    items.forEach((item, index) => {
-      batchItem[index] = {
-        Method: 'GET',
-        Resource: `${item.Links[type]}${selectedFieldsParam}`,
-      };
-    });
-    return batchItem;
-  }
-
   setPropFocous(element: PIWebAttribute) {
     if (
       (element.mode == EnumModeAttribute.Escrita ||
@@ -633,7 +607,7 @@ export class EntradaManualComponent implements OnInit {
 
   async saveElement() {
     let dateStr = this.currentDate
-      ? this.currentDate.split('T').find(firstOrNull)
+      ? this.currentDate.split('T').find(this.utils.firstOrNull)
       : null;
 
     if (!dateStr) {

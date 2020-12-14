@@ -91,4 +91,35 @@ export class AppUtils {
     );
     return writtenValues;
   }
+
+  createBatch(items: Array<PIWebObject>, type: string, date?: string) {
+    let batchItem = {};
+    let selectedFieldsParam =
+      '?selectedFields=Items.WebId;Items.Description;Items.Name;Items.Path;Items.Type;Items.TypeQualifier;Items.HasChildren;Items.Links.Attributes;Items.Links.Value';
+
+    if (type == 'Value') {
+      selectedFieldsParam =
+        '?selectedFields=Items.Name;Items.Value;Items.Path;Items.HasChildren';
+    }
+    if (type == 'EnumerationSets') {
+      selectedFieldsParam = '';
+      type = 'Values';
+    }
+
+    if (type == 'ChildrenValue') {
+      selectedFieldsParam = '';
+      type = 'Value';
+    }
+
+    let method = 'GET';
+
+    items.forEach((item, index) => {
+      let url = `${item.Links[type]}${selectedFieldsParam}`;
+      batchItem[index] = {
+        Method: method,
+        Resource: url,
+      };
+    });
+    return batchItem;
+  }
 }
