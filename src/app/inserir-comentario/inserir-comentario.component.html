@@ -1,48 +1,16 @@
 <ion-app>
-  <div class="head">
-    <ion-menu side="start" content-id="main-content">
-      <ion-header>
-        <ion-toolbar translucent>
-          <ion-title>Menu</ion-title>
-        </ion-toolbar>
-      </ion-header>
-      <ion-content>
-        <ion-list>
-          <ion-item>
-            <ion-icon name="mail" slot="start"></ion-icon>
-            <ion-label>Inbox</ion-label>
-          </ion-item>
 
-          <ion-item name="logout" slot="start" (click)="logoutUsuario()">
-            <ion-icon name="log-out-outline"></ion-icon>
-            <ion-label>Sair</ion-label>
-          </ion-item>
-        </ion-list>
-      </ion-content>
-    </ion-menu>
-    <div id="main-content">
-      <ion-buttons slot="start">
-        <ion-menu-button></ion-menu-button>
-      </ion-buttons>
-    </div>
-
-    <div class="nomeCentro">ADB Móvel</div>
-
-    <div class="logoCemig">
-      <img style="width: 100%; margin-right: -60px" src="../../../assets/logo-cemig-2048.png" alt="logo" />
-    </div>
-  </div>
   <ion-content>
     <div class="boxData">
+      <ion-button (click)="dismissModal()">Close</ion-button>
       <div>
         <fieldset class="coments">
-          <legend>Comentario</legend>
+          <legend>Comentário:</legend>
           <ion-textarea rows="15" cols="100"></ion-textarea>
         </fieldset>
       </div>
       <div class="btn">
         <ion-button>Salvar</ion-button>
-        <ion-button>Sincronizar</ion-button>
       </div>
     </div>
   </ion-content>

@@ -9,7 +9,7 @@
 .btn{
     display: flex;
     flex-direction: row;
-    float: right;
+    justify-content: space-between;
     margin: 5px;
     margin-right: 20px;
 }
@@ -27,6 +27,10 @@
 .btn > ion-button{
     width: 150px;
 }
+
+.iconBack{
+    font-size: 1.5rem;
+  }
 
 
 

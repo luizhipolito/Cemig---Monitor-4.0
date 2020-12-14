@@ -6,7 +6,7 @@ import { MatSnackBar, MatSnackBarConfig } from '@angular/material/snack-bar';
 
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
-import { MenuController, NavController } from '@ionic/angular';
+import { MenuController, NavController, ModalController } from '@ionic/angular';
 import {
   StorageArvoreService,
   Arvore,
@@ -20,9 +20,11 @@ import { PIWebValue } from 'src/model/PIWebValue.model';
 import { EnumerationValue } from 'src/model/EnumerationValue.model';
 import { __await } from 'tslib';
 import { isNumber } from 'util';
+import { InserirComentarioComponent } from '../inserir-comentario/inserir-comentario.component';
 
 const firstOrNull = () => true;
 const typeEnumeration = 'EnumerationValue';
+let currentModal = null;
 
 @Component({
   selector: 'app-entrada-manual',
@@ -51,9 +53,19 @@ export class EntradaManualComponent implements OnInit {
     console.log(this.keyboardValue);
   }
 
-  goInserirComentario() {
-    this.router.navigate(['/inserir-comentario']);
+  async goInserirComentario() {
+    let modal = await this.modalController.create({
+      component: InserirComentarioComponent,
+      cssClass: 'my-custom-class'
+    });
+    await modal.present();
+    currentModal = modal;
   }
+  dismissModal() {
+    currentModal.dismiss().then(() => { currentModal = null; });
+  }
+  // this.router.navigate(['/inserir-comentario']);
+
 
   Elemento = {};
   selectedViews = 'elemento';
@@ -99,7 +111,8 @@ export class EntradaManualComponent implements OnInit {
     private menu: MenuController,
     public navCtrl: NavController,
     public storageService: StorageArvoreService,
-    public config: ConfigService
+    public config: ConfigService,
+    public modalController: ModalController
   ) { }
 
   async ionViewWillEnter() {
