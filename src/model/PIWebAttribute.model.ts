@@ -19,4 +19,11 @@ export class PIWebAttribute extends PIWebObject {
   Selected: any;
   config: Array<PIWebObject>;
   visible: boolean;
+  mode: EnumModeAttribute;
+}
+
+export enum EnumModeAttribute {
+  'Leitura/Escrita' = 'LeituraEscrita',
+  Leitura = 'Leitura',
+  Escrita = 'Escrita',
 }

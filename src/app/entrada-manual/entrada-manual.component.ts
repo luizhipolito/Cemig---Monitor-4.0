@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ɵConsole } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { ApiService } from 'src/services/api.service';
 import { AppUtils } from 'src/utils/app.utils';
 import { Router } from '@angular/router';
@@ -13,7 +13,10 @@ import {
 } from 'src/services/storage-arvore.service';
 import { ConfigService } from 'src/services/config.service';
 import { PIWebObject } from 'src/model/PIWebObject.model';
-import { PIWebAttribute } from 'src/model/PIWebAttribute.model';
+import {
+  EnumModeAttribute,
+  PIWebAttribute,
+} from 'src/model/PIWebAttribute.model';
 import { distinct, map } from 'rxjs/operators';
 import { Attribute } from 'src/model/Attribute.model';
 import { PIWebValue } from 'src/model/PIWebValue.model';
@@ -33,7 +36,6 @@ export class EntradaManualComponent implements OnInit {
   @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
   @ViewChild(MatSort, { static: true }) sort: MatSort;
 
-
   keyboardValue = '';
   numberGroups = [
     [7, 8, 9],
@@ -43,12 +45,26 @@ export class EntradaManualComponent implements OnInit {
   ];
 
   onButtonPress(symbol) {
-    if (isNumber(symbol) || symbol === '.') {
-      this.keyboardValue += symbol;
-    } if (symbol == '<') {
-      this.keyboardValue = this.keyboardValue.substr(0, this.keyboardValue.length - 1);
+    if (this.propFocous) {
+      if (!this.propFocous.Selected) {
+        this.propFocous.Selected = '';
+      }
+      if (isNumber(symbol)) {
+        this.propFocous.Selected += symbol;
+      }
+      if (
+        symbol === '.' &&
+        !new String(this.propFocous.Selected).includes('.')
+      ) {
+        this.propFocous.Selected += symbol;
+      }
+      if (symbol == '<') {
+        this.propFocous.Selected = this.propFocous.Selected.substr(
+          0,
+          this.propFocous.Selected.length - 1
+        );
+      }
     }
-    console.log(this.keyboardValue);
   }
 
   goInserirComentario() {
@@ -74,22 +90,22 @@ export class EntradaManualComponent implements OnInit {
   navigationTree: Array<Arvore>;
   arvoreLocal: Array<Arvore>;
   navigation: Array<{ path: Array<string>; name: string }>;
-  dataAtual = this.utils.formatDateTime(new Date());
+  currentDate = this.utils.formatDateTime(new Date());
   isToSyncDataFromPI: boolean;
   pathNavigation: { path: Array<string>; name: string } = {
     path: [],
     name: '',
   };
   clickNavigation: string;
+  propFocous: PIWebAttribute;
 
   firstSelection: string = 'Observação';
-  conditionSelection: string = 'Observação <> "Não Observado"';
-  conditionFirstSelection: string = 'Não Observado';
   textCondition: string = 'Condição'; // "Comparação"
   templateConditionAtt = 'Condição X Atributo';
   templateConditionComp = 'Condição X Comparação';
   templateConditionValue = 'Condição X Valor';
   templateIndex = ' X ';
+  templateType = 'Tipo';
 
   constructor(
     private api: ApiService,
@@ -100,10 +116,10 @@ export class EntradaManualComponent implements OnInit {
     public navCtrl: NavController,
     public storageService: StorageArvoreService,
     public config: ConfigService
-  ) { }
+  ) {}
 
   async ionViewWillEnter() {
-    this.isToSyncDataFromPI = true;
+    //this.isToSyncDataFromPI = true;
     this.isToSyncDataFromPI = this.config.isToLoadFromPI;
     await this.loadAuthFromStorage();
 
@@ -241,16 +257,11 @@ export class EntradaManualComponent implements OnInit {
   getEnumerationSetsQualyfiers(): Array<string> {
     if (this.arvoreLocal) {
       const aggregateAttributes = (acc: Array<PIWebAttribute>, cur: Arvore) =>
-        acc
-          .concat(cur.atributos.escrita)
-          .concat(cur.atributos.leitura)
-          .concat(cur.atributos.leituraEscrita)
-          .concat(cur.atributos.list)
-          .concat([cur.atributos.firstSelection]);
+        acc.concat(cur.atributos.list).concat([cur.atributos.firstSelection]);
 
       let qualifyers = this.arvoreLocal
         .reduce(aggregateAttributes, [])
-        .filter((att) => att.Type == typeEnumeration)
+        .filter((att) => att && att.Type == typeEnumeration)
         .map((att) => att.TypeQualifier)
         .filter(this.utils.distinct);
       return qualifyers;
@@ -300,10 +311,10 @@ export class EntradaManualComponent implements OnInit {
     });
   };
 
-  ngOnInit() { }
+  ngOnInit() {}
 
   print() {
-    console.log(this.elements);
+    //console.log(this.elements);
   }
 
   onClickId = (e) => {
@@ -331,17 +342,6 @@ export class EntradaManualComponent implements OnInit {
             elem.valuesSets = selectOptions;
           }
         });
-
-        let firstSelectionIndex = this.elements.escrita.findIndex(
-          (esc) => esc.Name == this.firstSelection
-        );
-        this.elements.firstSection = this.elements.escrita[firstSelectionIndex];
-        if (this.elements.firstSection) {
-          this.elements.firstSection.Selected = this.elements.firstSection.valuesSets.find(
-            (f) => f.Name == this.conditionFirstSelection
-          );
-        }
-        this.elements.escrita.splice(firstSelectionIndex);
       } else {
         this.elements = null;
         result.forEach((arvore) => {
@@ -377,6 +377,8 @@ export class EntradaManualComponent implements OnInit {
   };
 
   onSelect($event) {
+    this.propFocous = null;
+
     this.elements.list.forEach((att) => {
       if (!att.config.some((s) => s.Name.includes(this.textCondition))) {
         att.visible = true;
@@ -407,8 +409,6 @@ export class EntradaManualComponent implements OnInit {
             Boolean(atribute) && Boolean(condition) && Boolean(value);
 
           let selector = $event.target.value.Name;
-          console.log(selector);
-
           if (hasCondition) {
             att.visible =
               att.visible || this.IsConditionValid(selector, condition, value);
@@ -417,13 +417,14 @@ export class EntradaManualComponent implements OnInit {
           index++;
         }
       }
+
+      if (!att.visible) {
+        att.Selected = null;
+      }
     });
   }
   IsConditionValid(selector, condition, value): boolean {
-    console.log(`'${selector}' ${condition} '${value}'`);
     let conditionValue = eval(`'${selector}' ${condition} '${value}'`);
-
-    console.log(conditionValue);
 
     return conditionValue;
   }
@@ -491,8 +492,8 @@ export class EntradaManualComponent implements OnInit {
           for (let batchKey of Object.keys(childrenBatchResponse)) {
             let configAtt = isResult(childrenBatchResponse[batchKey])
               ? (childrenBatchResponse[batchKey]['Content'][
-                'Items'
-              ] as Array<PIWebAttribute>)
+                  'Items'
+                ] as Array<PIWebAttribute>)
               : [];
             let batchValueChildren = this.createBatch(
               configAtt,
@@ -507,40 +508,48 @@ export class EntradaManualComponent implements OnInit {
             });
             let parentPath = configAtt.find(firstOrNull).Path;
             parentPath = parentPath.split('|').slice(0, -1).join('|');
-
             configList[parentPath] = configAtt;
           }
 
           attributes.forEach((att) => {
             att.config = configList[att.Path] || [];
+            att.mode = this.getMode(att.config as PIWebAttribute[]);
           });
         }
 
         let newAttribute: Attribute = new Attribute();
         newAttribute.WebId = items[key].WebId;
-        newAttribute.escrita = attributes.filter((att) =>
-          att.Description.includes(this.config.Escrita)
-        );
-        newAttribute.leitura = attributes
-          .filter((att) => att.Description.includes(this.config.Leitura))
-          .map((att) => this.getAttValue(att, valuesItems));
-        newAttribute.leituraEscrita = attributes
-          .filter((att) => att.Description.includes(this.config.EscritaLeitura))
-          .map((att) => this.getAttValue(att, valuesItems));
+        newAttribute.RelativePath = items[key].relativePath;
 
         let firstSelectionIndex = attributes.findIndex(
           (esc) => esc.Name == this.firstSelection
         );
         newAttribute.firstSelection = attributes[firstSelectionIndex];
         attributes.splice(firstSelectionIndex, 1);
-        newAttribute.list = attributes.filter((att) =>
-          att.Description.includes(this.config.AppAttributes)
-        );
+        newAttribute.list = attributes
+          .filter((att) => att.Description.includes(this.config.AppAttributes))
+          .map((att) => this.getAttValue(att, valuesItems));
         attributesData.push(newAttribute);
       }
     }
 
     return attributesData;
+  }
+  getMode(config: PIWebAttribute[]): EnumModeAttribute {
+    let type = config.find((c) => c.Name == this.templateType);
+
+    if (
+      type &&
+      type.Value &&
+      type.Value.Good &&
+      type.Value.Value &&
+      type.Value.Value.Name &&
+      EnumModeAttribute[type.Value.Value.Name]
+    ) {
+      return EnumModeAttribute[type.Value.Value.Name];
+    }
+
+    return EnumModeAttribute.Leitura;
   }
 
   createBatch(items: Array<PIWebObject>, type: string) {
@@ -568,6 +577,16 @@ export class EntradaManualComponent implements OnInit {
       };
     });
     return batchItem;
+  }
+
+  setPropFocous(element: PIWebAttribute) {
+    if (
+      (element.mode == EnumModeAttribute.Escrita ||
+        element.mode == EnumModeAttribute['Leitura/Escrita']) &&
+      element.Type != typeEnumeration
+    ) {
+      this.propFocous = element;
+    }
   }
 
   getAttValue(
@@ -599,8 +618,24 @@ export class EntradaManualComponent implements OnInit {
   }
 
   saveElement() {
+    let dateStr = this.currentDate
+      ? this.currentDate.split('T').find(firstOrNull)
+      : null;
+
+    if (!dateStr) {
+      return;
+    }
+
+    let tree = new Arvore();
+    tree.AplicacaoID = this.elements.WebId;
+    tree.relativePath = this.elements.RelativePath;
+    tree.value = this.utils.getWrittenValues(this.elements);
+    tree.date = dateStr;
+
+    console.log(dateStr);
+    ///this.router.navigate(['/salvar-dados']);
+
     console.log(this.elements);
-    this.router.navigate(['/salvar-dados']);
   }
 
   getOptions(qualifyer: string) {

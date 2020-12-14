@@ -1,15 +1,13 @@
-ion-content{
+ion-content {
   margin: 0;
   height: 100vh;
 }
 
-
-.iconCalendar{
+.iconCalendar {
   font-size: 1.5rem;
   margin-top: -5px;
   margin-left: 5px;
 }
-
 
 .spinner {
   margin-top: 10%;
@@ -20,8 +18,6 @@ ion-spinner {
   transform: scale(3);
 }
 
-
-
 /* data box route */
 .boxData {
   width: calc(100% - 20px);
@@ -29,16 +25,14 @@ ion-spinner {
   margin: 10px;
   border: 2px solid black;
   overflow: auto;
-  
 }
 
-.boxShort{
+.boxShort {
   width: 70%;
 }
-.boxTotal{
+.boxTotal {
   margin-left: 10px;
 }
-
 
 ion-list {
   font-size: 2.6rem;
@@ -48,11 +42,11 @@ ion-list {
   color: rgb(95, 95, 95);
 }
 
-.select{
+.select {
   font-size: 1rem;
 }
 
-.controlKeyboard{
+.controlKeyboard {
   position: absolute;
   top: 0;
   margin-left: calc(76% - 10px);
@@ -67,14 +61,13 @@ ion-list {
   font-size: 20px;
 }
 
-.btns{
- display: flex;
- flex-direction: column;
- align-items: center;
- margin-top: 20px;
-
+.btns {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 20px;
 }
-.btns > ion-button{
+.btns > ion-button {
   width: 80%;
   margin: 3px;
   background: #008f45 !important;
@@ -82,20 +75,31 @@ ion-list {
   border-radius: 10px;
 }
 
+.disabled {
+  background: gray !important;
+}
 
+.enabled {
+  background: #008f45 !important;
+}
 
+.read {
+  color: rgb(163, 162, 162);
+  border: 1px solid gray;
+  cursor: none;
+}
 
-
-
+.write {
+  color: #00c55f !important;
+  border: 1px solid #008f45 !important;
+  cursor: none;
+}
 
 @media screen and(max-width: 800px) {
-  
-
-  
-  .routeSelect{
+  .routeSelect {
     font-size: 0.6rem;
   }
-  .search > ion-icon{
+  .search > ion-icon {
     margin-top: 8px;
     font-size: 30px;
   }
@@ -103,26 +107,24 @@ ion-list {
   .boxData {
     height: 60%;
   }
-  ion-list{
+  ion-list {
     font-size: 1.2rem;
     padding: 10px;
   }
-  .calc-button{
+  .calc-button {
     width: 35px;
     height: 35px;
     font-size: 8px;
   }
 
-  .btns> ion-button{
+  .btns > ion-button {
     width: 70%;
     height: 20px;
     font-size: 6px;
   }
-  
 }
 
 @media screen and(max-width: 500px) {
-  
   ion-list {
     font-size: 1.5rem;
   }
@@ -142,7 +144,4 @@ ion-list {
     font-size: 40px;
     margin-top: 10px;
   }
-
-  
-  
 }

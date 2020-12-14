@@ -13,6 +13,7 @@ import { PIWebObject } from 'src/model/PIWebObject.model';
 export class StorageArvoreService {
   navigation: string = 'navigation';
   enumerationSets: string = 'enumerationSets';
+  writtenValues: string = 'writtenValues';
   constructor(private storage: Storage, private http: HttpClient) {}
 
   public insert(arvore: Arvore) {
@@ -103,6 +104,7 @@ export class Arvore {
   relativePath: string;
   value: Array<PIWebObject>;
   atributos: Attribute;
+  date: string;
 }
 
 export class ArvoreList {

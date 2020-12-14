@@ -1,5 +1,8 @@
 import { Injectable } from '@angular/core';
+import { element } from 'protractor';
 import { of } from 'rxjs';
+import { Attribute } from 'src/model/Attribute.model';
+import { EnumModeAttribute } from 'src/model/PIWebAttribute.model';
 import { PIWebObject } from 'src/model/PIWebObject.model';
 
 @Injectable({
@@ -27,10 +30,7 @@ export class AppUtils {
       ('00' + (d.getMonth() + 1)).slice(-2) +
       '-' +
       ('00' + d.getDate()).slice(-2) +
-      'T' +
-      ('00' + d.getHours()).slice(-2) +
-      ':' +
-      ('00' + d.getMinutes()).slice(-2);
+      'T00:00';
 
     return dateStr;
   };
@@ -74,5 +74,20 @@ export class AppUtils {
     if (item) {
       return item[type][endPoint];
     }
+  }
+
+  getWrittenValues(elements: Attribute): PIWebObject[] {
+    let writtenValues = new Array<PIWebObject>();
+
+    writtenValues.push(elements.firstSelection);
+
+    console.log(
+      elements.list.filter(
+        (el) =>
+          el.mode == EnumModeAttribute.Escrita ||
+          el.mode == EnumModeAttribute['Leitura/Escrita']
+      )
+    );
+    return writtenValues;
   }
 }

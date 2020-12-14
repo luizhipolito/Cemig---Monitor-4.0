@@ -1,11 +1,9 @@
 import { PIWebAttribute } from './PIWebAttribute.model';
 
 export class Attribute {
-  leitura: Array<PIWebAttribute>;
-  escrita: Array<PIWebAttribute>;
-  leituraEscrita: Array<PIWebAttribute>;
-  list: Array<PIWebAttribute>;
-  firstSection: PIWebAttribute;
   WebId: string;
+  list: Array<PIWebAttribute>;
+
   firstSelection: PIWebAttribute;
+  RelativePath: string;
 }

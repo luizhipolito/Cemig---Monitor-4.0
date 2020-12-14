@@ -76,7 +76,7 @@
                 displayFormat="DD/MM/YYYY"
                 value="data"
                 display-timezone="utc"
-                [(ngModel)]="dataAtual"
+                [(ngModel)]="currentDate"
               >
               </ion-datetime>
               <ion-icon class="iconCalendar" name="calendar-outline"></ion-icon>
@@ -108,67 +108,32 @@
                 >
               </ion-select>
             </ion-item>
-            <!-- <div
-              *ngIf="
-                elements.firstSection &&
-                elements.firstSection.Selected &&
-                elements.firstSection.Selected.Name != conditionFirstSelection
-              "
-            > -->
-            <!-- <ion-item *ngFor="let escrita of elements.escrita">
-              <ion-label> {{ escrita.Name }}:</ion-label>
-              <ion-input
-                *ngIf="escrita.Type == 'Double'"
-                type="number"
-                [value]="escrita.Selected"
-              ></ion-input>
 
-              <ion-select
-                *ngIf="escrita.Type == 'EnumerationValue'"
-                class="select"
-                [value]="escrita.Selected"
-              >
-                <ion-select-option
-                  *ngFor="let valueSet of escrita.valuesSets"
-                  >{{ valueSet.Name }}</ion-select-option
-                >
-              </ion-select>
-            </ion-item>
-
-            <div *ngFor="let leitura of elements.leitura">
-              <ion-item>
-                <ion-label> {{ leitura.Name }}:</ion-label>
-
-                <ion-label color="gray"> {{ leitura.ValueString }}</ion-label>
-              </ion-item>
-            </div>
-
-            <div *ngFor="let leituraEscrita of elements.leituraEscrita">
-              <ion-item>
-                <ion-label position="floating">
-                  {{ leituraEscrita.Name }}:</ion-label
-                >
-                <ion-input
-                  type="number"
-                  value="{{ leituraEscrita.ValueString }}"
-                  >{{ keyboardValue }}
-                </ion-input>
-              </ion-item>
-            </div> -->
-
-            <!-- </div> -->
-
-            <ion-item *ngFor="let element of elements.list | isVisible">
+            <ion-item
+              *ngFor="let element of elements.list | isVisible"
+              (click)="setPropFocous(element)"
+            >
               <ion-label> {{ element.Name }}:</ion-label>
-              <ion-input
-                *ngIf="element.Type == 'Double'"
-                type="number"
-                [value]="element.Selected"
-              ></ion-input>
-              <ion-label color="gray"> {{ element.ValueString }}</ion-label>
+              <ion-label *ngIf="element.mode == 'Leitura'" class="read">
+                {{ element.ValueString }}</ion-label
+              >
+
+              <ion-label
+                *ngIf="
+                  (element.mode == 'LeituraEscrita' ||
+                    element.mode == 'Escrita') &&
+                  (element.Type == 'Double' || element.Type == 'Single')
+                "
+                class="write"
+                >{{ element.Selected }}</ion-label
+              >
 
               <ion-select
-                *ngIf="element.Type == 'EnumerationValue'"
+                *ngIf="
+                  (element.mode == 'LeituraEscrita' ||
+                    element.mode == 'Escrita') &&
+                  element.Type == 'EnumerationValue'
+                "
                 class="select"
                 [value]="element.Selected"
               >
@@ -188,13 +153,15 @@
             </div>
           </ion-list>
         </div>
-        <div *ngIf="elements != null" class="controlKeyboard">
+        <div *ngIf="elements != null && propFocous" class="controlKeyboard">
+          {{ propFocous && propFocous.Name ? propFocous.Name : '' }}
           <div class="keyboard">
             <div *ngFor="let numGroup of numberGroups">
               <ion-button
                 *ngFor="let num of numGroup"
                 (click)="onButtonPress(num)"
                 class="calc-button"
+                [ngClass]="propFocous && propFocous.Name ? 'enabled' : disabled"
                 >{{ num }}
               </ion-button>
             </div>
