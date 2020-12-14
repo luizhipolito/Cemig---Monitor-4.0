@@ -131,8 +131,8 @@ export class EntradaManualComponent implements OnInit {
   ) {}
 
   async ionViewWillEnter() {
-    this.isToSyncDataFromPI = true;
-    //this.isToSyncDataFromPI = this.config.isToLoadFromPI;
+    //this.isToSyncDataFromPI = true;
+    this.isToSyncDataFromPI = this.config.isToLoadFromPI;
     await this.loadAuthFromStorage();
 
     if (this.isToSyncDataFromPI) {
@@ -626,7 +626,9 @@ export class EntradaManualComponent implements OnInit {
     );
 
     if (hasTree) {
-      //Deseja atualizar?
+      confirm(
+        'Já existe uma leitura para esta data neste instrumento não salva. Deseja sobreescrever?'
+      );
     }
     await this.storageService.insertOrUpdate(
       this.storageService.writtenValues,
