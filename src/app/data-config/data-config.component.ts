@@ -21,25 +21,30 @@ export class DataConfigComponent implements OnInit {
     public config: ConfigService,
     public utils: AppUtils
   ) {
-
   }
+
+  showServer = this.utils.getStorage('server')
+  showConfig = this.utils.getStorage('config')
 
   backHome() {
     this.router.navigate(['/home']);
   }
 
-
   onSubmit(f: NgForm) {
     if (f.valid) {
-      // let server = f.value.server;
-      let server = 'https://34.233.235.92/piwebapi';
+      let server = f.value.server;
+      // let server = 'https://34.233.235.92/piwebapi';
+      let config = f.value.configuracoes;
+      // let config = '\\\\EC2AMAZ-T1N5EJ5\\Testes\\APP Entrada Manual';
 
-      // let config = f.value.configuracoes;
-      let config = '\\\\EC2AMAZ-T1N5EJ5\\Testes\\APP Entrada Manual';
+
 
       this.api.setBaseUrl(server, config);
       this.config.server = server;
       this.config.config = config;
+
+      this.utils.saveStorage('server', server);
+      this.utils.saveStorage('config', config);
 
       console.log(server, config);
       this.utils.saveStorage('baseUrl', `${server}/elements/?path=${config}`);

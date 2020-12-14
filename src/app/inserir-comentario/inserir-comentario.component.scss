@@ -1,3 +1,4 @@
+
 .boxData{
     border: 2px solid black;
     width: calc(100% - 10px);
@@ -14,6 +15,14 @@
     height: calc(100% - 40px);
     border-radius: 50px;
     border: 1px solid #ccc;
+}
+
+.coments > legend{
+    font-size: 1.4rem;
+}
+
+ion-textarea{
+    font-size: 1.2rem;
 }
 
 

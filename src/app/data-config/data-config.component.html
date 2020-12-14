@@ -40,10 +40,10 @@
       <form #f="ngForm" (ngSubmit)="onSubmit(f)">
         <div class="main_inputs">
           <label>PI WEB API</label>
-          <input type="text" name="server" [(ngModel)]="server" />
+          <input type="text" name="server" [(ngModel)]="showServer" />
 
           <label>Configurações</label>
-          <input type="text" name="configuracoes" ngModel />
+          <input type="text" name="configuracoes" [(ngModel)]="showConfig" />
           <button class="btn" type="submit" value="salvar">Salvar</button>
         </div>
       </form>

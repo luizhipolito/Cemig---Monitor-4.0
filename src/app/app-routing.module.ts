@@ -34,10 +34,7 @@ const routes: Routes = [
     path: 'data-config',
     component: DataConfigComponent,
   },
-  {
-    path: 'inserir-comentario',
-    component: InserirComentarioComponent,
-  },
+
   {
     path: 'salvar-dados',
     component: SalvarDadosComponent

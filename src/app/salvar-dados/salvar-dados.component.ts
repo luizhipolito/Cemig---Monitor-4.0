@@ -30,6 +30,10 @@ export class SalvarDadosComponent implements OnInit {
     this.menu.open();
   }
 
+  onBack() {
+    this.router.navigate(['/entrada-manual'])
+  }
+
   logoutUsuario = () => {
     this.menu.close();
     this.router.navigate(['/']);
