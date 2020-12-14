@@ -43,7 +43,6 @@ export class EntradaManualComponent implements OnInit {
   ];
 
   onButtonPress(symbol) {
-    console.log(this.keyboardValue);
     if (isNumber(symbol) || symbol === '.') {
       this.keyboardValue += symbol;
     } if (symbol == '<') {
