@@ -86,6 +86,7 @@
               <ion-label (click)="print()">
                 {{ elements.firstSelection.Name }}:</ion-label
               >
+
               <ion-input
                 *ngIf="elements.firstSelection.Type == 'Double'"
                 type="number"
@@ -158,13 +159,13 @@
             <!-- </div> -->
 
             <ion-item *ngFor="let element of elements.list | isVisible">
-              <!-- <div *ngIf="element.visible"> -->
               <ion-label> {{ element.Name }}:</ion-label>
               <ion-input
                 *ngIf="element.Type == 'Double'"
                 type="number"
                 [value]="element.Selected"
               ></ion-input>
+              <ion-label color="gray"> {{ element.ValueString }}</ion-label>
 
               <ion-select
                 *ngIf="element.Type == 'EnumerationValue'"
@@ -176,7 +177,6 @@
                   >{{ valueSet.Name }}</ion-select-option
                 >
               </ion-select>
-              <!-- </div> -->
             </ion-item>
           </ion-list>
         </div>
