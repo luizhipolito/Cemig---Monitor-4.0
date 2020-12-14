@@ -29,5 +29,4 @@ export class SalvarDadosComponent implements OnInit {
   onSairClick = (ev) => {
     this.logoutUsuario();
   };
-
 }
