@@ -76,6 +76,28 @@ export class StorageArvoreService {
       });
   }
 
+  public async insertOrUpdate(key: string, value: Arvore) {
+    let oldTree = await this.getByKey(key);
+    if (!oldTree) {
+      return this.store(key, [value]);
+    }
+
+    if (key == this.writtenValues) {
+      let updateTree = oldTree.find(
+        (f) => f.date == value.date && f.AplicacaoID == value.AplicacaoID
+      );
+
+      if (updateTree) {
+        updateTree.value = value.value;
+        updateTree.relativePath = value.relativePath;
+      } else {
+        oldTree.push(value);
+      }
+
+      return this.store(key, oldTree);
+    }
+  }
+
   public getAll() {
     let arvores: ArvoreList[] = [];
     return this.storage

@@ -81,11 +81,12 @@ export class AppUtils {
 
     writtenValues.push(elements.firstSelection);
 
-    console.log(
+    writtenValues = writtenValues.concat(
       elements.list.filter(
         (el) =>
-          el.mode == EnumModeAttribute.Escrita ||
-          el.mode == EnumModeAttribute['Leitura/Escrita']
+          el.visible &&
+          (el.mode == EnumModeAttribute.Escrita ||
+            el.mode == EnumModeAttribute['Leitura/Escrita'])
       )
     );
     return writtenValues;

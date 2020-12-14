@@ -617,7 +617,7 @@ export class EntradaManualComponent implements OnInit {
     return att;
   }
 
-  saveElement() {
+  async saveElement() {
     let dateStr = this.currentDate
       ? this.currentDate.split('T').find(firstOrNull)
       : null;
@@ -631,11 +631,14 @@ export class EntradaManualComponent implements OnInit {
     tree.relativePath = this.elements.RelativePath;
     tree.value = this.utils.getWrittenValues(this.elements);
     tree.date = dateStr;
+    await this.storageService.insertOrUpdate(
+      this.storageService.writtenValues,
+      tree
+    );
 
-    console.log(dateStr);
-    ///this.router.navigate(['/salvar-dados']);
-
-    console.log(this.elements);
+    console.log(
+      await this.storageService.getByKey(this.storageService.writtenValues)
+    );
   }
 
   getOptions(qualifyer: string) {
