@@ -6,7 +6,12 @@ import { MatSnackBar, MatSnackBarConfig } from '@angular/material/snack-bar';
 
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
-import { MenuController, NavController, ModalController, AlertController } from '@ionic/angular';
+import {
+  MenuController,
+  NavController,
+  ModalController,
+  AlertController,
+} from '@ionic/angular';
 import {
   StorageArvoreService,
   Arvore,
@@ -134,7 +139,7 @@ export class EntradaManualComponent implements OnInit {
     public config: ConfigService,
     public modalController: ModalController,
     public alertController: AlertController
-  ) { }
+  ) {}
 
   async ionViewWillEnter() {
     //this.isToSyncDataFromPI = true;
@@ -199,7 +204,6 @@ export class EntradaManualComponent implements OnInit {
       .toPromise();
     let attributes = await this.loadAttributes(navigationData);
 
-    this.navigationData = navigationData;
     this.navigationTree = navigationData.map((nav) => {
       let tree = new Arvore();
       tree.atributos = attributes.find((att) => att.WebId == nav.WebId);
@@ -302,15 +306,17 @@ export class EntradaManualComponent implements OnInit {
     );
 
     this.navigation = new Array<{ path: Array<string>; name: string }>();
-    this.arvoreLocal.forEach((arvore: Arvore) => {
-      let path = arvore.Caminho.find(this.utils.firstOrNull);
-      if (!this.navigation.find((n) => n.name == path)) {
-        this.navigation.push({
-          path: [path],
-          name: path,
-        });
-      }
-    });
+    if (this.arvoreLocal) {
+      this.arvoreLocal.forEach((arvore: Arvore) => {
+        let path = arvore.Caminho.find(this.utils.firstOrNull);
+        if (!this.navigation.find((n) => n.name == path)) {
+          this.navigation.push({
+            path: [path],
+            name: path,
+          });
+        }
+      });
+    }
   }
 
   async loadDataFromStorage() {
@@ -332,7 +338,7 @@ export class EntradaManualComponent implements OnInit {
     });
   };
 
-  ngOnInit() { }
+  ngOnInit() {}
 
   print() {
     //console.log(this.elements);
@@ -384,8 +390,6 @@ export class EntradaManualComponent implements OnInit {
       duration: 2000,
     });
   };
-
-
 
   onSelect($event) {
     this.propFocous = null;
@@ -503,8 +507,8 @@ export class EntradaManualComponent implements OnInit {
           for (let batchKey of Object.keys(childrenBatchResponse)) {
             let configAtt = isResult(childrenBatchResponse[batchKey])
               ? (childrenBatchResponse[batchKey]['Content'][
-                'Items'
-              ] as Array<PIWebAttribute>)
+                  'Items'
+                ] as Array<PIWebAttribute>)
               : [];
             let batchValueChildren = this.utils.createBatch(
               configAtt,
@@ -625,19 +629,17 @@ export class EntradaManualComponent implements OnInit {
       confirm(
         'Já existe uma leitura para esta data neste instrumento não salva. Deseja sobreescrever?'
       );
-
     }
     await this.storageService.insertOrUpdate(
       this.storageService.writtenValues,
       tree
     );
 
-
     const alert = await this.alertController.create({
       // cssClass: 'my-custom-class',
       // header: 'Alert',
       message: 'Salvo com Sucesso',
-      buttons: ['OK']
+      buttons: ['OK'],
     });
 
     await alert.present();
@@ -663,26 +665,37 @@ export class EntradaManualComponent implements OnInit {
     return [];
   }
 
-  search($event: Event) {
+  async search($event: Event) {
     let searchItem = $event.target['value'];
 
     if (searchItem) {
       this.elements = null;
       searchItem = new String(searchItem).toLowerCase();
-      let navigationData = this.navigation.filter((f) =>
-        JSON.stringify(f).toLocaleLowerCase().includes(searchItem)
-      );
 
-      if (navigationData.length > 0) {
-        this.navigation = navigationData
-          .filter((n) => n)
-          .map((n) => {
-            return {
-              path: n.path,
-              name: n.name,
-            };
+      this.navigation = new Array<{ path: Array<string>; name: string }>();
+
+      this.arvoreLocal.forEach((arvore: Arvore) => {
+        if (arvore && arvore.Caminho && arvore.Caminho.length > 0) {
+          arvore.Caminho.forEach((path, index) => {
+            if (
+              path.toLocaleLowerCase().includes(searchItem) &&
+              !this.navigation.some((n) => n.name == path)
+            ) {
+              this.navigation.push({
+                path: arvore.Caminho.slice(0, index + 1),
+                name: path,
+              });
+            }
           });
+        }
+      });
+
+      if (this.navigation.length == 0) {
+        //"NO ReSult"
       }
+    } else {
+      this.elements = null;
+      await this.loadNavigationDataFromStorage();
     }
   }
 }
