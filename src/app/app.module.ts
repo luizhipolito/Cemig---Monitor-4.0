@@ -27,6 +27,7 @@ import { SenhaOffPageComponent } from './senha-off-page/senha-off-page.component
 import { FilterPipe } from 'src/utils/filters';
 import { SalvarDadosComponent } from './salvar-dados/salvar-dados.component';
 import { InserirComentarioComponent } from './inserir-comentario/inserir-comentario.component';
+import { MenuComponent } from './menu/menu.component';
 
 @NgModule({
   declarations: [
@@ -38,6 +39,7 @@ import { InserirComentarioComponent } from './inserir-comentario/inserir-comenta
     SalvarDadosComponent,
     InserirComentarioComponent,
     FilterPipe,
+    MenuComponent
   ],
   entryComponents: [InserirComentarioComponent],
   imports: [
