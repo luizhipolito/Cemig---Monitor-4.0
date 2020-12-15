@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { Arvore, StorageArvoreService } from './storage-arvore.service';
 
 @Injectable({
   providedIn: 'root',
@@ -44,5 +45,34 @@ export class ConfigService {
     DataBase: 'Database',
     AppAttributes: 'Descrição Atributo',
   };
-  constructor() { }
+  constructor(public storageService: StorageArvoreService) {}
+
+  async init() {
+    let config = await this.storageService.getByKey(
+      this.storageService.configValues
+    );
+
+    config.forEach((conf) => {
+      this[conf.Nome] = conf.configValue;
+    });
+  }
+
+  async saveStorage() {
+    let attributes = Object.keys(this);
+    let configTree: Array<Arvore> = new Array<Arvore>();
+
+    attributes.forEach((att) => {
+      if (typeof this[att] == 'string') {
+        let tree = new Arvore();
+        tree.Nome = att;
+        tree.configValue = this[att];
+        configTree.push(tree);
+      }
+    });
+
+    await this.storageService.store(
+      this.storageService.configValues,
+      configTree
+    );
+  }
 }

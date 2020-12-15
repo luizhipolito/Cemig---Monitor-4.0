@@ -135,4 +135,9 @@ export class ApiService {
     alert(errorMessage);
     return throwError(errorMessage);
   }
+
+  async init() {
+    let token = await this.utils.getStorage('Authorization');
+    this.setAuth(token);
+  }
 }

@@ -6,6 +6,8 @@ import {
   StorageArvoreService,
 } from 'src/services/storage-arvore.service';
 import { AppUtils } from 'src/utils/app.utils';
+import { ApiService } from 'src/services/api.service';
+import { ConfigService } from 'src/services/config.service';
 
 @Component({
   selector: 'app-salvar-dados',
@@ -17,7 +19,9 @@ export class SalvarDadosComponent implements OnInit {
     private menu: MenuController,
     private router: Router,
     public storageService: StorageArvoreService,
-    public utils: AppUtils
+    public utils: AppUtils,
+    private api: ApiService,
+    public config: ConfigService
   ) {}
 
   ngOnInit() {}
@@ -35,6 +39,9 @@ export class SalvarDadosComponent implements OnInit {
   }
 
   async ionViewWillEnter() {
+    await this.config.init();
+    await this.api.init();
+
     await this.loadSaveValues();
   }
   getRelativePath(path: string) {
@@ -67,8 +74,10 @@ export class SalvarDadosComponent implements OnInit {
     for (let data of dataToWriteOnPI) {
       let values = data.value;
       let batch = this.utils.createBatch(values, 'update', data.date);
-
-      console.log(batch);
+      let batchResponse = await this.api
+        .executeBatch(this.config.afServer, batch)
+        .toPromise();
+      console.log(batchResponse);
     }
 
     await this.loadSaveValues();

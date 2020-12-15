@@ -135,6 +135,7 @@ export class EntradaManualComponent implements OnInit {
     this.isToSyncDataFromPI = this.config.isToLoadFromPI;
     await this.loadAuthFromStorage();
 
+    await this.syncConfigFromPI();
     if (this.isToSyncDataFromPI) {
       this.syncDataFromPI();
     } else {
@@ -177,6 +178,7 @@ export class EntradaManualComponent implements OnInit {
       this.config.ElementoRaiz
     );
     this.utils.saveStorage('senhaOff', this.config.SenhaOff);
+    await this.config.saveStorage();
   }
 
   async syncNavigationData() {

@@ -14,6 +14,7 @@ export class StorageArvoreService {
   navigation: string = 'navigation';
   enumerationSets: string = 'enumerationSets';
   writtenValues: string = 'writtenValues';
+  configValues: string = 'config';
   constructor(private storage: Storage, private http: HttpClient) {}
 
   public insert(arvore: Arvore) {
@@ -146,6 +147,7 @@ export class Arvore {
   value: Array<PIWebObject>;
   atributos: Attribute;
   date: string;
+  configValue: string;
 }
 
 export class ArvoreList {

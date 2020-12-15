@@ -4,6 +4,7 @@ import { of } from 'rxjs';
 import { Attribute } from 'src/model/Attribute.model';
 import { EnumModeAttribute } from 'src/model/PIWebAttribute.model';
 import { PIWebObject } from 'src/model/PIWebObject.model';
+import { isNumber } from 'util';
 
 @Injectable({
   providedIn: 'root',
@@ -94,6 +95,8 @@ export class AppUtils {
 
   createBatch(items: Array<PIWebObject>, type: string, date?: string) {
     let batchItem = {};
+    let method = type == 'update' ? 'POST' : 'GET';
+
     let selectedFieldsParam =
       '?selectedFields=Items.WebId;Items.Description;Items.Name;Items.Path;Items.Type;Items.TypeQualifier;Items.HasChildren;Items.Links.Attributes;Items.Links.Value';
 
@@ -105,13 +108,10 @@ export class AppUtils {
       selectedFieldsParam = '';
       type = 'Values';
     }
-
-    if (type == 'ChildrenValue') {
+    if (type == 'ChildrenValue' || type == 'update') {
       selectedFieldsParam = '';
       type = 'Value';
     }
-
-    let method = 'GET';
 
     items.forEach((item, index) => {
       let url = `${item.Links[type]}${selectedFieldsParam}`;
@@ -119,6 +119,25 @@ export class AppUtils {
         Method: method,
         Resource: url,
       };
+
+      if (method == 'POST') {
+        let value =
+          item['Selected'] && item['Selected']['Value']
+            ? item['Selected']['Value']
+            : item['Selected'];
+
+        if (!isNaN(value)) {
+          value = new Number(value).valueOf();
+        }
+
+        batchItem[index]['Content'] = {
+          Timestamp: date,
+          UnitsAbbreviation: '',
+          Good: true,
+          Questionable: false,
+          Value: value,
+        };
+      }
     });
     return batchItem;
   }
