@@ -1,35 +1,34 @@
 import { Component, OnInit } from '@angular/core';
-import { EntradaManualComponent } from '../entrada-manual/entrada-manual.component';
-import { ConfigService } from 'src/services/config.service';
-import { MenuController } from '@ionic/angular';
+import { MenuController, ModalController } from '@ionic/angular';
 import { Router } from '@angular/router';
+import { NgForm } from '@angular/forms';
 
 @Component({
   selector: 'app-inserir-comentario',
   templateUrl: './inserir-comentario.component.html',
   styleUrls: ['./inserir-comentario.component.scss'],
 })
-export class InserirComentarioComponent implements OnInit {
+export class InserirComentarioComponent {
 
 
 
-  constructor(private menu: MenuController, private router: Router) {
-
-  }
-
-  ngOnInit() {
+  constructor(private menu: MenuController, private router: Router, private modalCtrl: ModalController) {
 
   }
-  openMenu() {
-    this.menu.open();
+
+  dismissModal() {
+    this.modalCtrl.dismiss()
   }
 
-  logoutUsuario = () => {
-    this.menu.close();
-    this.router.navigate(['/']);
-  };
-  onSairClick = (ev) => {
-    this.logoutUsuario();
-  };
+  salvarComent() {
+    this.modalCtrl.dismiss()
+  }
+
+  onSubmit(f: NgForm) {
+    if (f.valid) {
+      console.log(f.value.message);
+    }
+  }
+
 
 }

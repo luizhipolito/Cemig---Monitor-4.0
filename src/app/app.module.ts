@@ -39,7 +39,7 @@ import { InserirComentarioComponent } from './inserir-comentario/inserir-comenta
     InserirComentarioComponent,
     FilterPipe,
   ],
-  entryComponents: [],
+  entryComponents: [InserirComentarioComponent],
   imports: [
     BrowserModule,
     IonicModule.forRoot(),
@@ -65,4 +65,4 @@ import { InserirComentarioComponent } from './inserir-comentario/inserir-comenta
   ],
   bootstrap: [AppComponent],
 })
-export class AppModule {}
+export class AppModule { }

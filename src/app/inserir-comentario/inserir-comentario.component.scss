@@ -1,17 +1,24 @@
 
-.boxData{
-    border: 2px solid black;
-    width: calc(100% - 10px);
-    height: calc(100% - 65px);
-    margin: 5px;
-    margin-top: 60px;
-    display: flex;
-
-}
+// .sc-ion-modal-ios-h {
+//     --width: 80%;
+//     --min-width: auto;
+//     --max-width: auto;
+//     --height: 100%;
+//     --min-height: auto;
+//     --max-height: auto;
+//     --overflow: hidden;
+//     --border-radius: 0;
+//     --border-width: 0;
+//     --border-style: none;
+//     --border-color: transparent;
+//     --background: var(--ion-background-color, #fff);
+//     --box-shadow: none;
+//     --backdrop-opacity: 0;
+// }
 
 .coments{
     margin: 20px;
-    // width: calc(100% - 100px);
+    width: calc(100% - 40px);
     height: calc(100% - 40px);
     border-radius: 50px;
     border: 1px solid #ccc;
@@ -28,10 +35,16 @@ ion-textarea{
 
 .btn{
     display: flex;
-    flex-direction: column-reverse;
+    justify-content: end;
     margin: 20px;
 }
 
 .btn > ion-button{
+    margin: 5px;
+    width: 10%;
+}
+
+ion-icon{
+    font-size: 1.3rem;
     margin: 5px;
 }

@@ -82,6 +82,10 @@ export class EntradaManualComponent implements OnInit {
   }
   // this.router.navigate(['/inserir-comentario']);
 
+  goSalvarDados() {
+    this.router.navigate(['/salvar-dados'])
+  }
+
   Elemento = {};
   selectedViews = 'elemento';
 
@@ -128,7 +132,7 @@ export class EntradaManualComponent implements OnInit {
     public storageService: StorageArvoreService,
     public config: ConfigService,
     public modalController: ModalController
-  ) {}
+  ) { }
 
   async ionViewWillEnter() {
     //this.isToSyncDataFromPI = true;
@@ -146,6 +150,8 @@ export class EntradaManualComponent implements OnInit {
     this.authToken = await this.utils.getStorage('Authorization');
     this.api.setAuth(this.authToken);
   }
+
+
 
   async syncDataFromPI() {
     await this.syncConfigFromPI();
@@ -328,7 +334,7 @@ export class EntradaManualComponent implements OnInit {
     });
   };
 
-  ngOnInit() {}
+  ngOnInit() { }
 
   print() {
     //console.log(this.elements);
@@ -509,8 +515,8 @@ export class EntradaManualComponent implements OnInit {
           for (let batchKey of Object.keys(childrenBatchResponse)) {
             let configAtt = isResult(childrenBatchResponse[batchKey])
               ? (childrenBatchResponse[batchKey]['Content'][
-                  'Items'
-                ] as Array<PIWebAttribute>)
+                'Items'
+              ] as Array<PIWebAttribute>)
               : [];
             let batchValueChildren = this.utils.createBatch(
               configAtt,

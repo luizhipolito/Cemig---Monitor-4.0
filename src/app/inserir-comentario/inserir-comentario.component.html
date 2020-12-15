@@ -1,20 +1,14 @@
-<ion-app>
-
-  <ion-content>
-    <div class="boxData">
-      <ion-button (click)="dismissModal()">Close</ion-button>
-      <div>
-        <fieldset class="coments">
-          <legend>Comentário:</legend>
-          <ion-textarea rows="15" cols="100"></ion-textarea>
-        </fieldset>
-      </div>
-      <div class="btn">
-        <ion-button>Salvar</ion-button>
-      </div>
+<div class="boxData">
+  <ion-icon (click)="dismissModal()" name="close-sharp"></ion-icon>
+  <form #f="ngForm" (ngSubmit)="onSubmit(f)">
+    <div>
+      <fieldset class="coments">
+        <legend>Comentário:</legend>
+        <ion-textarea type="text" ngModel name="message" rows="15" cols="100"></ion-textarea>
+      </fieldset>
     </div>
-  </ion-content>
-
-
-
-</ion-app>
+    <div class="btn">
+      <ion-button type="submit" (click)="salvarComent()">Salvar</ion-button>
+    </div>
+  </form>
+</div>
