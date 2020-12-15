@@ -110,7 +110,7 @@
             </ion-item>
 
             <ion-item
-              *ngFor="let element of elements.list | isVisible"
+              *ngFor="let element of elements.list | isVisible: true"
               (click)="setPropFocous(element)"
             >
               <ion-label> {{ element.Name }}:</ion-label>
@@ -161,7 +161,9 @@
                 *ngFor="let num of numGroup"
                 (click)="onButtonPress(num)"
                 class="calc-button"
-                [ngClass]="propFocous && propFocous.Name ? 'enabled' : disabled"
+                [ngClass]="
+                  propFocous && propFocous.Name ? 'enabled' : 'disabled'
+                "
                 >{{ num }}
               </ion-button>
             </div>
