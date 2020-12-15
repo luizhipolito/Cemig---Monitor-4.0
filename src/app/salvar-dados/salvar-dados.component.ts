@@ -72,14 +72,30 @@ export class SalvarDadosComponent implements OnInit {
 
     for (let data of dataToWriteOnPI) {
       let values = data.value;
+
       let batch = this.utils.createBatch(values, 'update', data.date);
-      console.log(batch);
       let batchResponse = await this.api
         .executeBatch(this.config.afServer, batch)
         .toPromise();
-      console.log(batchResponse);
+
+      let responses = Object.keys(batchResponse).map((k) => batchResponse[k]);
+
+      let isUpdated = responses.every((r) => r.Status >= 200 && r.Status < 400);
+
+      if (isUpdated) {
+        this.dataToWriteOnPI = this.dataToWriteOnPI.filter(
+          (f) => f.AplicacaoID != data.AplicacaoID
+        );
+      }
     }
 
-    await this.loadSaveValues();
+    await this.updateStorage(this.dataToWriteOnPI);
+    //await this.loadSaveValues();
+  }
+  async updateStorage(dataToWriteOnPI: Arvore[]) {
+    await this.storageService.store(
+      this.storageService.writtenValues,
+      dataToWriteOnPI
+    );
   }
 }

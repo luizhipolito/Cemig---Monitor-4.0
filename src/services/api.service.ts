@@ -76,8 +76,18 @@ export class ApiService {
       .pipe(catchError(this.handleError));
   }
 
+  put(url: string, data: any) {
+    let options = this.httpOptions;
+
+    this.showLoader();
+    return this.http
+      .put<any>(url, JSON.stringify(data), options)
+      .pipe(catchError(this.handleError));
+  }
+
   putData(url: string, data: any) {
     this.showLoader();
+
     return this.http
       .put<any>(this.baseUrl + url, JSON.stringify(data), this.httpOptions)
       .pipe(retry(2), catchError(this.handleError));

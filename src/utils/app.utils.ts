@@ -121,9 +121,7 @@ export class AppUtils {
       };
 
       if (method == 'PUT') {
-        if (item['Type'] == 'EnumerationValue') {
-          batchItem[index]['Method'] = 'POST';
-        }
+        batchItem[index]['Method'] = 'POST';
         let value =
           item['Selected'] && item['Selected']['Value']
             ? item['Selected']['Value']
@@ -135,9 +133,9 @@ export class AppUtils {
 
         batchItem[index]['Content'] = JSON.stringify({
           Timestamp: date,
-          UnitsAbbreviation: '',
-          Good: true,
-          Questionable: false,
+          // UnitsAbbreviation: '',
+          // Good: true,
+          // Questionable: false,
           Value: value,
         });
       }
