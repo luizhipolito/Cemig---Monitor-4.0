@@ -17,7 +17,7 @@ import {
   EnumModeAttribute,
   PIWebAttribute,
 } from 'src/model/PIWebAttribute.model';
-import { map } from 'rxjs/operators';
+import { first, map } from 'rxjs/operators';
 import { Attribute } from 'src/model/Attribute.model';
 import { EnumerationValue } from 'src/model/EnumerationValue.model';
 import { __await } from 'tslib';
@@ -121,6 +121,7 @@ export class EntradaManualComponent implements OnInit {
   templateConditionValue = 'Condição X Valor';
   templateIndex = ' X ';
   templateType = 'Tipo';
+  searchField = '';
 
   constructor(
     private api: ApiService,
@@ -659,5 +660,28 @@ export class EntradaManualComponent implements OnInit {
     }
 
     return [];
+  }
+
+  search($event: Event) {
+    let searchItem = $event.target['value'];
+
+    if (searchItem) {
+      this.elements = null;
+      searchItem = new String(searchItem).toLowerCase();
+      let navigationData = this.navigation.filter((f) =>
+        JSON.stringify(f).toLocaleLowerCase().includes(searchItem)
+      );
+
+      if (navigationData.length > 0) {
+        this.navigation = navigationData
+          .filter((n) => n)
+          .map((n) => {
+            return {
+              path: n.path,
+              name: n.name,
+            };
+          });
+      }
+    }
   }
 }

@@ -54,7 +54,15 @@
       </div>
 
       <div class="search">
-        <ion-icon name="search-outline"></ion-icon>
+        <ion-searchbar (ionChange)="search($event)"></ion-searchbar>
+
+        <!-- <ion-input
+          class="search-input"
+          inputmode="search"
+          [value]="searchField"
+        >
+          <ion-icon (click)="search()" name="search-outline"></ion-icon
+        ></ion-input> -->
       </div>
     </div>
 
