@@ -26,6 +26,7 @@ import { DataConfigComponent } from './data-config/data-config.component';
 import { SenhaOffPageComponent } from './senha-off-page/senha-off-page.component';
 import { FilterPipe } from 'src/utils/filters';
 import { SalvarDadosComponent } from './salvar-dados/salvar-dados.component';
+import { InserirComentarioComponent } from './inserir-comentario/inserir-comentario.component';
 
 @NgModule({
   declarations: [
@@ -35,9 +36,10 @@ import { SalvarDadosComponent } from './salvar-dados/salvar-dados.component';
     DataConfigComponent,
     SenhaOffPageComponent,
     SalvarDadosComponent,
+    InserirComentarioComponent,
     FilterPipe,
   ],
-  entryComponents: [],
+  entryComponents: [InserirComentarioComponent],
   imports: [
     BrowserModule,
     IonicModule.forRoot(),
@@ -63,4 +65,4 @@ import { SalvarDadosComponent } from './salvar-dados/salvar-dados.component';
   ],
   bootstrap: [AppComponent],
 })
-export class AppModule {}
+export class AppModule { }
