@@ -25,7 +25,8 @@ export class MenuComponent implements OnInit {
   };
   onSairClick = (ev) => {
     this.logoutUsuario();
-  };
+  }
+
   ngOnInit() { }
 
 }

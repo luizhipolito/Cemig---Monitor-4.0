@@ -626,29 +626,58 @@ export class EntradaManualComponent implements OnInit {
     );
 
     if (hasTree) {
-      confirm(
-        'Já existe uma leitura para esta data neste instrumento não salva. Deseja sobreescrever?'
-      );
+      this.showConfirm();
     }
     await this.storageService.insertOrUpdate(
       this.storageService.writtenValues,
       tree
     );
-
-    const alert = await this.alertController.create({
-      // cssClass: 'my-custom-class',
-      // header: 'Alert',
-      message: 'Salvo com Sucesso',
-      buttons: ['OK'],
-    });
-
-    await alert.present();
+    if (!hasTree) {
+      this.showAlert();
+    }
 
     //Salvo com sucesso
 
     console.log(
       await this.storageService.getByKey(this.storageService.writtenValues)
     );
+  }
+  async showConfirm() {
+    await this.alertController
+      .create({
+        header: 'Confirmar',
+        message:
+          'Já existe uma leitura para esta data neste instrumento não salva. Deseja sobrescrever?',
+        buttons: [
+          {
+            text: 'Não',
+            handler: () => {},
+          },
+          {
+            text: 'Sim',
+            handler: () => {
+              this.showAlert();
+            },
+          },
+        ],
+      })
+      .then((res) => {
+        res.present();
+      });
+  }
+  async showAlert() {
+    await this.alertController
+      .create({
+        message: 'Salvo com Sucesso',
+        buttons: ['OK'],
+      })
+      .then((res) => {
+        res.present();
+      });
+  }
+
+  async dismissAlert() {
+    await this.alertController.dismiss();
   }
 
   getOptions(qualifyer: string) {
