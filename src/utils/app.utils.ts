@@ -95,7 +95,7 @@ export class AppUtils {
 
   createBatch(items: Array<PIWebObject>, type: string, date?: string) {
     let batchItem = {};
-    let method = type == 'update' ? 'PUT' : 'GET';
+    let method = type == 'update' ? 'POST' : 'GET';
 
     let selectedFieldsParam =
       '?selectedFields=Items.WebId;Items.Description;Items.Name;Items.Path;Items.Type;Items.TypeQualifier;Items.HasChildren;Items.Links.Attributes;Items.Links.Value';
@@ -120,7 +120,7 @@ export class AppUtils {
         Resource: url,
       };
 
-      if (method == 'PUT') {
+      if (method == 'POST') {
         let value =
           item['Selected'] && item['Selected']['Value']
             ? item['Selected']['Value']
