@@ -41,7 +41,6 @@ export class SalvarDadosComponent implements OnInit {
   async ionViewWillEnter() {
     await this.config.init();
     await this.api.init();
-
     await this.loadSaveValues();
   }
   getRelativePath(path: string) {
@@ -74,6 +73,7 @@ export class SalvarDadosComponent implements OnInit {
     for (let data of dataToWriteOnPI) {
       let values = data.value;
       let batch = this.utils.createBatch(values, 'update', data.date);
+      console.log(batch);
       let batchResponse = await this.api
         .executeBatch(this.config.afServer, batch)
         .toPromise();

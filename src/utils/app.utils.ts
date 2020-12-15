@@ -95,7 +95,7 @@ export class AppUtils {
 
   createBatch(items: Array<PIWebObject>, type: string, date?: string) {
     let batchItem = {};
-    let method = type == 'update' ? 'POST' : 'GET';
+    let method = type == 'update' ? 'PUT' : 'GET';
 
     let selectedFieldsParam =
       '?selectedFields=Items.WebId;Items.Description;Items.Name;Items.Path;Items.Type;Items.TypeQualifier;Items.HasChildren;Items.Links.Attributes;Items.Links.Value';
@@ -120,7 +120,7 @@ export class AppUtils {
         Resource: url,
       };
 
-      if (method == 'POST') {
+      if (method == 'PUT') {
         let value =
           item['Selected'] && item['Selected']['Value']
             ? item['Selected']['Value']
@@ -130,12 +130,15 @@ export class AppUtils {
           value = new Number(value).valueOf();
         }
 
-        batchItem[index]['Content'] = {
+        batchItem[index]['Content'] = JSON.stringify({
           Timestamp: date,
           UnitsAbbreviation: '',
           Good: true,
           Questionable: false,
           Value: value,
+        });
+        batchItem[index]['Headers'] = {
+          'Access-Control-Allow-Methods': '*',
         };
       }
     });
