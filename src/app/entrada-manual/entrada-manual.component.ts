@@ -6,7 +6,7 @@ import { MatSnackBar, MatSnackBarConfig } from '@angular/material/snack-bar';
 
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
-import { MenuController, NavController, ModalController } from '@ionic/angular';
+import { MenuController, NavController, ModalController, AlertController } from '@ionic/angular';
 import {
   StorageArvoreService,
   Arvore,
@@ -131,8 +131,9 @@ export class EntradaManualComponent implements OnInit {
     public navCtrl: NavController,
     public storageService: StorageArvoreService,
     public config: ConfigService,
-    public modalController: ModalController
-  ) {}
+    public modalController: ModalController,
+    public alertController: AlertController
+  ) { }
 
   async ionViewWillEnter() {
     //this.isToSyncDataFromPI = true;
@@ -330,7 +331,7 @@ export class EntradaManualComponent implements OnInit {
     });
   };
 
-  ngOnInit() {}
+  ngOnInit() { }
 
   print() {
     //console.log(this.elements);
@@ -383,17 +384,7 @@ export class EntradaManualComponent implements OnInit {
     });
   };
 
-  openMenu() {
-    this.menu.open();
-  }
 
-  logoutUsuario = () => {
-    this.menu.close();
-    this.router.navigate(['/']);
-  };
-  onSairClick = (ev) => {
-    this.logoutUsuario();
-  };
 
   onSelect($event) {
     this.propFocous = null;
@@ -511,8 +502,8 @@ export class EntradaManualComponent implements OnInit {
           for (let batchKey of Object.keys(childrenBatchResponse)) {
             let configAtt = isResult(childrenBatchResponse[batchKey])
               ? (childrenBatchResponse[batchKey]['Content'][
-                  'Items'
-                ] as Array<PIWebAttribute>)
+                'Items'
+              ] as Array<PIWebAttribute>)
               : [];
             let batchValueChildren = this.utils.createBatch(
               configAtt,
@@ -633,13 +624,23 @@ export class EntradaManualComponent implements OnInit {
       confirm(
         'Já existe uma leitura para esta data neste instrumento não salva. Deseja sobreescrever?'
       );
+
     }
     await this.storageService.insertOrUpdate(
       this.storageService.writtenValues,
       tree
     );
 
-    alert('Salvo com sucesso');
+
+    const alert = await this.alertController.create({
+      // cssClass: 'my-custom-class',
+      // header: 'Alert',
+      message: 'Salvo com Sucesso',
+      buttons: ['OK']
+    });
+
+    await alert.present();
+
     //Salvo com sucesso
 
     console.log(

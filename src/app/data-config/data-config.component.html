@@ -1,39 +1,5 @@
 <div class="all">
-  <div class="head">
-    <div class="menu">
-      <ion-menu side="start" content-id="main-content">
-        <ion-header>
-          <ion-toolbar translucent>
-            <ion-title>Menu</ion-title>
-          </ion-toolbar>
-        </ion-header>
-        <ion-content>
-          <ion-list>
-            <ion-item>
-              <ion-icon name="mail" slot="start"></ion-icon>
-              <ion-label>Inbox</ion-label>
-            </ion-item>
-
-            <ion-item name="logout" slot="start" (click)="backHome()">
-              <ion-icon name="log-out-outline"></ion-icon>
-              <ion-label>Voltar</ion-label>
-            </ion-item>
-          </ion-list>
-        </ion-content>
-      </ion-menu>
-      <div id="main-content">
-        <ion-buttons slot="start">
-          <ion-menu-button></ion-menu-button>
-        </ion-buttons>
-      </div>
-    </div>
-
-    <div class="nomeCentro">ADB Móvel</div>
-
-    <div class="logoCemig">
-      <img style="width: 100%; margin-right: -60px" src="../../../assets/logo-cemig-2048.png" alt="logo" />
-    </div>
-  </div>
+  <app-menu></app-menu>
   <div class="main">
     <fieldset>
       <legend>Configurações</legend>
@@ -49,4 +15,5 @@
       </form>
     </fieldset>
   </div>
+
 </div>

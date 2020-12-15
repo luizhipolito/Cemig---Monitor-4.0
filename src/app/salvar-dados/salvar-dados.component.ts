@@ -22,9 +22,9 @@ export class SalvarDadosComponent implements OnInit {
     public utils: AppUtils,
     private api: ApiService,
     public config: ConfigService
-  ) {}
+  ) { }
 
-  ngOnInit() {}
+  ngOnInit() { }
 
   dataToWriteOnPI: Array<Arvore> = [];
 
@@ -51,21 +51,9 @@ export class SalvarDadosComponent implements OnInit {
     return path;
   }
 
-  openMenu() {
-    this.menu.open();
-  }
-
   onBack() {
     this.router.navigate(['/entrada-manual']);
   }
-
-  logoutUsuario = () => {
-    this.menu.close();
-    this.router.navigate(['/']);
-  };
-  onSairClick = (ev) => {
-    this.logoutUsuario();
-  };
 
   async saveOnPI() {
     let dataToWriteOnPI = this.dataToWriteOnPI.filter((f) => f['isToSave']);
