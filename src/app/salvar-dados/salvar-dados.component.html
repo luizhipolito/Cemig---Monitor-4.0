@@ -6,7 +6,10 @@
         <ion-list lines="none" *ngFor="let element of dataToWriteOnPI">
           <ion-item-divider>
             {{ getRelativePath(element.relativePath) }}
-            <ion-checkbox slot="end" [(ngModel)]="element.isToSave"></ion-checkbox>
+            <ion-checkbox
+              slot="end"
+              [(ngModel)]="element.isToSave"
+            ></ion-checkbox>
           </ion-item-divider>
 
           <ion-item> Data: {{ element.date }}</ion-item>
@@ -17,17 +20,22 @@
               value.Selected && value.Selected.Name
                 ? value.Selected.Name
                 : value.Selected
-            }}</ion-item>
+            }}</ion-item
+          >
         </ion-list>
       </div>
     </div>
     <div class="btn">
       <div class="btn_back">
-        <ion-icon class="iconBack" (click)="onBack()" name="arrow-back-outline"></ion-icon>
+        <ion-icon
+          class="iconBack"
+          (click)="onBack()"
+          name="arrow-back-outline"
+        ></ion-icon>
       </div>
       <div class="checkConfirm">
         <span class="checkbox">
-          <ion-checkbox></ion-checkbox>
+          <ion-checkbox [(ngModel)]="confirm"></ion-checkbox>
           <ion-label>Confirmado</ion-label>
         </span>
         <ion-button (click)="saveOnPI()">Enviar</ion-button>

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { MenuController } from '@ionic/angular';
 import { Router } from '@angular/router';
 import {
@@ -14,7 +14,8 @@ import { ConfigService } from 'src/services/config.service';
   templateUrl: './salvar-dados.component.html',
   styleUrls: ['./salvar-dados.component.scss'],
 })
-export class SalvarDadosComponent implements OnInit {
+export class SalvarDadosComponent {
+  confirm: boolean;
   constructor(
     private menu: MenuController,
     private router: Router,
@@ -22,9 +23,7 @@ export class SalvarDadosComponent implements OnInit {
     public utils: AppUtils,
     private api: ApiService,
     public config: ConfigService
-  ) { }
-
-  ngOnInit() { }
+  ) {}
 
   dataToWriteOnPI: Array<Arvore> = [];
 
@@ -39,6 +38,7 @@ export class SalvarDadosComponent implements OnInit {
   }
 
   async ionViewWillEnter() {
+    this.confirm = true;
     await this.config.init();
     await this.api.init();
     await this.loadSaveValues();
@@ -56,8 +56,10 @@ export class SalvarDadosComponent implements OnInit {
   }
 
   async saveOnPI() {
+    if (!this.confirm) {
+      console.log('not confirmed');
+    }
     let dataToWriteOnPI = this.dataToWriteOnPI.filter((f) => f['isToSave']);
-
     for (let data of dataToWriteOnPI) {
       let values = data.value;
 
@@ -67,9 +69,7 @@ export class SalvarDadosComponent implements OnInit {
         .toPromise();
 
       let responses = Object.keys(batchResponse).map((k) => batchResponse[k]);
-
       let isUpdated = responses.every((r) => r.Status >= 200 && r.Status < 400);
-
       if (isUpdated) {
         this.dataToWriteOnPI = this.dataToWriteOnPI.filter(
           (f) => f.AplicacaoID != data.AplicacaoID
@@ -78,7 +78,6 @@ export class SalvarDadosComponent implements OnInit {
     }
 
     await this.updateStorage(this.dataToWriteOnPI);
-    //await this.loadSaveValues();
   }
   async updateStorage(dataToWriteOnPI: Arvore[]) {
     await this.storageService.store(
