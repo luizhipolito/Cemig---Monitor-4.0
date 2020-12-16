@@ -168,7 +168,7 @@ export class EntradaManualComponent {
   ) {}
 
   async ionViewWillEnter() {
-    let isToSyncDataFromPI = this.config.isToLoadFromPI;
+    let isToSyncDataFromPI = this.config.isToLoadFromPI || true;
     this.reset();
     await this.api.init();
     await this.config.init();
@@ -204,7 +204,7 @@ export class EntradaManualComponent {
     let configData = await this.api.get(configUrlValues).toPromise();
     for (let attribute in attributes) {
       let nameOrPath = attributes[attribute];
-      let value = this.api.getLink(
+      let value = this.utils.getValue(
         configData,
         nameOrPath,
         this.config.endPoint['value'],
@@ -631,6 +631,10 @@ export class EntradaManualComponent {
         attValueString = attValue.Value.Value;
       } else {
         attValueString = new String(attValue.Value).toString();
+      }
+      if (att.mode == EnumModeAttribute['Leitura/Escrita']) {
+        att.Selected = attValueString;
+        att.color = this.getColorScalling(att);
       }
 
       if (attValue.UnitsAbbreviation) {
