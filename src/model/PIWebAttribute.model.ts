@@ -20,6 +20,7 @@ export class PIWebAttribute extends PIWebObject {
   config: Array<PIWebObject>;
   visible: boolean;
   mode: EnumModeAttribute;
+  color: string;
 }
 
 export enum EnumModeAttribute {

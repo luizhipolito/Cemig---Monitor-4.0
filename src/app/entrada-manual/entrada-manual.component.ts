@@ -28,6 +28,7 @@ import { EnumerationValue } from 'src/model/EnumerationValue.model';
 import { __await } from 'tslib';
 import { isNumber } from 'util';
 import { InserirComentarioComponent } from '../inserir-comentario/inserir-comentario.component';
+import { element } from 'protractor';
 
 const typeEnumeration = 'EnumerationValue';
 let currentModal = null;
@@ -69,7 +70,28 @@ export class EntradaManualComponent implements OnInit {
           this.propFocous.Selected.length - 1
         );
       }
+      this.propFocous.color = this.getColorScalling(this.propFocous);
     }
+  }
+  getColorScalling(propFocous: PIWebAttribute): string {
+    let selectedValue = new Number(propFocous.Selected).valueOf();
+    let colorClass = 'black';
+    let valueSK = Number.MAX_VALUE;
+    for (let k of Object.keys(this.templateRangeScalling)) {
+      let sk = this.templateRangeScalling[k];
+      let config = propFocous.config.find((c) => c.Name == k) as PIWebAttribute;
+      if (config && config.Value) {
+        valueSK = new Number(config.Value.Value).valueOf();
+        if (selectedValue < valueSK) {
+          return sk;
+        }
+      }
+    }
+    if (selectedValue >= valueSK && valueSK > 0) {
+      return this.templateRangeScalling.Over;
+    }
+
+    return colorClass;
   }
 
   async goInserirComentario() {
@@ -126,6 +148,19 @@ export class EntradaManualComponent implements OnInit {
   templateType = 'Tipo';
   searchField = '';
 
+  templateRangeScalling = {
+    Mínimo: 'red',
+    'Mínimo de Alerta': 'orange',
+    'Mínimo de Atenção': 'purple',
+    'Máximo de Atenção': 'green',
+    'Máximo de Alerta': 'purple',
+    Máximo: 'orange',
+    Over: 'red',
+  };
+
+  templateMax = 'Máximo';
+  templateMaxAtention = 'Máximo de Atenção';
+
   constructor(
     private api: ApiService,
     public utils: AppUtils,
@@ -137,7 +172,7 @@ export class EntradaManualComponent implements OnInit {
     public config: ConfigService,
     public modalController: ModalController,
     public alertController: AlertController
-  ) { }
+  ) {}
 
   async ionViewWillEnter() {
     let isToSyncDataFromPI = this.config.isToLoadFromPI;
@@ -339,7 +374,7 @@ export class EntradaManualComponent implements OnInit {
     });
   };
 
-  ngOnInit() { }
+  ngOnInit() {}
 
   print() {
     //console.log(this.elements);
@@ -394,7 +429,6 @@ export class EntradaManualComponent implements OnInit {
 
   onSelect($event) {
     this.propFocous = null;
-
     this.elements.list.forEach((att) => {
       if (!att.config.some((s) => s.Name.includes(this.textCondition))) {
         att.visible = true;
@@ -438,6 +472,11 @@ export class EntradaManualComponent implements OnInit {
         att.Selected = null;
       }
     });
+
+    let elem = this.elements.list.find((att) => att.visible);
+    if (elem) {
+      this.propFocous = elem;
+    }
   }
   IsConditionValid(selector, condition, value): boolean {
     let conditionValue = eval(`'${selector}' ${condition} '${value}'`);
@@ -508,8 +547,8 @@ export class EntradaManualComponent implements OnInit {
           for (let batchKey of Object.keys(childrenBatchResponse)) {
             let configAtt = isResult(childrenBatchResponse[batchKey])
               ? (childrenBatchResponse[batchKey]['Content'][
-                'Items'
-              ] as Array<PIWebAttribute>)
+                  'Items'
+                ] as Array<PIWebAttribute>)
               : [];
             let batchValueChildren = this.utils.createBatch(
               configAtt,
@@ -634,7 +673,7 @@ export class EntradaManualComponent implements OnInit {
       tree
     );
     if (!hasTree) {
-      await this.showAlert()
+      await this.showAlert();
     }
 
     //Salvo com sucesso
@@ -652,9 +691,7 @@ export class EntradaManualComponent implements OnInit {
         buttons: [
           {
             text: 'Não',
-            handler: () => {
-
-            },
+            handler: () => {},
           },
           {
             text: 'Sim',
