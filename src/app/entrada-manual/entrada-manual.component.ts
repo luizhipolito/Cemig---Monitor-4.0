@@ -473,7 +473,12 @@ export class EntradaManualComponent implements OnInit {
       }
     });
 
-    let elem = this.elements.list.find((att) => att.visible);
+    let elem = this.elements.list.find(
+      (att) =>
+        att.visible &&
+        (att.mode == 'LeituraEscrita' || att.mode == 'Escrita') &&
+        (att.Type == 'Double' || att.Type == 'Single')
+    );
     if (elem) {
       this.propFocous = elem;
     }
