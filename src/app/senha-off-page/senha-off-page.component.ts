@@ -1,7 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { Router } from '@angular/router';
-import { ApiService } from 'src/services/api.service';
-import { AppUtils } from 'src/utils/app.utils';
+
 import { MatSnackBar, MatSnackBarConfig } from '@angular/material/snack-bar';
 import { StorageArvoreService } from 'src/services/storage-arvore.service';
 import { NgForm } from '@angular/forms';
@@ -12,7 +11,7 @@ import { ConfigService } from 'src/services/config.service';
   templateUrl: './senha-off-page.component.html',
   styleUrls: ['./senha-off-page.component.scss'],
 })
-export class SenhaOffPageComponent implements OnInit {
+export class SenhaOffPageComponent {
   private configError: MatSnackBarConfig = {
     panelClass: ['style-error'],
     duration: 2000,
@@ -21,17 +20,18 @@ export class SenhaOffPageComponent implements OnInit {
 
   constructor(
     private router: Router,
-    private api: ApiService,
-    public utils: AppUtils,
     private messageBox: MatSnackBar,
     public storage: StorageArvoreService,
     public configService: ConfigService
   ) {}
 
+  async ionViewWillEnter() {
+    await this.configService.init();
+  }
+
   onSubmit(f: NgForm) {
-    let senhaOff = this.utils.getStorage('senhaOff');
+    let senhaOff = this.configService.SenhaOff;
     if (f.value.password === senhaOff) {
-      this.storage.getAll();
       this.configService.isToLoadFromPI = false;
       this.router.navigate(['/entrada-manual']);
     } else {
@@ -50,8 +50,4 @@ export class SenhaOffPageComponent implements OnInit {
   showMessageBox = (message: string) => {
     this.messageBox.open(message, null, this.configError);
   };
-
-  ngOnInit() {
-    this.utils.removeStorgare('Autorizacao');
-  }
 }
