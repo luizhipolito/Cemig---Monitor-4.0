@@ -10,7 +10,9 @@ import { MenuController } from '@ionic/angular';
 export class MenuComponent implements OnInit {
 
   constructor(private router: Router, private menu: MenuController) { }
+  ionViewWillEnter() {
 
+  }
   goSalvarDados() {
     this.router.navigate(['/salvar-dados']);
   }

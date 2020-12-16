@@ -85,11 +85,7 @@ export class EntradaManualComponent implements OnInit {
       currentModal = null;
     });
   }
-  // this.router.navigate(['/inserir-comentario']);
 
-  goSalvarDados() {
-    this.router.navigate(['/salvar-dados']);
-  }
 
   Elemento = {};
   selectedViews = 'elemento';
@@ -138,6 +134,8 @@ export class EntradaManualComponent implements OnInit {
     public modalController: ModalController,
     public alertController: AlertController
   ) { }
+
+
 
   async ionViewWillEnter() {
     let isToSyncDataFromPI = this.config.isToLoadFromPI;

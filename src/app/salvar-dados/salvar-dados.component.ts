@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { MenuController } from '@ionic/angular';
+import { MenuController, NavController } from '@ionic/angular';
 import { Router } from '@angular/router';
 import {
   Arvore,
@@ -14,15 +14,24 @@ import { ConfigService } from 'src/services/config.service';
   templateUrl: './salvar-dados.component.html',
   styleUrls: ['./salvar-dados.component.scss'],
 })
+
+
+
 export class SalvarDadosComponent implements OnInit {
+
   constructor(
     private menu: MenuController,
+    private navCtrl: NavController,
     private router: Router,
     public storageService: StorageArvoreService,
     public utils: AppUtils,
     private api: ApiService,
     public config: ConfigService
   ) { }
+
+  onBack() {
+    this.navCtrl.pop();
+  }
 
   ngOnInit() { }
 
@@ -51,9 +60,8 @@ export class SalvarDadosComponent implements OnInit {
     return path;
   }
 
-  onBack() {
-    this.router.navigate(['/entrada-manual']);
-  }
+
+
 
   async saveOnPI() {
     let dataToWriteOnPI = this.dataToWriteOnPI.filter((f) => f['isToSave']);
