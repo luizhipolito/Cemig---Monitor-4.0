@@ -669,9 +669,15 @@ export class EntradaManualComponent {
     let tree = new Arvore();
     tree.AplicacaoID = this.elements.WebId;
     tree.relativePath = this.elements.RelativePath;
-    tree.value = this.utils.getWrittenValues(this.elements);
-    tree.date = dateStr;
 
+    let values = this.utils.getWrittenValues(this.elements);
+    tree.date = dateStr;
+    tree.value = values;
+
+    if (!values.every((t) => t.Selected)) {
+      console.log('fill all attributes');
+      return;
+    }
     let hasTree = await this.storageService.hasValue(
       this.storageService.writtenValues,
       tree

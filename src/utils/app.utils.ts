@@ -1,7 +1,10 @@
 import { Injectable } from '@angular/core';
 
 import { Attribute } from 'src/model/Attribute.model';
-import { EnumModeAttribute } from 'src/model/PIWebAttribute.model';
+import {
+  EnumModeAttribute,
+  PIWebAttribute,
+} from 'src/model/PIWebAttribute.model';
 import { PIWebObject } from 'src/model/PIWebObject.model';
 import { isNumber } from 'util';
 
@@ -75,8 +78,8 @@ export class AppUtils {
     }
   }
 
-  getWrittenValues(elements: Attribute): PIWebObject[] {
-    let writtenValues = new Array<PIWebObject>();
+  getWrittenValues(elements: Attribute): Array<PIWebAttribute> {
+    let writtenValues = new Array<PIWebAttribute>();
 
     writtenValues.push(elements.firstSelection);
 
