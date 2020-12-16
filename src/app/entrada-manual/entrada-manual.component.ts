@@ -139,7 +139,7 @@ export class EntradaManualComponent implements OnInit {
     public config: ConfigService,
     public modalController: ModalController,
     public alertController: AlertController
-  ) {}
+  ) { }
 
   async ionViewWillEnter() {
     this.isToSyncDataFromPI = this.config.isToLoadFromPI;
@@ -336,7 +336,7 @@ export class EntradaManualComponent implements OnInit {
     });
   };
 
-  ngOnInit() {}
+  ngOnInit() { }
 
   print() {
     //console.log(this.elements);
@@ -505,8 +505,8 @@ export class EntradaManualComponent implements OnInit {
           for (let batchKey of Object.keys(childrenBatchResponse)) {
             let configAtt = isResult(childrenBatchResponse[batchKey])
               ? (childrenBatchResponse[batchKey]['Content'][
-                  'Items'
-                ] as Array<PIWebAttribute>)
+                'Items'
+              ] as Array<PIWebAttribute>)
               : [];
             let batchValueChildren = this.utils.createBatch(
               configAtt,
@@ -624,14 +624,14 @@ export class EntradaManualComponent implements OnInit {
     );
 
     if (hasTree) {
-      this.showConfirm();
+      await this.showConfirm();
     }
     await this.storageService.insertOrUpdate(
       this.storageService.writtenValues,
       tree
     );
     if (!hasTree) {
-      this.showAlert();
+      await this.showAlert()
     }
 
     //Salvo com sucesso
@@ -649,7 +649,9 @@ export class EntradaManualComponent implements OnInit {
         buttons: [
           {
             text: 'Não',
-            handler: () => {},
+            handler: () => {
+
+            },
           },
           {
             text: 'Sim',
