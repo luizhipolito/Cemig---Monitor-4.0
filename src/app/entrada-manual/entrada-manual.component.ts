@@ -100,9 +100,8 @@ export class EntradaManualComponent implements OnInit {
     verticalPosition: 'top',
   };
 
-  authToken: string;
   elements: Attribute;
-  navigationData: Array<PIWebObject>;
+
   enumerationSets: Array<PIWebObject>;
   enumerationValues: Array<EnumerationValue>;
   value: Array<EnumerationValue>;
@@ -111,12 +110,11 @@ export class EntradaManualComponent implements OnInit {
   arvoreLocal: Array<Arvore>;
   navigation: Array<{ path: Array<string>; name: string }>;
   currentDate = this.utils.formatDateTime(new Date());
-  isToSyncDataFromPI: boolean;
   pathNavigation: { path: Array<string>; name: string } = {
     path: [],
     name: '',
   };
-  clickNavigation: string;
+
   propFocous: PIWebAttribute;
 
   firstSelection: string = 'Observação';
@@ -142,15 +140,20 @@ export class EntradaManualComponent implements OnInit {
   ) {}
 
   async ionViewWillEnter() {
-    this.isToSyncDataFromPI = this.config.isToLoadFromPI;
+    let isToSyncDataFromPI = this.config.isToLoadFromPI;
+    this.reset();
     await this.api.init();
     await this.config.init();
 
-    if (this.isToSyncDataFromPI) {
+    if (isToSyncDataFromPI) {
       this.syncDataFromPI();
     } else {
       this.loadDataFromStorage();
     }
+  }
+  reset() {
+    this.elements = null;
+    this.propFocous = null;
   }
 
   async syncDataFromPI() {
