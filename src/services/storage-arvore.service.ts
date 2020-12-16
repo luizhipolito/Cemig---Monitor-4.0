@@ -13,9 +13,9 @@ import { PIWebObject } from 'src/model/PIWebObject.model';
 export class StorageArvoreService {
   navigation: string = 'navigation';
   enumerationSets: string = 'enumerationSets';
-  writtenValues: string = 'writtenValues';
   configValues: string = 'config';
-  constructor(private storage: Storage, private http: HttpClient) {}
+  writtenValues: string = 'writtenValues';
+  constructor(private storage: Storage) {}
 
   public insert(arvore: Arvore) {
     let key = arvore.AplicacaoID;
@@ -31,7 +31,8 @@ export class StorageArvoreService {
   }
 
   public removeAll() {
-    this.storage.clear();
+    this.storage.remove(this.navigation);
+    this.storage.remove(this.enumerationSets);
   }
 
   public update(key: string, arvore: Arvore) {

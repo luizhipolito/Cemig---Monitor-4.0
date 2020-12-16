@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
-import { element } from 'protractor';
-import { of } from 'rxjs';
+
 import { Attribute } from 'src/model/Attribute.model';
 import { EnumModeAttribute } from 'src/model/PIWebAttribute.model';
 import { PIWebObject } from 'src/model/PIWebObject.model';
@@ -13,7 +12,6 @@ export class AppUtils {
   constructor() {}
 
   public isCollapsed: boolean = false;
-  public usuarioLogado: any;
 
   saveStorage(key: string, value: any) {
     localStorage.setItem(key, JSON.stringify(value));

@@ -26,7 +26,7 @@ export class SenhaOffPageComponent implements OnInit {
     private messageBox: MatSnackBar,
     public storage: StorageArvoreService,
     public configService: ConfigService
-  ) { }
+  ) {}
 
   onSubmit(f: NgForm) {
     let senhaOff = this.utils.getStorage('senhaOff');
@@ -40,7 +40,7 @@ export class SenhaOffPageComponent implements OnInit {
   }
 
   iconBack() {
-    this.router.navigate(['home'])
+    this.router.navigate(['home']);
   }
 
   goEntrada() {
@@ -52,7 +52,6 @@ export class SenhaOffPageComponent implements OnInit {
   };
 
   ngOnInit() {
-    this.utils.usuarioLogado = null;
     this.utils.removeStorgare('Autorizacao');
   }
 }

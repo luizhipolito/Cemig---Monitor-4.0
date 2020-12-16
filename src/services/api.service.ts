@@ -21,11 +21,7 @@ export class ApiService {
     this.baseUrl = `${server}/elements/?path=${config}`;
   }
 
-  constructor(
-    private http: HttpClient,
-    private storageService: StorageArvoreService,
-    public utils: AppUtils
-  ) {}
+  constructor(private http: HttpClient, public utils: AppUtils) {}
 
   httpOptions = {
     headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
@@ -115,12 +111,12 @@ export class ApiService {
       .pipe(retry(2), catchError(this.handleError));
   }
 
-  getData() {
-    this.showLoader();
-    return this.http
-      .get(this.baseUrl, this.httpOptions)
-      .pipe(retry(2), catchError(this.handleError));
-  }
+  // getData() {
+  //   this.showLoader();
+  //   return this.http
+  //     .get(this.baseUrl, this.httpOptions)
+  //     .pipe(retry(2), catchError(this.handleError));
+  // }
 
   getCatagoryParams(categoryName: string): HttpParams {
     let params = new HttpParams();

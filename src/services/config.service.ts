@@ -6,7 +6,6 @@ import { Arvore, StorageArvoreService } from './storage-arvore.service';
 })
 export class ConfigService {
   isToLoadFromPI: boolean = false;
-  server: string;
   config: string;
   Insercao: string;
   Navegacao: string;
@@ -22,6 +21,8 @@ export class ConfigService {
   descricaoEnumerationSets: string;
   DataBase: string;
   AppAttributes: string;
+  configUrl: string;
+  configPath: string;
 
   endPoint = {
     asset: 'Databases',
@@ -45,16 +46,30 @@ export class ConfigService {
     DataBase: 'Database',
     AppAttributes: 'Descrição Atributo',
   };
+
   constructor(public storageService: StorageArvoreService) {}
 
   async init() {
     let config = await this.storageService.getByKey(
       this.storageService.configValues
     );
-
     config.forEach((conf) => {
       this[conf.Nome] = conf.configValue;
     });
+  }
+
+  getBaseUrl() {
+    return `https://${this.afServer}/piwebapi/elements/?path=${this.ElementoRaiz}`;
+  }
+
+  getBaseConfigUrl() {
+    return `${this.configUrl}/elements?path=${this.configPath}`;
+  }
+
+  getHomeUrl() {
+    return this.afServer
+      ? ` https://${this.afServer}/piwebapi`
+      : `${this.configUrl}`;
   }
 
   async saveStorage() {

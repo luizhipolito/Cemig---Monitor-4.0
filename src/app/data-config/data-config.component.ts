@@ -15,15 +15,19 @@ import { AppUtils } from 'src/utils/app.utils';
 export class DataConfigComponent implements OnInit {
   constructor(
     private router: Router,
-    private storageService: StorageArvoreService,
     private messageBox: MatSnackBar,
     public api: ApiService,
-    public config: ConfigService,
-    public utils: AppUtils
+    public config: ConfigService
   ) {}
 
-  showServer = this.utils.getStorage('server');
-  showConfig = this.utils.getStorage('config');
+  public serverUrl;
+  public configPath;
+
+  async ionViewWillEnter() {
+    await this.config.init();
+    this.serverUrl = this.config.configUrl;
+    this.configPath = this.config.configPath;
+  }
 
   backHome() {
     this.router.navigate(['/home']);
@@ -31,20 +35,14 @@ export class DataConfigComponent implements OnInit {
 
   onSubmit(f: NgForm) {
     if (f.valid) {
-      let server = f.value.server;
       // let server = 'https://34.233.235.92/piwebapi';
-      let config = f.value.configuracoes;
       // let config = '\\\\EC2AMAZ-T1N5EJ5\\Testes\\APP Entrada Manual';
+      let server = f.value.server;
+      let config = f.value.configuracoes;
 
-      this.api.setBaseUrl(server, config);
-      this.config.server = server;
-      this.config.config = config;
-
-      this.utils.saveStorage('server', server);
-      this.utils.saveStorage('config', config);
-
-      console.log(server, config);
-      this.utils.saveStorage('baseUrl', `${server}/elements/?path=${config}`);
+      this.config.configUrl = server;
+      this.config.configPath = config;
+      this.config.saveStorage();
       this.router.navigate(['/login']);
     } else {
       this.showMessageBox('Não existem dados preenchidos');

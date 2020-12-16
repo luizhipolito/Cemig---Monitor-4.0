@@ -142,29 +142,29 @@ export class EntradaManualComponent implements OnInit {
   ) {}
 
   async ionViewWillEnter() {
-    //this.isToSyncDataFromPI = true;
     this.isToSyncDataFromPI = this.config.isToLoadFromPI;
-    await this.loadAuthFromStorage();
+    await this.api.init();
+    await this.config.init();
+
     if (this.isToSyncDataFromPI) {
       this.syncDataFromPI();
     } else {
       this.loadDataFromStorage();
     }
   }
-  async loadAuthFromStorage() {
-    this.authToken = await this.utils.getStorage('Authorization');
-    this.api.setAuth(this.authToken);
-  }
 
   async syncDataFromPI() {
     await this.syncConfigFromPI();
     await this.syncNavigationData();
     await this.syncEnumerationSets();
+    this.config.isToLoadFromPI = false;
   }
 
   async syncConfigFromPI() {
-    let configHome = await this.api.getData().toPromise();
-    let configUrlValues = this.api.getLink(
+    let configHome = await this.api
+      .get(this.config.getBaseConfigUrl())
+      .toPromise();
+    let configUrlValues = this.utils.getValue(
       configHome,
       this.config.config,
       this.config.endPoint['value']
@@ -182,16 +182,12 @@ export class EntradaManualComponent implements OnInit {
       this.config[attribute] = value;
     }
 
-    this.api.setBaseUrl(
-      'https://' + this.config.afServer + '/piwebapi',
-      this.config.ElementoRaiz
-    );
     this.utils.saveStorage('senhaOff', this.config.SenhaOff);
     await this.config.saveStorage();
   }
 
   async syncNavigationData() {
-    let rootData = await this.api.getData().toPromise();
+    let rootData = await this.api.get(this.config.getBaseUrl()).toPromise();
     let rootUrl = this.utils.getValue(
       rootData,
       this.config.ElementoRaiz,
@@ -224,7 +220,9 @@ export class EntradaManualComponent implements OnInit {
   async getEnumarationSets(
     qualyfiers: Array<string>
   ): Promise<Array<PIWebObject>> {
-    let rootDataEnumeration = await this.api.getData().toPromise();
+    let rootDataEnumeration = await this.api
+      .get(this.config.getBaseUrl())
+      .toPromise();
     let databaseUrl = this.utils.getValue(
       rootDataEnumeration,
       this.config.EnumerationSets,

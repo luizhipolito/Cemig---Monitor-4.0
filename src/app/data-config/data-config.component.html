@@ -6,14 +6,13 @@
       <form #f="ngForm" (ngSubmit)="onSubmit(f)">
         <div class="main_inputs">
           <label>PI WEB API</label>
-          <input type="text" name="server" [(ngModel)]="showServer" />
+          <input type="text" name="server" [(ngModel)]="serverUrl" />
 
           <label>Configurações</label>
-          <input type="text" name="configuracoes" [(ngModel)]="showConfig" />
+          <input type="text" name="configuracoes" [(ngModel)]="configPath" />
           <button class="btn" type="submit" value="salvar">Salvar</button>
         </div>
       </form>
     </fieldset>
   </div>
-
 </div>

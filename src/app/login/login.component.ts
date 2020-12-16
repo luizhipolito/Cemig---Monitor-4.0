@@ -21,18 +21,12 @@ import { ConfigService } from 'src/services/config.service';
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss'],
 })
-export class LoginComponent implements OnInit {
-  private loginData: Login = {};
-  aplicacaoData: Array<arvore>;
-  enumerationData: Array<dataEnumeration>;
-
+export class LoginComponent {
   private configError: MatSnackBarConfig = {
     panelClass: ['style-error'],
     duration: 2000,
     verticalPosition: 'top',
   };
-  storageService: any;
-
 
   constructor(
     private router: Router,
@@ -41,31 +35,28 @@ export class LoginComponent implements OnInit {
     private messageBox: MatSnackBar,
     public storage: StorageArvoreService,
     public configService: ConfigService
-  ) { }
+  ) {}
+
+  async ionViewWillEnter() {
+    this.utils.removeStorgare('Autorizacao');
+  }
 
   onSubmit(f: NgForm) {
     if (f.valid) {
-      var Authorization = btoa(f.value.username + ':' + f.value.password);
-      this.api.setAuth(Authorization);
-      this.loginData.Autorizacao = Authorization;
-      this.api.getData().subscribe((data: Resposta) => {
-        if (data) {
-          this.utils.saveStorage('Authorization', Authorization);
-          this.utils.usuarioLogado = this.utils.getStorage(
-            'Authorization'
-          ) as Autorizacao;
-
-          this.storage.removeAll();
-          this.configService.isToLoadFromPI = true;
-          this.router.navigate(['/entrada-manual']);
-          this.api.hideLoader();
-
-          // redireciona para pagina de entrada manual
-        } else {
-          this.api.hideLoader();
-          this.showMessageBox(data.Mensagem);
-        }
-      });
+      let AuthorizationToken = btoa(f.value.username + ':' + f.value.password);
+      this.api.setAuth(AuthorizationToken);
+      this.api
+        .get(this.configService.getHomeUrl())
+        .subscribe((data: Resposta) => {
+          if (data) {
+            this.utils.saveStorage('Authorization', AuthorizationToken);
+            this.storage.removeAll();
+            this.configService.isToLoadFromPI = true;
+            this.router.navigate(['/entrada-manual']);
+          } else {
+            this.showMessageBox(data.Mensagem);
+          }
+        });
     } else {
       this.showMessageBox('Informe seu usuário e senha para continuar!');
     }
@@ -76,12 +67,6 @@ export class LoginComponent implements OnInit {
   };
 
   iconBack() {
-    this.router.navigate(['home'])
-  }
-
-
-  ngOnInit() {
-    this.utils.usuarioLogado = null;
-    this.utils.removeStorgare('Autorizacao');
+    this.router.navigate(['home']);
   }
 }
