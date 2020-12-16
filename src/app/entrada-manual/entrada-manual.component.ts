@@ -22,13 +22,11 @@ import {
   EnumModeAttribute,
   PIWebAttribute,
 } from 'src/model/PIWebAttribute.model';
-import { first, map } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 import { Attribute } from 'src/model/Attribute.model';
-import { EnumerationValue } from 'src/model/EnumerationValue.model';
 import { __await } from 'tslib';
 import { isNumber } from 'util';
 import { InserirComentarioComponent } from '../inserir-comentario/inserir-comentario.component';
-import { element } from 'protractor';
 
 const typeEnumeration = 'EnumerationValue';
 let currentModal = null;
@@ -38,7 +36,7 @@ let currentModal = null;
   templateUrl: './entrada-manual.component.html',
   styleUrls: ['./entrada-manual.component.scss'],
 })
-export class EntradaManualComponent implements OnInit {
+export class EntradaManualComponent {
   @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
   @ViewChild(MatSort, { static: true }) sort: MatSort;
 
@@ -123,12 +121,7 @@ export class EntradaManualComponent implements OnInit {
   };
 
   elements: Attribute;
-
-  enumerationSets: Array<PIWebObject>;
-  enumerationValues: Array<EnumerationValue>;
-  value: Array<EnumerationValue>;
   enumerationTree: Array<Arvore>;
-  navigationTree: Array<Arvore>;
   arvoreLocal: Array<Arvore>;
   navigation: Array<{ path: Array<string>; name: string }>;
   currentDate = this.utils.formatDateTime(new Date());
@@ -238,7 +231,7 @@ export class EntradaManualComponent implements OnInit {
       .toPromise();
     let attributes = await this.loadAttributes(navigationData);
 
-    this.navigationTree = navigationData.map((nav) => {
+    let navigationTree = navigationData.map((nav) => {
       let tree = new Arvore();
       tree.atributos = attributes.find((att) => att.WebId == nav.WebId);
       tree.AplicacaoID = nav.WebId;
@@ -249,7 +242,7 @@ export class EntradaManualComponent implements OnInit {
 
     await this.storageService.store(
       this.storageService.navigation,
-      this.navigationTree
+      navigationTree
     );
     this.api.hideLoader();
     await this.loadDataFromStorage();
@@ -281,8 +274,10 @@ export class EntradaManualComponent implements OnInit {
   async syncEnumerationSets() {
     let qualifyers = this.getEnumerationSetsQualyfiers();
     let enumerationSets = await this.getEnumarationSets(qualifyers);
-    this.enumerationSets = await this.getEnumerationSetsValues(enumerationSets);
-    this.enumerationTree = this.enumerationSets.map((enumSet) => {
+    let enumerationSetsAndValues = await this.getEnumerationSetsValues(
+      enumerationSets
+    );
+    this.enumerationTree = enumerationSetsAndValues.map((enumSet) => {
       let tree = new Arvore();
       tree.AplicacaoID = enumSet.WebId;
       tree.relativePath = enumSet.Path;
@@ -373,8 +368,6 @@ export class EntradaManualComponent implements OnInit {
       };
     });
   };
-
-  ngOnInit() {}
 
   print() {
     //console.log(this.elements);
