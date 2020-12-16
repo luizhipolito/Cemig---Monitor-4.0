@@ -30,6 +30,17 @@ import { InserirComentarioComponent } from '../inserir-comentario/inserir-coment
 
 const typeEnumeration = 'EnumerationValue';
 let currentModal = null;
+class Navigation {
+  path: Array<string>;
+  name: string;
+
+  static Instance(): Navigation {
+    let n = new Navigation();
+    n.path = [];
+    n.name = '';
+    return n;
+  }
+}
 
 @Component({
   selector: 'app-entrada-manual',
@@ -123,12 +134,9 @@ export class EntradaManualComponent {
   elements: Attribute;
   enumerationTree: Array<Arvore>;
   arvoreLocal: Array<Arvore>;
-  navigation: Array<{ path: Array<string>; name: string }>;
+  navigation: Array<Navigation>;
   currentDate = this.utils.formatDateTime(new Date());
-  pathNavigation: { path: Array<string>; name: string } = {
-    path: [],
-    name: '',
-  };
+  pathNavigation: Navigation = Navigation.Instance();
 
   propFocous: PIWebAttribute;
 
@@ -168,8 +176,8 @@ export class EntradaManualComponent {
   ) {}
 
   async ionViewWillEnter() {
-    let isToSyncDataFromPI = this.config.isToLoadFromPI || true;
-    this.reset();
+    let isToSyncDataFromPI = this.config.isToLoadFromPI && true;
+    this.init();
     await this.api.init();
     await this.config.init();
 
@@ -179,9 +187,11 @@ export class EntradaManualComponent {
       this.loadDataFromStorage();
     }
   }
-  reset() {
+  init() {
     this.elements = null;
     this.propFocous = null;
+    this.navigation = new Array<Navigation>();
+    this.pathNavigation = Navigation.Instance();
   }
 
   async syncDataFromPI() {
@@ -336,7 +346,7 @@ export class EntradaManualComponent {
       this.storageService.navigation
     );
 
-    this.navigation = new Array<{ path: Array<string>; name: string }>();
+    this.navigation = new Array<Navigation>();
     if (this.arvoreLocal) {
       this.arvoreLocal.forEach((arvore: Arvore) => {
         let path = arvore.Caminho.find(this.utils.firstOrNull);
