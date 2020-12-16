@@ -1,8 +1,7 @@
 
 .tudo {
   background-image: url(../../assets/cemigCapa2.png);
-  // background-position: center;
-  // background-repeat: no-repeat;
+ 
   background-size: cover;
   height: 100%;
 }
@@ -18,8 +17,6 @@
   color: white;
 }
 
-
-
 .main_logo {
   text-align: center;
   margin-top: 8%;
@@ -27,7 +24,7 @@
 .main_descricao {
   font-size: 2.3rem;
   color: white;
-  margin-top: 2%;
+  margin-top: 4%;
 }
 .main_descricao > p {
   text-align: center;
@@ -46,68 +43,74 @@
   font-size: 1.8rem;
   font-weight: 800;
   color: rgb(32, 128, 69);
-  margin-top: 2%;
+  margin-top: 4%;
+}
+
+@media screen and(max-height: 550px){
+  .main_logo{
+    margin-top: 3%;
+  }
 }
 
 
 
-@media screen and(max-width: 750px) {
-  .seetings > ion-icon{
-   font-size: 40px;
- }
+// @media screen and(max-width: 750px) {
+//   .seetings > ion-icon{
+//    font-size: 40px;
+//  }
 
- .main{
-   margin-top: 45%;
- }
+//  .main{
+//    margin-top: 45%;
+//  }
 
-  .main_descricao {
-    font-size: 1.7rem;
-  }
+//   .main_descricao {
+//     font-size: 1.7rem;
+//   }
 
-  .main_logo > img {
-    width: 210px;
-    margin-top: -30%;
-  }
-  .main_descricao{
-    margin-top: 20px;
-    font-size: 1.5rem;
-  }
+//   .main_logo > img {
+//     width: 210px;
+//     margin-top: -30%;
+//   }
+//   .main_descricao{
+//     margin-top: 20px;
+//     font-size: 1.5rem;
+//   }
 
-  .main_btns {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-  }
+//   .main_btns {
+//     display: flex;
+//     flex-direction: row;
+//     align-items: center;
+//   }
 
-  .main_btns > button {
-    margin-top: 20px;
-    width: 40%;
-    height: 50px;
-    font-size: 1.5rem;
-  }
-}
+//   .main_btns > button {
+//     margin-top: 20px;
+//     width: 40%;
+//     height: 50px;
+//     font-size: 1.5rem;
+//   }
+// }
 
-@media screen and(max-width: 500px) {
-  .main {
-    margin-top: 20% !important;
-  }
-  .main_logo > img {
-    width: 250px;
-  }
+// @media screen and(max-width: 500px) {
+//   .main {
+//     margin-top: 20% !important;
+//   }
+//   .main_logo > img {
+//     width: 250px;
+//   }
 
-  .main_btns {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
+//   .main_btns {
+//     display: flex;
+//     flex-direction: column;
+//     align-items: center;
+//   }
 
-  .main_btns > button {
-    font-size: 1.5rem;
-    width: 70%;
-    height: 50px;
-  }
+//   .main_btns > button {
+//     font-size: 1.5rem;
+//     width: 70%;
+//     height: 50px;
+//   }
 
-  .seetings > ion-icon {
-    font-size: 40px;
-  }
-}
+//   .seetings > ion-icon {
+//     font-size: 40px;
+//   }
+// }

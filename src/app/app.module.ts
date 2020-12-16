@@ -41,7 +41,7 @@ import { MenuComponent } from './menu/menu.component';
     FilterPipe,
     MenuComponent
   ],
-  entryComponents: [InserirComentarioComponent],
+  entryComponents: [InserirComentarioComponent, MenuComponent],
   imports: [
     BrowserModule,
     IonicModule.forRoot(),
