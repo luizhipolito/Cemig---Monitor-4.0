@@ -8,12 +8,14 @@ import { MenuController } from '@ionic/angular';
   styleUrls: ['./menu.component.scss'],
 })
 export class MenuComponent implements OnInit {
+  appMenuSwipeGesture: boolean;
 
-  constructor(private router: Router, private menu: MenuController) { }
+  constructor(private router: Router, private menu: MenuController) {}
   ionViewWillEnter() {
-
+    this.menu.close();
   }
   goSalvarDados() {
+    this.menu.close();
     this.router.navigate(['/salvar-dados']);
   }
 
@@ -27,8 +29,7 @@ export class MenuComponent implements OnInit {
   };
   onSairClick = (ev) => {
     this.logoutUsuario();
-  }
+  };
 
-  ngOnInit() { }
-
+  ngOnInit() {}
 }

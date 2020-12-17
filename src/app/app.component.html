@@ -1,4 +1,5 @@
 <ion-app>
+  <app-menu *ngIf="hasMenu" style="z-index: 999"></app-menu>
   <ion-router-outlet></ion-router-outlet>
 </ion-app>
 <div class="loaderContainer" id="loader">

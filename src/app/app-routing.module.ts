@@ -36,8 +36,8 @@ const routes: Routes = [
 
   {
     path: 'salvar-dados',
-    component: SalvarDadosComponent
-  }
+    component: SalvarDadosComponent,
+  },
 ];
 
 @NgModule({
@@ -46,4 +46,4 @@ const routes: Routes = [
   ],
   exports: [RouterModule],
 })
-export class AppRoutingModule { }
+export class AppRoutingModule {}

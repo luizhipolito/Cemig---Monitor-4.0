@@ -57,7 +57,7 @@ export class EntradaManualComponent {
     [4, 5, 6],
     [1, 2, 3],
     ['<', 0, '.'],
-    ['', '-', 'Enter']
+    ['', '-', 'Enter'],
   ];
   onButtonPress(symbol) {
     if (this.propFocous) {
@@ -123,7 +123,6 @@ export class EntradaManualComponent {
   //   });
   // }
 
-
   Elemento = {};
   selectedViews = 'elemento';
 
@@ -169,15 +168,12 @@ export class EntradaManualComponent {
     public utils: AppUtils,
     private router: Router,
     private messageBox: MatSnackBar,
-    private menu: MenuController,
     public navCtrl: NavController,
     public storageService: StorageArvoreService,
     public config: ConfigService,
     public modalController: ModalController,
     public alertController: AlertController
-  ) { }
-
-
+  ) {}
 
   async ionViewWillEnter() {
     let isToSyncDataFromPI = this.config.isToLoadFromPI && true;
@@ -559,8 +555,8 @@ export class EntradaManualComponent {
           for (let batchKey of Object.keys(childrenBatchResponse)) {
             let configAtt = isResult(childrenBatchResponse[batchKey])
               ? (childrenBatchResponse[batchKey]['Content'][
-                'Items'
-              ] as Array<PIWebAttribute>)
+                  'Items'
+                ] as Array<PIWebAttribute>)
               : [];
             let batchValueChildren = this.utils.createBatch(
               configAtt,
@@ -679,7 +675,7 @@ export class EntradaManualComponent {
     tree.value = values;
 
     if (!values.every((t) => t.Selected)) {
-      this.showAlert('Preencha todos os campos!')
+      this.showAlert('Preencha todos os campos!');
       return;
     }
     let hasTree = await this.storageService.hasValue(
@@ -713,7 +709,7 @@ export class EntradaManualComponent {
         buttons: [
           {
             text: 'Não',
-            handler: () => { },
+            handler: () => {},
           },
           {
             text: 'Sim',
