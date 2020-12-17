@@ -14,6 +14,8 @@ import { ConfigService } from 'src/services/config.service';
   templateUrl: './salvar-dados.component.html',
   styleUrls: ['./salvar-dados.component.scss'],
 })
+
+
 export class SalvarDadosComponent {
   confirm: boolean;
   constructor(
@@ -26,6 +28,8 @@ export class SalvarDadosComponent {
     public config: ConfigService
   ) { }
 
+
+
   onBack() {
     this.navCtrl.navigateBack('entrada-manual');
   }
@@ -33,6 +37,7 @@ export class SalvarDadosComponent {
   ngOnInit() { }
 
   dataToWriteOnPI: Array<Arvore> = [];
+  dataRemoved: Array<Arvore> = [];
 
   async loadSaveValues() {
     let writtenValues = await this.storageService.getByKey(
@@ -70,7 +75,7 @@ export class SalvarDadosComponent {
       let batchResponse = await this.api
         .executeBatch(this.config.afServer, batch)
         .toPromise();
-
+      console.log(batchResponse)
       let responses = Object.keys(batchResponse).map((k) => batchResponse[k]);
       let isUpdated = responses.every((r) => r.Status >= 200 && r.Status < 400);
       if (isUpdated) {
@@ -89,13 +94,20 @@ export class SalvarDadosComponent {
     );
   }
 
-  // removeWritten() {
-  //   if (!this.confirm) {
-  //     console.log('selecionar confirmar')
-  //   } else {
-  //     let dataToRemove = this.dataToWriteOnPI.filter((f) => f['isToSave']);
-  //     console.log(dataToRemove)
-  //     // this.storageService.removeWrittenValues()
-  //   }
-  // }
+  async removeWritten() {
+    if (!this.confirm) {
+      console.log('selecionar confirmar')
+    } else {
+      let dataToWriteOnPI = this.dataToWriteOnPI.filter((f) => f['isToSave']);
+      console.log(dataToWriteOnPI)
+      for (let data of dataToWriteOnPI) {
+        // this.dataRemoved = dataToWriteOnPI.filter(i =>);
+        console.log(this.dataRemoved)
+      }
+
+    }
+
+  }
+
 }
+

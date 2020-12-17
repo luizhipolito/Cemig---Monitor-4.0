@@ -49,9 +49,9 @@
               <ion-input *ngIf="elements.firstSelection.Type == 'Double'" type="number"
                 [value]="elements.firstSelection.Selected"></ion-input>
 
-              <ion-select *ngIf="elements.firstSelection.Type == 'EnumerationValue'" class="select"
+              <ion-select *ngIf="elements.firstSelection.Type == 'EnumerationValue'" interface="alert" class="select"
                 (ionChange)="onSelect($event)" [(ngModel)]="elements.firstSelection.Selected" (click)="print()">
-                <ion-select-option debounce="1000" *ngFor="let valueSet of elements.firstSelection.valuesSets"
+                <ion-select-option *ngFor="let valueSet of elements.firstSelection.valuesSets" class="selectClass"
                   [value]="valueSet">
                   {{ valueSet.Name }}</ion-select-option>
               </ion-select>

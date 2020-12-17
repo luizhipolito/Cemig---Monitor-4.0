@@ -30,8 +30,10 @@
           <ion-checkbox [(ngModel)]="confirm"></ion-checkbox>
           <ion-label>Confirmado</ion-label>
         </span>
-        <ion-button (click)="saveOnPI()">Enviar</ion-button>
-        <ion-button (click)="removeWritten()">Deletar</ion-button>
+        <div class="btns">
+          <ion-button (click)="removeWritten()">Deletar</ion-button>
+          <ion-button (click)="saveOnPI()">Enviar</ion-button>
+        </div>
       </div>
     </div>
   </ion-content>
