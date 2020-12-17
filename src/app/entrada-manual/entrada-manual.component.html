@@ -14,16 +14,13 @@
     </div>
 
     <div class="search">
-      <ion-toolbar>
-        <ion-searchbar placeholder="Procurar" (ionChange)="search($event)"></ion-searchbar>
-      </ion-toolbar>
-      <!-- <ion-input
-          class="search-input"
-          inputmode="search"
-          [value]="searchField"
-        >
-          <ion-icon (click)="search()" name="search-outline"></ion-icon
-        ></ion-input> -->
+
+      <ion-input placeholder="Procurar" (ionChange)="search($event)">
+        <ion-icon name="search-outline"></ion-icon>
+      </ion-input>
+      <!-- <ion-input class="search-input" inputmode="search" [value]="searchField">
+        <ion-icon (click)="search()" name="search-outline"></ion-icon>
+      </ion-input> -->
     </div>
   </div>
 

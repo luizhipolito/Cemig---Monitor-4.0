@@ -15,7 +15,7 @@ export class StorageArvoreService {
   enumerationSets: string = 'enumerationSets';
   configValues: string = 'config';
   writtenValues: string = 'writtenValues';
-  constructor(private storage: Storage) {}
+  constructor(private storage: Storage) { }
 
   public insert(arvore: Arvore) {
     let key = arvore.AplicacaoID;
@@ -34,6 +34,10 @@ export class StorageArvoreService {
     this.storage.remove(this.navigation);
     this.storage.remove(this.enumerationSets);
   }
+
+  // public removeWrittenValues(key: string) {
+  //   this.storage.remove(key);
+  // }
 
   public update(key: string, arvore: Arvore) {
     return this.save(key, arvore);

@@ -24,13 +24,13 @@ export class SalvarDadosComponent {
     public utils: AppUtils,
     private api: ApiService,
     public config: ConfigService
-  ) {}
+  ) { }
 
   onBack() {
-    this.navCtrl.pop();
+    this.navCtrl.navigateBack('entrada-manual');
   }
 
-  ngOnInit() {}
+  ngOnInit() { }
 
   dataToWriteOnPI: Array<Arvore> = [];
 
@@ -79,7 +79,7 @@ export class SalvarDadosComponent {
         );
       }
     }
-
+    console.log(this.dataToWriteOnPI)
     await this.updateStorage(this.dataToWriteOnPI);
   }
   async updateStorage(dataToWriteOnPI: Arvore[]) {
@@ -88,4 +88,14 @@ export class SalvarDadosComponent {
       dataToWriteOnPI
     );
   }
+
+  // removeWritten() {
+  //   if (!this.confirm) {
+  //     console.log('selecionar confirmar')
+  //   } else {
+  //     let dataToRemove = this.dataToWriteOnPI.filter((f) => f['isToSave']);
+  //     console.log(dataToRemove)
+  //     // this.storageService.removeWrittenValues()
+  //   }
+  // }
 }
