@@ -25,6 +25,10 @@ ion-spinner {
   transform: scale(3);
 }
 
+.route{
+  min-height: 50px;
+}
+
 /* data box route */
 .boxData {
   border: 2px solid black;
@@ -51,35 +55,49 @@ ion-list {
 
 .select {
   font-size: 1rem;
-  width: 500px;
+}
+
+ion-select.myCustomSelect{
+  width: 100%;
+  max-width: 100%;
 }
 
 .controlKeyboard {
-  margin-top: 5%;
-  margin-left: calc(11% - 91px);
+  width: 28%;
+  height: 80%;
+ margin-top: 10px;
+}
+
+.controlKeyboard > p {
+  margin-top: 10px;
+  font-weight: bold;
+  font-size: 1rem;
+  text-align: center;
+  color: #008f45
 }
 
 .keyboard {
   text-align: center;
+  margin-top: 10px;
 }
 
 .calc-button {
-  width: 84px;
-  height: 84px;
+  width: 55px;
+  height: 55px;
   margin: 1px;
   margin-top: 3px;
-  font-size: 1.4rem;
+  font-size: 0.8rem;
 }
 
 .btns {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-top: 15px;
+  margin-top: 10px;
 }
 .btns > ion-button {
-  width: 85%;
-  height: 60px;
+  width: 50%;
+  height: 40px;
   margin: 3px;
   background: #008f45 !important;
   font-size: 1rem;
@@ -101,28 +119,28 @@ ion-list {
 }
 
 .write {
-  color: #00c55f !important;
+  background-color: #00c55f !important;
   border: 1px solid #008f45 !important;
   cursor: none;
 }
 
 .orange {
-  color: rgb(255, 157, 0) !important;
+  background-color: rgb(255, 157, 0) !important;
   border: 1px solid rgb(134, 83, 0) !important;
 }
 
 .green {
-  color: #00c55f !important;
+  background-color: #00c55f !important;
   border: 1px solid #005c2c !important;
 }
 
 .purple {
-  color: rgb(155, 2, 96) !important;
+  background-color: rgb(155, 2, 96) !important;
   border: 1px solid rgb(58, 0, 36) !important;
 }
 
 .red {
-  color: rgb(255, 0, 0) !important;
+  background-color: rgb(255, 0, 0) !important;
   border: 1px solid rgb(119, 3, 3) !important;
 }
 
@@ -132,13 +150,17 @@ ion-list {
 }
 
 .write {
-  color: #00c55f !important;
+  background-color: #00c55f !important;
   border: 1px solid #008f45 !important;
   cursor: none;
 }
 
 .search-input {
   border: 1px solid black;
+}
+
+.search > ion-searchbar{
+  border-radius: 50px;
 }
 
 @media screen and(max-width: 600px) {

@@ -56,9 +56,9 @@ export class EntradaManualComponent {
     [7, 8, 9],
     [4, 5, 6],
     [1, 2, 3],
-    [0, '<', '.'],
+    ['<', 0, '.'],
+    ['', '-', 'Enter']
   ];
-
   onButtonPress(symbol) {
     if (this.propFocous) {
       if (!this.propFocous.Selected) {
@@ -70,6 +70,12 @@ export class EntradaManualComponent {
       if (
         symbol === '.' &&
         !new String(this.propFocous.Selected).includes('.')
+      ) {
+        this.propFocous.Selected += symbol;
+      }
+      if (
+        symbol === '-' &&
+        !new String(this.propFocous.Selected).includes('-')
       ) {
         this.propFocous.Selected += symbol;
       }
@@ -103,19 +109,19 @@ export class EntradaManualComponent {
     return colorClass;
   }
 
-  async goInserirComentario() {
-    let modal = await this.modalController.create({
-      component: InserirComentarioComponent,
-      cssClass: 'my-custom-class',
-    });
-    await modal.present();
-    currentModal = modal;
-  }
-  dismissModal() {
-    currentModal.dismiss().then(() => {
-      currentModal = null;
-    });
-  }
+  // async goInserirComentario() {
+  //   let modal = await this.modalController.create({
+  //     component: InserirComentarioComponent,
+  //     cssClass: 'my-custom-class',
+  //   });
+  //   await modal.present();
+  //   currentModal = modal;
+  // }
+  // dismissModal() {
+  //   currentModal.dismiss().then(() => {
+  //     currentModal = null;
+  //   });
+  // }
 
 
   Elemento = {};
@@ -169,7 +175,7 @@ export class EntradaManualComponent {
     public config: ConfigService,
     public modalController: ModalController,
     public alertController: AlertController
-  ) {}
+  ) { }
 
 
 
@@ -553,8 +559,8 @@ export class EntradaManualComponent {
           for (let batchKey of Object.keys(childrenBatchResponse)) {
             let configAtt = isResult(childrenBatchResponse[batchKey])
               ? (childrenBatchResponse[batchKey]['Content'][
-                  'Items'
-                ] as Array<PIWebAttribute>)
+                'Items'
+              ] as Array<PIWebAttribute>)
               : [];
             let batchValueChildren = this.utils.createBatch(
               configAtt,
@@ -673,7 +679,7 @@ export class EntradaManualComponent {
     tree.value = values;
 
     if (!values.every((t) => t.Selected)) {
-      console.log('fill all attributes');
+      this.showAlert('Preencha todos os campos!')
       return;
     }
     let hasTree = await this.storageService.hasValue(
@@ -689,7 +695,7 @@ export class EntradaManualComponent {
       tree
     );
     if (!hasTree) {
-      await this.showAlert();
+      await this.showAlert('Salvo com sucesso!');
     }
 
     //Salvo com sucesso
@@ -707,12 +713,12 @@ export class EntradaManualComponent {
         buttons: [
           {
             text: 'Não',
-            handler: () => {},
+            handler: () => { },
           },
           {
             text: 'Sim',
             handler: () => {
-              this.showAlert();
+              this.showAlert('Salvo com sucesso!');
             },
           },
         ],
@@ -721,10 +727,10 @@ export class EntradaManualComponent {
         res.present();
       });
   }
-  async showAlert() {
+  async showAlert(message: string) {
     await this.alertController
       .create({
-        message: 'Salvo com Sucesso',
+        message,
         buttons: ['OK'],
       })
       .then((res) => {

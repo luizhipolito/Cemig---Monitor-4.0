@@ -74,41 +74,41 @@
   }
 }
 
-// @media screen and (max-width: 800px){
-//   .login{
-//     margin-top: -40px !important;
-//   }
-//   .pass >input{
-//     width: 60% !important;
-//     height: 60px;
-//   }
-//   .pass>label{
-//     font-size: 1.4rem;
-//     margin-left: 10% !important;
-//   }
-//   .btn > button{
-//     height: 50px;
-//     width: 40%;
-//     margin-left: 30%;
-//     margin-top: 20px;
-//   }
-// }
+@media screen and (max-width: 800px){
+  .login{
+    margin-top: -40px !important;
+  }
+  .pass >input{
+    width: 60% !important;
+    height: 60px;
+  }
+  .pass>label{
+    font-size: 1.4rem;
+    margin-left: 10% !important;
+  }
+  .btn > button{
+    height: 50px;
+    width: 40%;
+    margin-left: 30%;
+    margin-top: 20px;
+  }
+}
 
-// @media screen and(max-width: 550px) {
-//   .login {
-//     width: 100%;
-//     margin-top: 50% !important;
-//   }
-//   .pass > input {
-//     width: 80%;
-//     height: 50px;
-//     font-size: 1rem;
-//   }
-//   .pass > label {
-//     font-size: 1.5rem;
-//   }
+@media screen and(max-width: 550px) {
+  .login {
+    width: 100%;
+    margin-top: 50% !important;
+  }
+  .pass > input {
+    width: 80%;
+    height: 50px;
+    font-size: 1rem;
+  }
+  .pass > label {
+    font-size: 1.5rem;
+  }
 
-//   .btn > button {
-//     height: 50px !important;
-//   }
-// }
+  .btn > button {
+    height: 50px !important;
+  }
+}
