@@ -100,14 +100,23 @@ export class SalvarDadosComponent {
     } else {
       let dataToWriteOnPI = this.dataToWriteOnPI.filter((f) => f['isToSave']);
       console.log(dataToWriteOnPI)
-      for (let data of dataToWriteOnPI) {
-        // this.dataRemoved = dataToWriteOnPI.filter(i =>);
-        console.log(this.dataRemoved)
-      }
+      // for (let data of dataToWriteOnPI) {
+      // if (dataToWriteOnPI['isToSave'] == true) {
+      //   await this.storageService.removeWrittenValues(this.dataRemoved)
+      // }
+      // }
 
     }
 
   }
+  // updateStorageRemove(dataToWriteOnPI) {
+  //   console.log(dataToWriteOnPI)
+  //   this.storageService.removeWrittenValues(
+  //     dataToWriteOnPI
+  //   );
+  // }
 
 }
+
+
 

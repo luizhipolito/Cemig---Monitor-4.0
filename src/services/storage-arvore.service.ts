@@ -36,6 +36,7 @@ export class StorageArvoreService {
   }
 
   public removeWrittenValues(key: string) {
+    console.log(key)
     this.storage.remove(key);
   }
 
