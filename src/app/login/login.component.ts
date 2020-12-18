@@ -35,10 +35,18 @@ export class LoginComponent {
     private messageBox: MatSnackBar,
     public storage: StorageArvoreService,
     public configService: ConfigService
-  ) {}
+  ) { }
 
   async ionViewWillEnter() {
     this.utils.removeStorgare('Autorizacao');
+  }
+
+  isActiveToggleTextPassword: Boolean = true;
+  public toggleTextPassword(): void {
+    this.isActiveToggleTextPassword = (this.isActiveToggleTextPassword == true) ? false : true;
+  }
+  public getType() {
+    return this.isActiveToggleTextPassword ? 'password' : 'text';
   }
 
   onSubmit(f: NgForm) {

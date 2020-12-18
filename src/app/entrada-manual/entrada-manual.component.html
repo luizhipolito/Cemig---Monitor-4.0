@@ -2,12 +2,9 @@
   <div class="route">
     <div class="routeSelect" *ngIf="navigation || pathNavigation">
       <span (click)="onClickId({ path: [] })">Início &#9654;</span>
-      <span
-        *ngFor="let nav of pathNavigation.path; let i = index"
-        (click)="
+      <span *ngFor="let nav of pathNavigation.path; let i = index" (click)="
           onClickId({ name: nav, path: pathNavigation.path.slice(0, i + 1) })
-        "
-      >
+        ">
         {{ nav }} &#9654;
       </span>
     </div>
@@ -25,10 +22,7 @@
   <!-- box data -->
   <ion-content>
     <div class="allNav">
-      <div
-        class="boxData"
-        [ngClass]="elements == null ? 'boxTotal' : 'boxShort'"
-      >
+      <div class="boxData" [ngClass]="elements == null ? 'boxTotal' : 'boxShort'">
         <div *ngIf="!navigation || navigation.length == 0" class="spinner">
           <ion-spinner name="bubbles"></ion-spinner>
         </div>
@@ -37,78 +31,43 @@
           <ion-list w-50>
             <ion-item>
               <ion-label>Data da Leitura:</ion-label>
-              <ion-datetime
-                displayFormat="DD/MM/YYYY"
-                value="data"
-                display-timezone="utc"
-                [(ngModel)]="currentDate"
-                cancelText="Cancelar"
-                doneText="Confirmar"
-              >
+              <ion-datetime displayFormat="DD/MM/YYYY" value="data" display-timezone="utc" [(ngModel)]="currentDate"
+                cancelText="Cancelar" doneText="Confirmar">
               </ion-datetime>
               <ion-icon class="iconCalendar" name="calendar-outline"></ion-icon>
             </ion-item>
 
             <ion-item *ngIf="elements.firstSelection">
               <ion-label (click)="print()">
-                {{ elements.firstSelection.Name }}:</ion-label
-              >
+                {{ elements.firstSelection.Name }}:</ion-label>
 
-              <ion-input
-                *ngIf="elements.firstSelection.Type == 'Double'"
-                type="number"
-                [value]="elements.firstSelection.Selected"
-              ></ion-input>
+              <ion-input *ngIf="elements.firstSelection.Type == 'Double'" type="number"
+                [value]="elements.firstSelection.Selected"></ion-input>
 
-              <ion-select
-                *ngIf="elements.firstSelection.Type == 'EnumerationValue'"
-                class="select"
-                (ionChange)="onSelect($event)"
-                [(ngModel)]="elements.firstSelection.Selected"
-                (click)="print()"
-              >
-                <ion-select-option
-                  debounce="1000"
-                  *ngFor="let valueSet of elements.firstSelection.valuesSets"
-                  [value]="valueSet"
-                >
-                  {{ valueSet.Name }}</ion-select-option
-                >
+              <ion-select *ngIf="elements.firstSelection.Type == 'EnumerationValue'" class="select"
+                (ionChange)="onSelect($event)" [(ngModel)]="elements.firstSelection.Selected" (click)="print()">
+                <ion-select-option *ngFor="let valueSet of elements.firstSelection.valuesSets" [value]="valueSet">
+                  {{ valueSet.Name }}</ion-select-option>
               </ion-select>
             </ion-item>
 
-            <ion-item
-              *ngFor="let element of elements.list | isVisible: true"
-              (click)="setPropFocous(element)"
-            >
+            <ion-item *ngFor="let element of elements.list | isVisible: true" (click)="setPropFocous(element)">
               <ion-label> {{ element.Name }}:</ion-label>
               <ion-label *ngIf="element.mode == 'Leitura'" class="read">
-                {{ element.ValueString }}</ion-label
-              >
+                {{ element.ValueString }}</ion-label>
 
-              <ion-label
-                *ngIf="
+              <ion-label *ngIf="
                   (element.mode == 'LeituraEscrita' ||
                     element.mode == 'Escrita') &&
                   (element.Type == 'Double' || element.Type == 'Single')
-                "
-                [ngClass]="element.color"
-                >{{ element.Selected }}</ion-label
-              >
+                " [ngClass]="element.color">{{ element.Selected }}</ion-label>
 
-              <ion-select
-                *ngIf="
+              <ion-select *ngIf="
                   (element.mode == 'LeituraEscrita' ||
                     element.mode == 'Escrita') &&
                   element.Type == 'EnumerationValue'
-                "
-                class="select"
-                [value]="element.Selected"
-              >
-                <ion-select-option
-                  *ngFor="let valueSet of element.valuesSets"
-                  >{{ valueSet.Name }}</ion-select-option
-                >
+                " class="select" [value]="element.Selected">
+                <ion-select-option *ngFor="let valueSet of element.valuesSets">{{ valueSet.Name }}</ion-select-option>
               </ion-select>
             </ion-item>
           </ion-list>
@@ -126,12 +85,8 @@
         <p>{{ propFocous && propFocous.Name ? propFocous.Name : '' }}</p>
         <div class="keyboard">
           <div *ngFor="let numGroup of numberGroups">
-            <ion-button
-              *ngFor="let num of numGroup"
-              (click)="onButtonPress(num)"
-              class="calc-button"
-              [ngClass]="propFocous && propFocous.Name ? 'enabled' : 'disabled'"
-              >{{ num }}
+            <ion-button *ngFor="let num of numGroup" (click)="onButtonPress(num)" class="calc-button"
+              [ngClass]="propFocous && propFocous.Name ? 'enabled' : 'disabled'">{{ num }}
             </ion-button>
           </div>
         </div>

@@ -30,11 +30,13 @@ import {
   EnumModeAttribute,
   PIWebAttribute,
 } from 'src/model/PIWebAttribute.model';
-import { map } from 'rxjs/operators';
+import { map, last } from 'rxjs/operators';
 import { Attribute } from 'src/model/Attribute.model';
 import { __await } from 'tslib';
 import { isNumber } from 'util';
 import { InserirComentarioComponent } from '../inserir-comentario/inserir-comentario.component';
+import { element } from 'protractor';
+import { attachView } from '@ionic/angular/providers/angular-delegate';
 
 const typeEnumeration = 'EnumerationValue';
 let currentModal = null;
@@ -99,6 +101,17 @@ export class EntradaManualComponent {
           0,
           this.propFocous.Selected.length - 1
         );
+      } if (symbol == 'Enter') {
+        let firstIndex = this.elements.list.findIndex((att) =>
+          att.Name == this.propFocous.Name
+        );
+
+        // if (firstIndex == 6) {
+        //   firstIndex = 0;
+        // }
+        this.changeFocous(firstIndex)
+
+
       }
       this.propFocous.color = this.getColorScalling(this.propFocous);
     }
@@ -188,7 +201,7 @@ export class EntradaManualComponent {
     public config: ConfigService,
     public modalController: ModalController,
     public alertController: AlertController
-  ) {}
+  ) { }
 
   async ionViewWillEnter() {
     let isToSyncDataFromPI = this.config.isToLoadFromPI && true;
@@ -390,7 +403,7 @@ export class EntradaManualComponent {
   };
 
   print() {
-    //console.log(this.elements);
+    console.log(this.elements);
   }
 
   onClickId = (e) => {
@@ -485,17 +498,22 @@ export class EntradaManualComponent {
         att.Selected = null;
       }
     });
+    this.changeFocous(0);
 
+  }
+
+  changeFocous(index: number) {
     let elem = this.elements.list.find(
-      (att) =>
+      (att, i) =>
         att.visible &&
         (att.mode == 'LeituraEscrita' || att.mode == 'Escrita') &&
-        (att.Type == 'Double' || att.Type == 'Single')
+        (att.Type == 'Double' || att.Type == 'Single') && i > index
     );
     if (elem) {
       this.propFocous = elem;
     }
   }
+
   IsConditionValid(selector, condition, value): boolean {
     let conditionValue = eval(`'${selector}' ${condition} '${value}'`);
 
@@ -572,7 +590,7 @@ export class EntradaManualComponent {
           configList[parentPath].push(child);
         }
       }
-      console.log(configList);
+      // console.log(configList);
       atts = atts.map((att) => {
         att.config = configList[att.Path] || [];
         att.mode = this.getMode(att.config as PIWebAttribute[]);
@@ -622,6 +640,7 @@ export class EntradaManualComponent {
       element.Type != typeEnumeration
     ) {
       this.propFocous = element;
+
     }
   }
 

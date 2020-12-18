@@ -23,7 +23,15 @@ export class SenhaOffPageComponent {
     private messageBox: MatSnackBar,
     public storage: StorageArvoreService,
     public configService: ConfigService
-  ) {}
+  ) { }
+
+  isActiveToggleTextPassword: Boolean = true;
+  public toggleTextPassword(): void {
+    this.isActiveToggleTextPassword = (this.isActiveToggleTextPassword == true) ? false : true;
+  }
+  public getType() {
+    return this.isActiveToggleTextPassword ? 'password' : 'text';
+  }
 
   async ionViewWillEnter() {
     await this.configService.init();

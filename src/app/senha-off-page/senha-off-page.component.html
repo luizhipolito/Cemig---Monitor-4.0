@@ -6,7 +6,9 @@
       <div class="inputs">
         <div class="pass">
           <label>Senha: </label>
-          <input type="password" name="password" ngModel placeholder="Senha" required />
+          <input [type]="getType()" type="password" name="password" ngModel placeholder="Senha" required />
+          <ion-icon class="iconEye" name="eye" item-right (click)="toggleTextPassword()"></ion-icon>
+
         </div>
       </div>
       <div class="btn">

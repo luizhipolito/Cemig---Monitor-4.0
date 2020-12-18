@@ -188,9 +188,14 @@ ion-select.myCustomSelect{
   .routeSelect {
     font-size: 0.8rem;
   }
-  .search > ion-icon {
-    margin-top: 8px;
-    font-size: 30px;
+
+  .search > ion-input{
+    width: 70%;
+    height:  30px !important;
+    margin-left: 60px;
+  }
+  .search > ion-input > ion-icon {
+    font-size: 20px;
   }
 
  
@@ -201,8 +206,8 @@ ion-select.myCustomSelect{
   }
 
   .controlKeyboard > p {
-    margin-top: 0;
-    font-size: 0.8rem;
+    margin-top: -10px;
+    font-size: 0.7rem;
     text-align: center;
   }
   .keyboard{
