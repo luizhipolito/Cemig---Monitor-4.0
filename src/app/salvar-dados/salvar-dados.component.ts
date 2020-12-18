@@ -14,8 +14,6 @@ import { ConfigService } from 'src/services/config.service';
   templateUrl: './salvar-dados.component.html',
   styleUrls: ['./salvar-dados.component.scss'],
 })
-
-
 export class SalvarDadosComponent {
   confirm: boolean;
   constructor(
@@ -27,8 +25,6 @@ export class SalvarDadosComponent {
     private api: ApiService,
     public config: ConfigService
   ) {}
-
-
 
   onBack() {
     this.navCtrl.navigateBack('entrada-manual');
@@ -75,7 +71,7 @@ export class SalvarDadosComponent {
       let batchResponse = await this.api
         .executeBatch(this.config.afServer, batch)
         .toPromise();
-      console.log(batchResponse)
+      console.log(batchResponse);
       let responses = Object.keys(batchResponse).map((k) => batchResponse[k]);
       let isUpdated = responses.every((r) => r.Status >= 200 && r.Status < 400);
       if (isUpdated) {
@@ -96,27 +92,10 @@ export class SalvarDadosComponent {
 
   async removeWritten() {
     if (!this.confirm) {
-      console.log('selecionar confirmar')
+      console.log('selecionar confirmar');
     } else {
-      let dataToWriteOnPI = this.dataToWriteOnPI.filter((f) => f['isToSave']);
-      console.log(dataToWriteOnPI)
-      // for (let data of dataToWriteOnPI) {
-      // if (dataToWriteOnPI['isToSave'] == true) {
-      //   await this.storageService.removeWrittenValues(this.dataRemoved)
-      // }
-      // }
-
+      this.dataToWriteOnPI = this.dataToWriteOnPI.filter((f) => !f['isToSave']);
+      await this.updateStorage(this.dataToWriteOnPI);
     }
-
   }
-  // updateStorageRemove(dataToWriteOnPI) {
-  //   console.log(dataToWriteOnPI)
-  //   this.storageService.removeWrittenValues(
-  //     dataToWriteOnPI
-  //   );
-  // }
-
 }
-
-
-
