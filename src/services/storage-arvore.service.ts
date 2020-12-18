@@ -35,9 +35,10 @@ export class StorageArvoreService {
     this.storage.remove(this.enumerationSets);
   }
 
-  // public removeWrittenValues(key: string) {
-  //   this.storage.remove(key);
-  // }
+  public removeWrittenValues(key: string) {
+    console.log(key)
+    this.storage.remove(key);
+  }
 
   public update(key: string, arvore: Arvore) {
     return this.save(key, arvore);

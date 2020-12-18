@@ -7,11 +7,13 @@ import { NavigationStart, Router } from '@angular/router';
 import { filter } from 'rxjs/operators';
 
 const menus = ['/entrada-manual', '/salvar-dados'];
+import { ScreenOrientation } from '@ionic-native/screen-orientation/ngx';
 
 @Component({
   selector: 'app-root',
   templateUrl: 'app.component.html',
   styleUrls: ['app.component.scss'],
+  providers: [ScreenOrientation],
 })
 export class AppComponent {
   hasMenu = false;
@@ -20,7 +22,8 @@ export class AppComponent {
     private platform: Platform,
     private splashScreen: SplashScreen,
     private statusBar: StatusBar,
-    private router: Router
+    private router: Router,
+    private screenOrientation: ScreenOrientation
   ) {
     this.initializeApp();
 
@@ -36,6 +39,9 @@ export class AppComponent {
     this.platform.ready().then(() => {
       this.statusBar.styleDefault();
       this.splashScreen.hide();
+      this.screenOrientation.lock(
+        this.screenOrientation.ORIENTATIONS.LANDSCAPE
+      );
     });
   }
 }
