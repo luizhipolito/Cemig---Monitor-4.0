@@ -684,44 +684,44 @@ export class EntradaManualComponent {
     );
 
     if (hasTree) {
-      await this.showConfirm();
+      let res = await this.showConfirm();
+      if (!res) return;
     }
     await this.storageService.insertOrUpdate(
       this.storageService.writtenValues,
       tree
     );
-    if (!hasTree) {
-      await this.showAlert('Salvo com sucesso!');
-    }
-
-    //Salvo com sucesso
-
-    console.log(
-      await this.storageService.getByKey(this.storageService.writtenValues)
-    );
+    await this.showAlert('Salvo com sucesso!');
   }
   async showConfirm() {
-    await this.alertController
-      .create({
-        header: 'Confirmar',
-        message:
-          'Já existe uma leitura para esta data neste instrumento não salva. Deseja sobrescrever?',
-        buttons: [
-          {
-            text: 'Não',
-            handler: () => {},
+    let choice = false;
+    let alert = await this.alertController.create({
+      header: 'Confirmar',
+      message:
+        'Já existe uma leitura para esta data neste instrumento não salva. Deseja sobrescrever?',
+      buttons: [
+        {
+          text: 'Não',
+          handler: () => {
+            alert.dismiss(false);
+            return false;
           },
-          {
-            text: 'Sim',
-            handler: () => {
-              this.showAlert('Salvo com sucesso!');
-            },
+        },
+        {
+          text: 'Sim',
+          handler: () => {
+            alert.dismiss(true);
+            return true;
           },
-        ],
-      })
-      .then((res) => {
-        res.present();
-      });
+        },
+      ],
+    });
+
+    await alert.present();
+    await alert.onDidDismiss().then((data) => {
+      choice = data.data as boolean;
+    });
+    return choice;
   }
   async showAlert(message: string) {
     await this.alertController
