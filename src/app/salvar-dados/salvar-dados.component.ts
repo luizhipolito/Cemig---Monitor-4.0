@@ -5,7 +5,7 @@ import {
   Arvore,
   StorageArvoreService,
 } from 'src/services/storage-arvore.service';
-import { AppUtils } from 'src/utils/app.utils';
+import { AppUtils, createBatch } from 'src/utils/app.utils';
 import { ApiService } from 'src/services/api.service';
 import { ConfigService } from 'src/services/config.service';
 
@@ -24,13 +24,13 @@ export class SalvarDadosComponent {
     public utils: AppUtils,
     private api: ApiService,
     public config: ConfigService
-  ) { }
+  ) {}
 
   onBack() {
     this.navCtrl.navigateBack('entrada-manual');
   }
 
-  ngOnInit() { }
+  ngOnInit() {}
 
   dataToWriteOnPI: Array<Arvore> = [];
 
@@ -66,7 +66,7 @@ export class SalvarDadosComponent {
     for (let data of dataToWriteOnPI) {
       let values = data.value;
 
-      let batch = this.utils.createBatch(values, 'update', data.date);
+      let batch = createBatch(values, 'update', data.date);
       let batchResponse = await this.api
         .executeBatch(this.config.afServer, batch)
         .toPromise();
@@ -79,7 +79,7 @@ export class SalvarDadosComponent {
         );
       }
     }
-    console.log(this.dataToWriteOnPI)
+    console.log(this.dataToWriteOnPI);
     await this.updateStorage(this.dataToWriteOnPI);
   }
   async updateStorage(dataToWriteOnPI: Arvore[]) {

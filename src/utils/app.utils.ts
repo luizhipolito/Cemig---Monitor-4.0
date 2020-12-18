@@ -49,9 +49,6 @@ export class AppUtils {
     }
   }
 
-  firstOrNull = () => true;
-  distinct = (value, index, self) => self.indexOf(value) === index;
-
   getItems(response: any): Array<PIWebObject> {
     let items = response;
     if ('Items' in response) {
@@ -93,54 +90,94 @@ export class AppUtils {
     );
     return writtenValues;
   }
+}
 
-  createBatch(items: Array<PIWebObject>, type: string, date?: string) {
-    let batchItem = {};
-    let method = type == 'update' ? 'PUT' : 'GET';
+export function hasChildren(piwebObj: PIWebObject) {
+  return piwebObj.HasChildren;
+}
 
-    let selectedFieldsParam =
-      '?selectedFields=Items.WebId;Items.Description;Items.Name;Items.Path;Items.Type;Items.TypeQualifier;Items.HasChildren;Items.Links.Attributes;Items.Links.Value';
+export function isResult(r: any) {
+  return (
+    r['Status'] == 200 &&
+    r['Content'] &&
+    r['Content']['Items'] &&
+    Array.isArray(r['Content']['Items'])
+  );
+}
 
-    if (type == 'Value') {
-      selectedFieldsParam =
-        '?selectedFields=Items.Name;Items.Value;Items.Path;Items.HasChildren';
-    }
-    if (type == 'EnumerationSets') {
-      selectedFieldsParam = '';
-      type = 'Values';
-    }
-    if (type == 'ChildrenValue' || type == 'update') {
-      selectedFieldsParam = '';
-      type = 'Value';
-    }
+export function firstOrNull() {
+  return true;
+}
 
-    items.forEach((item, index) => {
-      let url = `${item.Links[type]}${selectedFieldsParam}`;
-      batchItem[index] = {
-        Method: method,
-        Resource: url,
-      };
+export function createBatch(
+  items: Array<PIWebObject>,
+  type: string,
+  date?: string
+) {
+  let batchItem = {};
+  let method = type == 'update' ? 'PUT' : 'GET';
 
-      if (method == 'PUT') {
-        batchItem[index]['Method'] = 'POST';
-        let value =
-          item['Selected'] && item['Selected']['Value']
-            ? item['Selected']['Value']
-            : item['Selected'];
+  let selectedFieldsParam =
+    '?selectedFields=Items.WebId;Items.Description;Items.Name;Items.Path;Items.Type;Items.TypeQualifier;Items.HasChildren;Items.Links.Attributes;Items.Links.Value';
 
-        if (!isNaN(value)) {
-          value = new Number(value).valueOf();
-        }
-
-        batchItem[index]['Content'] = JSON.stringify({
-          Timestamp: date,
-          // UnitsAbbreviation: '',
-          // Good: true,
-          // Questionable: false,
-          Value: value,
-        });
-      }
-    });
-    return batchItem;
+  if (type == 'Value') {
+    selectedFieldsParam =
+      '?selectedFields=Items.Name;Items.Value;Items.Path;Items.HasChildren';
   }
+  if (type == 'EnumerationSets') {
+    selectedFieldsParam = '';
+    type = 'Values';
+  }
+  if (type == 'update') {
+    selectedFieldsParam = '';
+    type = 'Value';
+  }
+
+  if (type == 'ChildrenValue') {
+    selectedFieldsParam = '';
+    type = 'Value';
+  }
+
+  items.forEach((item, index) => {
+    let url = `${item.Links[type]}${selectedFieldsParam}`;
+    batchItem[index] = {
+      Method: method,
+      Resource: url,
+    };
+
+    if (method == 'PUT') {
+      batchItem[index]['Method'] = 'POST';
+      let value =
+        item['Selected'] && item['Selected']['Value']
+          ? item['Selected']['Value']
+          : item['Selected'];
+
+      if (!isNaN(value)) {
+        value = new Number(value).valueOf();
+      }
+
+      batchItem[index]['Content'] = JSON.stringify({
+        Timestamp: date,
+        Value: value,
+      });
+    }
+  });
+  return batchItem;
+}
+
+export function distinct(value, index, self) {
+  return self.indexOf(value) === index;
+}
+
+export function compoundBatches(batch1, batch2) {
+  for (let key of Object.keys(batch2)) {
+    if (key in batch1) {
+      let b1Key = Object.keys(batch1).length.toString();
+      batch1[b1Key] = batch2[key];
+    } else {
+      batch1[key] = batch2[key];
+    }
+  }
+
+  return batch1;
 }

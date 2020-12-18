@@ -45,11 +45,10 @@ export class ApiService {
 
   postData(data: any) {
     this.showLoader();
-    console.log(this.httpOptions);
     return this.http
       .post<any>(this.baseUrl, JSON.stringify(data), this.httpOptions)
 
-      .pipe(retry(2), catchError(this.handleError));
+      .pipe(catchError(this.handleError));
   }
 
   executeBatch(server: string, data: any) {
@@ -57,6 +56,10 @@ export class ApiService {
     let url = `${prefix}${server}${sufix}${batchUrl}`;
     let selectedFieldsParam = new HttpParams();
     return this.post(url, data, selectedFieldsParam);
+  }
+
+  async executeBatchAsync(server: string, data: any) {
+    return await this.executeBatch(server, data).toPromise();
   }
 
   post(url: string, data: any, params?: HttpParams) {

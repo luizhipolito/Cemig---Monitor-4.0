@@ -1,6 +1,14 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { ApiService } from 'src/services/api.service';
-import { AppUtils } from 'src/utils/app.utils';
+import {
+  AppUtils,
+  compoundBatches,
+  createBatch,
+  distinct,
+  firstOrNull,
+  hasChildren,
+  isResult,
+} from 'src/utils/app.utils';
 import { Router } from '@angular/router';
 import { MatSnackBar, MatSnackBarConfig } from '@angular/material/snack-bar';
 
@@ -38,6 +46,13 @@ class Navigation {
     let n = new Navigation();
     n.path = [];
     n.name = '';
+    return n;
+  }
+
+  static Create(path: Array<string>, name: string) {
+    let n = new Navigation();
+    n.path = path;
+    n.name = name;
     return n;
   }
 }
@@ -176,7 +191,7 @@ export class EntradaManualComponent {
   ) {}
 
   async ionViewWillEnter() {
-    let isToSyncDataFromPI = this.config.isToLoadFromPI && true;
+    let isToSyncDataFromPI = this.config.isToLoadFromPI || true;
     this.init();
     await this.api.init();
     await this.config.init();
@@ -303,13 +318,11 @@ export class EntradaManualComponent {
     );
   }
   async getEnumerationSetsValues(enumerationSets: Array<PIWebObject>) {
-    let batchRequest = this.utils.createBatch(
-      enumerationSets,
-      'EnumerationSets'
+    let batchRequest = createBatch(enumerationSets, 'EnumerationSets');
+    let batchResponse = await this.api.executeBatchAsync(
+      this.config.afServer,
+      batchRequest
     );
-    let batchResponse = await this.api
-      .executeBatch(this.config.afServer, batchRequest)
-      .toPromise();
 
     enumerationSets.forEach((enumset, index) => {
       let response = batchResponse[index];
@@ -329,7 +342,7 @@ export class EntradaManualComponent {
         .reduce(aggregateAttributes, [])
         .filter((att) => att && att.Type == typeEnumeration)
         .map((att) => att.TypeQualifier)
-        .filter(this.utils.distinct);
+        .filter(distinct);
       return qualifyers;
     }
     return [];
@@ -349,12 +362,9 @@ export class EntradaManualComponent {
     this.navigation = new Array<Navigation>();
     if (this.arvoreLocal) {
       this.arvoreLocal.forEach((arvore: Arvore) => {
-        let path = arvore.Caminho.find(this.utils.firstOrNull);
+        let path = arvore.Caminho.find(firstOrNull);
         if (!this.navigation.find((n) => n.name == path)) {
-          this.navigation.push({
-            path: [path],
-            name: path,
-          });
+          this.navigation.push(Navigation.Create([path], path));
         }
       });
     }
@@ -389,7 +399,7 @@ export class EntradaManualComponent {
       let pathLength = e.path.length;
       this.navigation = new Array<{ path: Array<string>; name: string }>();
       if (result.length == 1) {
-        let item = result.find(this.utils.firstOrNull);
+        let item = result.find(firstOrNull);
         this.navigation.push({
           path: e.path,
           name: item.Nome,
@@ -508,93 +518,77 @@ export class EntradaManualComponent {
     return configValue;
   }
 
+  async getResponse(previusBatch: any, type: string) {
+    let server = this.config.afServer;
+    let request = {};
+    for (let key of Object.keys(previusBatch)) {
+      let response = previusBatch[key];
+      if (isResult(response)) {
+        let items = response['Content']['Items'] as Array<PIWebAttribute>;
+        request = compoundBatches(request, createBatch(items, type));
+      }
+    }
+    let response = await this.api.executeBatchAsync(server, request);
+    return response;
+  }
+
+  read(content: any) {
+    let fKey = Object.keys(content).find(firstOrNull);
+    let value = content[fKey];
+    delete content[fKey];
+    return value;
+  }
+
   async loadAttributes(items: Array<PIWebObject>) {
     let server = this.config.afServer;
     let attributesData: Array<Attribute> = new Array<Attribute>();
-    let bacthRequestAttributes = this.utils.createBatch(items, 'Attributes');
-    let batchResponseAttributes = await this.api
-      .executeBatch(server, bacthRequestAttributes)
-      .toPromise();
+    let attRequest = createBatch(items, 'Attributes');
+    let attResponse = await this.api.executeBatchAsync(server, attRequest);
+    let childAttResponse = await this.getResponse(attResponse, 'Attributes');
+    let childValueResponse = await this.getResponse(
+      childAttResponse,
+      'ChildrenValue'
+    );
+    let valueRequest = createBatch(items, 'Value');
+    let valueResponse = await this.api.executeBatchAsync(server, valueRequest);
 
-    let batchRequestValues = this.utils.createBatch(items, 'Value');
-    let batchResponseValues = await this.api
-      .executeBatch(server, batchRequestValues)
-      .toPromise();
+    for (let key in Object.keys(attResponse)) {
+      let newAttribute: Attribute = new Attribute();
+      let configList = {};
+      let atts = attResponse[key]['Content']['Items'] as Array<PIWebAttribute>;
 
-    const hasChildren = (piwebObj: PIWebObject) => piwebObj.HasChildren;
-
-    for (let key of Object.keys(batchResponseAttributes)) {
-      let response = batchResponseAttributes[key];
-      let valueResponse = batchResponseValues[key];
-      const isResult = (r: any) =>
-        r['Status'] == 200 &&
-        r['Content'] &&
-        r['Content']['Items'] &&
-        Array.isArray(r['Content']['Items']);
-
-      let isAttributeResult = isResult(response);
-      let isValueResult = isResult(valueResponse);
-
-      if (isAttributeResult && isValueResult) {
-        let attributes = response['Content']['Items'] as Array<PIWebAttribute>;
-        let valuesItems = valueResponse['Content'][
-          'Items'
-        ] as Array<PIWebAttribute>;
-
-        let childrenBatch = this.utils.createBatch(
-          attributes.filter(hasChildren),
-          'Attributes'
-        );
-
-        if (attributes.some(hasChildren)) {
-          let childrenBatchResponse = await this.api
-            .executeBatch(server, childrenBatch)
-            .toPromise();
-          let configList = {};
-
-          for (let batchKey of Object.keys(childrenBatchResponse)) {
-            let configAtt = isResult(childrenBatchResponse[batchKey])
-              ? (childrenBatchResponse[batchKey]['Content'][
-                  'Items'
-                ] as Array<PIWebAttribute>)
-              : [];
-            let batchValueChildren = this.utils.createBatch(
-              configAtt,
-              'ChildrenValue'
-            );
-            let batchValue = await this.api
-              .executeBatch(server, batchValueChildren)
-              .toPromise();
-
-            configAtt.forEach((child, cIndex) => {
-              child.Value = batchValue[cIndex]['Content'];
-            });
-            let parentPath = configAtt.find(this.utils.firstOrNull).Path;
-            parentPath = parentPath.split('|').slice(0, -1).join('|');
-            configList[parentPath] = configAtt;
-          }
-
-          attributes.forEach((att) => {
-            att.config = configList[att.Path] || [];
-            att.mode = this.getMode(att.config as PIWebAttribute[]);
-          });
-        }
-
-        let newAttribute: Attribute = new Attribute();
-        newAttribute.WebId = items[key].WebId;
-        newAttribute.RelativePath = items[key].relativePath;
-
-        let firstSelectionIndex = attributes.findIndex(
-          (esc) => esc.Name == this.firstSelection
-        );
-        newAttribute.firstSelection = attributes[firstSelectionIndex];
-        attributes.splice(firstSelectionIndex, 1);
-        newAttribute.list = attributes
-          .filter((att) => att.Description.includes(this.config.AppAttributes))
-          .map((att) => this.getAttValue(att, valuesItems));
-        attributesData.push(newAttribute);
+      for (let attKey in atts) {
+        let child = atts[attKey];
+        child.Value = this.read(childValueResponse)['Content'];
+        let parentPath = child.Path;
+        parentPath = parentPath.split('|').slice(0, -1).join('|');
+        configList[parentPath] = child;
       }
+      atts = atts.map((att) => {
+        att.config = configList[att.Path] || [];
+        att.mode = this.getMode(att.config as PIWebAttribute[]);
+        return att;
+      });
+
+      let valuesItems = valueResponse[key]['Content'][
+        'Items'
+      ] as Array<PIWebAttribute>;
+      let firstSelectionIndex = atts.findIndex(
+        (att) => att.Name == this.firstSelection
+      );
+
+      newAttribute.WebId = items[key].WebId;
+      newAttribute.RelativePath = items[key].relativePath;
+      newAttribute.firstSelection = atts[firstSelectionIndex];
+      atts.splice(firstSelectionIndex, 1);
+      newAttribute.list = atts
+        .filter((att) => att.Description.includes(this.config.AppAttributes))
+        .map((att) => this.getAttValue(att, valuesItems));
+
+      attributesData.push(newAttribute);
     }
+
+    console.log(attributesData);
 
     return attributesData;
   }
@@ -611,7 +605,6 @@ export class EntradaManualComponent {
     ) {
       return EnumModeAttribute[type.Value.Value.Name];
     }
-
     return EnumModeAttribute.Leitura;
   }
 
@@ -659,7 +652,7 @@ export class EntradaManualComponent {
 
   async saveElement() {
     let dateStr = this.currentDate
-      ? this.currentDate.split('T').find(this.utils.firstOrNull)
+      ? this.currentDate.split('T').find(firstOrNull)
       : null;
 
     if (!dateStr) {
@@ -759,7 +752,7 @@ export class EntradaManualComponent {
       this.elements = null;
       searchItem = new String(searchItem).toLowerCase();
 
-      this.navigation = new Array<{ path: Array<string>; name: string }>();
+      this.navigation = new Array<Navigation>();
 
       this.arvoreLocal.forEach((arvore: Arvore) => {
         if (arvore && arvore.Caminho && arvore.Caminho.length > 0) {
@@ -768,10 +761,9 @@ export class EntradaManualComponent {
               path.toLocaleLowerCase().includes(searchItem) &&
               !this.navigation.some((n) => n.name == path)
             ) {
-              this.navigation.push({
-                path: arvore.Caminho.slice(0, index + 1),
-                name: path,
-              });
+              this.navigation.push(
+                Navigation.Create(arvore.Caminho.slice(0, index + 1), path)
+              );
             }
           });
         }
