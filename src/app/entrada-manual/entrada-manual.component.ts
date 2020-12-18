@@ -191,7 +191,7 @@ export class EntradaManualComponent {
   ) {}
 
   async ionViewWillEnter() {
-    let isToSyncDataFromPI = this.config.isToLoadFromPI || true;
+    let isToSyncDataFromPI = this.config.isToLoadFromPI && true;
     this.init();
     await this.api.init();
     await this.config.init();
