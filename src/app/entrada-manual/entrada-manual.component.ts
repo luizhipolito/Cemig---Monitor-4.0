@@ -556,14 +556,23 @@ export class EntradaManualComponent {
       let newAttribute: Attribute = new Attribute();
       let configList = {};
       let atts = attResponse[key]['Content']['Items'] as Array<PIWebAttribute>;
-
       for (let attKey in atts) {
-        let child = atts[attKey];
-        child.Value = this.read(childValueResponse)['Content'];
-        let parentPath = child.Path;
-        parentPath = parentPath.split('|').slice(0, -1).join('|');
-        configList[parentPath] = child;
+        let children = this.read(childAttResponse)['Content'][
+          'Items'
+        ] as Array<PIWebAttribute>;
+
+        for (let keyChild in children) {
+          let child = children[keyChild];
+          child.Value = this.read(childValueResponse)['Content'];
+          let parentPath = child.Path;
+          parentPath = parentPath.split('|').slice(0, -1).join('|');
+          if (!(parentPath in configList)) {
+            configList[parentPath] = [];
+          }
+          configList[parentPath].push(child);
+        }
       }
+      console.log(configList);
       atts = atts.map((att) => {
         att.config = configList[att.Path] || [];
         att.mode = this.getMode(att.config as PIWebAttribute[]);
@@ -587,8 +596,6 @@ export class EntradaManualComponent {
 
       attributesData.push(newAttribute);
     }
-
-    console.log(attributesData);
 
     return attributesData;
   }
