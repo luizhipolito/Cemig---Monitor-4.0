@@ -105,10 +105,13 @@ export class EntradaManualComponent {
         let firstIndex = this.elements.list.findIndex((att) =>
           att.Name == this.propFocous.Name
         );
+        let lastI = this.focusLast.reverse();
+        let last = this.lastFocus;
+        let lastId = last.map(n => n.Name)
+        if (lastI[0] === lastId[0]) {
+          firstIndex = 0;
+        }
 
-        // if (firstIndex == 6) {
-        //   firstIndex = 0;
-        // }
         this.changeFocous(firstIndex)
 
 
@@ -168,6 +171,8 @@ export class EntradaManualComponent {
   pathNavigation: Navigation = Navigation.Instance();
 
   propFocous: PIWebAttribute;
+  lastFocus: PIWebAttribute[];
+  focusLast: string[];
 
   firstSelection: string = 'Observação';
   textCondition: string = 'Condição'; // "Comparação"
@@ -187,7 +192,6 @@ export class EntradaManualComponent {
     Máximo: 'orange',
     Over: 'red',
   };
-
   templateMax = 'Máximo';
   templateMaxAtention = 'Máximo de Atenção';
 
@@ -332,6 +336,7 @@ export class EntradaManualComponent {
   }
   async getEnumerationSetsValues(enumerationSets: Array<PIWebObject>) {
     let batchRequest = createBatch(enumerationSets, 'EnumerationSets');
+    console.log(batchRequest)
     let batchResponse = await this.api.executeBatchAsync(
       this.config.afServer,
       batchRequest
@@ -403,7 +408,7 @@ export class EntradaManualComponent {
   };
 
   print() {
-    console.log(this.elements);
+    // console.log(this.elements);
   }
 
   onClickId = (e) => {
@@ -419,7 +424,7 @@ export class EntradaManualComponent {
         });
 
         this.elements = item.atributos;
-
+        console.log(this.elements.firstSelection)
         if (this.elements.firstSelection && this.elements.firstSelection.Type) {
           this.elements.firstSelection.valuesSets = this.getOptions(
             this.elements.firstSelection.TypeQualifier
@@ -489,7 +494,6 @@ export class EntradaManualComponent {
             att.visible =
               att.visible || this.IsConditionValid(selector, condition, value);
           }
-
           index++;
         }
       }
@@ -509,6 +513,14 @@ export class EntradaManualComponent {
         (att.mode == 'LeituraEscrita' || att.mode == 'Escrita') &&
         (att.Type == 'Double' || att.Type == 'Single') && i > index
     );
+
+    this.lastFocus = this.elements.list.filter(
+      (att, i) =>
+        att.visible &&
+        (att.mode == 'LeituraEscrita' || att.mode == 'Escrita') &&
+        (att.Type == 'Double' || att.Type == 'Single') && i > index
+    )
+    this.focusLast = this.lastFocus.map(n => n.Name.valueOf())
     if (elem) {
       this.propFocous = elem;
     }
@@ -762,7 +774,7 @@ export class EntradaManualComponent {
       let enumerationSet = this.enumerationTree.find(
         (enumset) => enumset.Nome == qualifyer
       );
-
+      console.log(enumerationSet)
       if (enumerationSet) {
         return enumerationSet.value;
       }

@@ -21,7 +21,7 @@ export class ApiService {
     this.baseUrl = `${server}/elements/?path=${config}`;
   }
 
-  constructor(private http: HttpClient, public utils: AppUtils) {}
+  constructor(private http: HttpClient, public utils: AppUtils) { }
 
   httpOptions = {
     headers: new HttpHeaders({ 'Content-Type': 'application/json' }),

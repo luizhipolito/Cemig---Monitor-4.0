@@ -47,12 +47,13 @@ export class ConfigService {
     AppAttributes: 'Descrição Atributo',
   };
 
-  constructor(public storageService: StorageArvoreService) {}
+  constructor(public storageService: StorageArvoreService) { }
 
   async init() {
     let config = await this.storageService.getByKey(
       this.storageService.configValues
     );
+    console.log(config)
     config.forEach((conf) => {
       this[conf.Nome] = conf.configValue;
     });
@@ -63,19 +64,22 @@ export class ConfigService {
   }
 
   getBaseConfigUrl() {
+
     return `${this.configUrl}/elements?path=${this.configPath}`;
+
   }
 
   getHomeUrl() {
+
     return this.afServer
       ? ` https://${this.afServer}/piwebapi`
       : `${this.configUrl}`;
+
   }
 
   async saveStorage() {
     let attributes = Object.keys(this);
     let configTree: Array<Arvore> = new Array<Arvore>();
-
     attributes.forEach((att) => {
       if (typeof this[att] == 'string') {
         let tree = new Arvore();

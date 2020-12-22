@@ -18,7 +18,7 @@ export class DataConfigComponent implements OnInit {
     private messageBox: MatSnackBar,
     public api: ApiService,
     public config: ConfigService
-  ) {}
+  ) { }
 
   public serverUrl;
   public configPath;
@@ -40,6 +40,7 @@ export class DataConfigComponent implements OnInit {
       let server = f.value.server;
       let config = f.value.configuracoes;
 
+
       this.config.configUrl = server;
       this.config.configPath = config;
       this.config.saveStorage();
@@ -58,5 +59,5 @@ export class DataConfigComponent implements OnInit {
   showMessageBox = (message: string) => {
     this.messageBox.open(message, null, this.configError);
   };
-  ngOnInit() {}
+  ngOnInit() { }
 }

@@ -5,6 +5,7 @@ import { MatSnackBar, MatSnackBarConfig } from '@angular/material/snack-bar';
 import { StorageArvoreService } from 'src/services/storage-arvore.service';
 import { NgForm } from '@angular/forms';
 import { ConfigService } from 'src/services/config.service';
+import { AlertController } from '@ionic/angular';
 
 @Component({
   selector: 'app-senha-off-page',
@@ -22,7 +23,8 @@ export class SenhaOffPageComponent {
     private router: Router,
     private messageBox: MatSnackBar,
     public storage: StorageArvoreService,
-    public configService: ConfigService
+    public configService: ConfigService,
+    public alertController: AlertController
   ) { }
 
   isActiveToggleTextPassword: Boolean = true;
@@ -43,8 +45,20 @@ export class SenhaOffPageComponent {
       this.configService.isToLoadFromPI = false;
       this.router.navigate(['/entrada-manual']);
     } else {
-      this.showMessageBox('Senha incorreta');
+      // this.showMessageBox('Senha incorreta');
+      this.showAlert('Senha Incorreta!')
     }
+  }
+
+  async showAlert(message: string) {
+    await this.alertController
+      .create({
+        message,
+        buttons: ['OK'],
+      })
+      .then((res) => {
+        res.present();
+      });
   }
 
   iconBack() {

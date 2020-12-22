@@ -7,14 +7,10 @@ import { AppUtils } from 'src/utils/app.utils';
 import { MatSnackBar, MatSnackBarConfig } from '@angular/material/snack-bar';
 import {
   StorageArvoreService,
-  Arvore,
-  ArvoreList,
 } from '../../services/storage-arvore.service';
-import {
-  arvore,
-  dataEnumeration,
-} from '../entrada-manual/entrada-manual.interfaces';
+
 import { ConfigService } from 'src/services/config.service';
+import { AlertController } from '@ionic/angular';
 
 @Component({
   selector: 'app-login',
@@ -34,7 +30,9 @@ export class LoginComponent {
     public utils: AppUtils,
     private messageBox: MatSnackBar,
     public storage: StorageArvoreService,
-    public configService: ConfigService
+    public configService: ConfigService,
+    public config: ConfigService,
+    public alertController: AlertController
   ) { }
 
   async ionViewWillEnter() {
@@ -50,9 +48,17 @@ export class LoginComponent {
   }
 
   onSubmit(f: NgForm) {
+
     if (f.valid) {
       let AuthorizationToken = btoa(f.value.username + ':' + f.value.password);
       this.api.setAuth(AuthorizationToken);
+
+      if (!this.configService.configUrl) {
+        this.config.configUrl = 'https://34.233.235.92/piwebapi';
+        this.config.configPath = '\\\\EC2AMAZ-T1N5EJ5\\Testes\\APP Entrada Manual';
+        this.config.saveStorage();
+      }
+
       this.api
         .get(this.configService.getHomeUrl())
         .subscribe((data: Resposta) => {
@@ -62,17 +68,26 @@ export class LoginComponent {
             this.configService.isToLoadFromPI = true;
             this.router.navigate(['/entrada-manual']);
           } else {
-            this.showMessageBox(data.Mensagem);
+            // this.showMessageBox(data.Mensagem);
+            this.showAlert('Usuário ou Senha Incorreta!')
           }
         });
     } else {
-      this.showMessageBox('Informe seu usuário e senha para continuar!');
+      // this.showMessageBox('Informe seu usuário e senha para continuar!');
+      this.showAlert('Informe seu usuário e senha para continuar!')
     }
   }
 
-  showMessageBox = (message: string) => {
-    this.messageBox.open(message, null, this.configError);
-  };
+  async showAlert(message: string) {
+    await this.alertController
+      .create({
+        message,
+        buttons: ['OK'],
+      })
+      .then((res) => {
+        res.present();
+      });
+  }
 
   iconBack() {
     this.router.navigate(['home']);
