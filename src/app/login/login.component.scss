@@ -15,7 +15,7 @@
 
 .login {
   width: 600px;
-  margin: 8% auto;
+  margin: 4% auto;
   font-size: 16px;
 }
 
@@ -90,11 +90,11 @@
   margin-top: 4%;
 }
 
-@media screen and(max-height:550px){
-  .login{
-    margin-top: -2% ;
-  }
-}
+// @media screen and(max-height:550px){
+//   .login{
+//     margin-top: -2% ;
+//   }
+// }
 
 
 @media screen and(max-width: 450px) {

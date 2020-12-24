@@ -53,7 +53,6 @@ export class ConfigService {
     let config = await this.storageService.getByKey(
       this.storageService.configValues
     );
-    console.log(config)
     config.forEach((conf) => {
       this[conf.Nome] = conf.configValue;
     });

@@ -29,7 +29,7 @@ export class DataConfigComponent implements OnInit {
     this.configPath = this.config.configPath;
   }
 
-  backHome() {
+  onBack() {
     this.router.navigate(['/home']);
   }
 

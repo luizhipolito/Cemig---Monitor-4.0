@@ -336,7 +336,6 @@ export class EntradaManualComponent {
   }
   async getEnumerationSetsValues(enumerationSets: Array<PIWebObject>) {
     let batchRequest = createBatch(enumerationSets, 'EnumerationSets');
-    console.log(batchRequest)
     let batchResponse = await this.api.executeBatchAsync(
       this.config.afServer,
       batchRequest
@@ -452,11 +451,7 @@ export class EntradaManualComponent {
     });
   };
 
-  showMessageBox = (message: string) => {
-    this.messageBox.open(message, null, {
-      duration: 2000,
-    });
-  };
+
 
   onSelect($event) {
     this.propFocous = null;

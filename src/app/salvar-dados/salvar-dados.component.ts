@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { MenuController, NavController } from '@ionic/angular';
+import { MenuController, NavController, AlertController } from '@ionic/angular';
 import { Router } from '@angular/router';
 import {
   Arvore,
@@ -8,6 +8,7 @@ import {
 import { AppUtils, createBatch } from 'src/utils/app.utils';
 import { ApiService } from 'src/services/api.service';
 import { ConfigService } from 'src/services/config.service';
+import { element } from 'protractor';
 
 @Component({
   selector: 'app-salvar-dados',
@@ -23,17 +24,18 @@ export class SalvarDadosComponent {
     public storageService: StorageArvoreService,
     public utils: AppUtils,
     private api: ApiService,
-    public config: ConfigService
-  ) {}
+    public config: ConfigService,
+    public alertController: AlertController
+  ) { }
 
   onBack() {
     this.navCtrl.navigateBack('entrada-manual');
   }
 
-  ngOnInit() {}
+  ngOnInit() { }
 
   dataToWriteOnPI: Array<Arvore> = [];
-  dataRemoved: Array<Arvore> = [];
+
 
   async loadSaveValues() {
     let writtenValues = await this.storageService.getByKey(
@@ -46,11 +48,12 @@ export class SalvarDadosComponent {
   }
 
   async ionViewWillEnter() {
-    this.confirm = true;
+    this.confirm = false;
     await this.config.init();
     await this.api.init();
     await this.loadSaveValues();
   }
+
   getRelativePath(path: string) {
     if (path.startsWith('\\')) {
       path = path.slice(1);
@@ -60,28 +63,39 @@ export class SalvarDadosComponent {
   }
 
   async saveOnPI() {
-    if (!this.confirm) {
-      console.log('not confirmed');
-    }
-    let dataToWriteOnPI = this.dataToWriteOnPI.filter((f) => f['isToSave']);
-    for (let data of dataToWriteOnPI) {
-      let values = data.value;
+    if (this.confirm == false) {
+      this.showAlert('Confirme o envio dos dados!')
+    } else {
+      let dataTrue = this.dataToWriteOnPI.filter(u => u.isToSave)
+      console.log(dataTrue)
+      if (dataTrue.length == 0) {
+        this.showAlert('Não existem dados selecionados!')
+      } else {
+        let dataToWriteOnPI = this.dataToWriteOnPI.filter((f) => f['isToSave']);
+        for (let data of dataToWriteOnPI) {
+          let values = data.value;
+          if (values) {
+            this.showAlertCloseAfter('Enviando dados...');
+          }
+          let batch = createBatch(values, 'update', data.date);
+          let batchResponse = await this.api
+            .executeBatch(this.config.afServer, batch)
+            .toPromise();
+          console.log(batch);
+          let responses = Object.keys(batchResponse).map((k) => batchResponse[k]);
 
-      let batch = createBatch(values, 'update', data.date);
-      let batchResponse = await this.api
-        .executeBatch(this.config.afServer, batch)
-        .toPromise();
-      console.log(batchResponse);
-      let responses = Object.keys(batchResponse).map((k) => batchResponse[k]);
-      let isUpdated = responses.every((r) => r.Status >= 200 && r.Status < 400);
-      if (isUpdated) {
-        this.dataToWriteOnPI = this.dataToWriteOnPI.filter(
-          (f) => f.AplicacaoID != data.AplicacaoID
-        );
+          let isUpdated = responses.every((r) => r.Status >= 200 && r.Status < 400);
+          if (isUpdated) {
+            this.dataToWriteOnPI = this.dataToWriteOnPI.filter(
+              (f) => f.isToSave != true
+            );
+          }
+        }
+        await this.updateStorage(this.dataToWriteOnPI);
+        this.showAlert('Dados enviado(s) com sucesso!')
+        this.navCtrl.navigateRoot('entrada-manual')
       }
     }
-    console.log(this.dataToWriteOnPI);
-    await this.updateStorage(this.dataToWriteOnPI);
   }
   async updateStorage(dataToWriteOnPI: Arvore[]) {
     await this.storageService.store(
@@ -91,11 +105,85 @@ export class SalvarDadosComponent {
   }
 
   async removeWritten() {
-    if (!this.confirm) {
-      console.log('selecionar confirmar');
+
+    if (this.confirm == false) {
+      this.showAlert('Confirme a Exclusao.')
     } else {
-      this.dataToWriteOnPI = this.dataToWriteOnPI.filter((f) => !f['isToSave']);
-      await this.updateStorage(this.dataToWriteOnPI);
+
+      let dataToRemoveOnStorage = this.dataToWriteOnPI.filter(r => r.isToSave)
+
+      if (dataToRemoveOnStorage.length == 0) {
+        this.showAlert('Nao existem dados selecionados!');
+      } else {
+        let res = await this.showConfirm();
+        if (!res) return;
+        this.dataToWriteOnPI = this.dataToWriteOnPI.filter((f) => !f['isToSave']);
+        await this.updateStorage(this.dataToWriteOnPI);
+        this.showAlert('Dado(s) Excluído(s) com sucesso!')
+      }
     }
   }
+
+  async showAlert(message: string) {
+    await this.alertController
+      .create({
+        message,
+        buttons: ['Ok'],
+      })
+      .then((res) => {
+        res.present();
+      });
+  }
+
+  async showAlertCloseAfter(message: string) {
+    const alert = await this.alertController
+      .create({
+        message,
+        buttons: [{
+          text: '',
+          handler: () => {
+            this.alertController.dismiss()
+          }
+        }],
+      })
+    await alert.present()
+    if (this.showAlert) {
+      alert.dismiss()
+    }
+  }
+
+
+
+  async showConfirm() {
+    let choice = false;
+    let alert = await this.alertController.create({
+      header: 'Confirmar',
+      message:
+        'Deseja realmente excluir esses dados?',
+      buttons: [
+        {
+          text: 'Não',
+          handler: () => {
+            alert.dismiss(false);
+            return false;
+          },
+        },
+        {
+          text: 'Sim',
+          handler: () => {
+            alert.dismiss(true);
+            return true;
+          },
+        },
+      ],
+    });
+
+    await alert.present();
+    await alert.onDidDismiss().then((data) => {
+      choice = data.data as boolean;
+    });
+    return choice;
+  }
+
+
 }

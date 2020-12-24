@@ -1,11 +1,11 @@
 <ion-app>
   <div class="route">
     <div class="routeSelect" *ngIf="navigation || pathNavigation">
-      <span (click)="onClickId({ path: [] })">Início &#9654;</span>
+      <span (click)="onClickId({ path: [] })">Início</span>
       <span *ngFor="let nav of pathNavigation.path; let i = index" (click)="
           onClickId({ name: nav, path: pathNavigation.path.slice(0, i + 1) })
         ">
-        {{ nav }} &#9654;
+        &#9654; {{ nav }}
       </span>
     </div>
 

@@ -154,6 +154,7 @@ export class Arvore {
   atributos: Attribute;
   date: string;
   configValue: string;
+  isToSave: boolean;
 }
 
 export class ArvoreList {
