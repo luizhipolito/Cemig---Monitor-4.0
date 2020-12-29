@@ -12,7 +12,7 @@ import { isNumber } from 'util';
   providedIn: 'root',
 })
 export class AppUtils {
-  constructor() {}
+  constructor() { }
 
   public isCollapsed: boolean = false;
 
@@ -83,11 +83,13 @@ export class AppUtils {
     writtenValues = writtenValues.concat(
       elements.list.filter(
         (el) =>
-          el.visible &&
+          // el.visible
+          // &&
           (el.mode == EnumModeAttribute.Escrita ||
             el.mode == EnumModeAttribute['Leitura/Escrita'])
       )
     );
+
     return writtenValues;
   }
 }

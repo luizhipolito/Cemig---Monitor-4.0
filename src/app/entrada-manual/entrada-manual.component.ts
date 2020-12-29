@@ -37,9 +37,10 @@ import { isNumber } from 'util';
 import { InserirComentarioComponent } from '../inserir-comentario/inserir-comentario.component';
 import { element } from 'protractor';
 import { attachView } from '@ionic/angular/providers/angular-delegate';
+import { NODATA } from 'dns';
 
 const typeEnumeration = 'EnumerationValue';
-let currentModal = null;
+// let currentModal = null;
 class Navigation {
   path: Array<string>;
   name: string;
@@ -111,14 +112,12 @@ export class EntradaManualComponent {
         if (lastI[0] === lastId[0]) {
           firstIndex = 0;
         }
-
         this.changeFocous(firstIndex)
-
-
       }
       this.propFocous.color = this.getColorScalling(this.propFocous);
     }
   }
+
   getColorScalling(propFocous: PIWebAttribute): string {
     let selectedValue = new Number(propFocous.Selected).valueOf();
     let colorClass = 'black';
@@ -136,7 +135,6 @@ export class EntradaManualComponent {
     if (selectedValue >= valueSK && valueSK > 0) {
       return this.templateRangeScalling.Over;
     }
-
     return colorClass;
   }
 
@@ -157,11 +155,7 @@ export class EntradaManualComponent {
   Elemento = {};
   selectedViews = 'elemento';
 
-  private configError: MatSnackBarConfig = {
-    panelClass: ['style-error'],
-    duration: 2000,
-    verticalPosition: 'top',
-  };
+
 
   elements: Attribute;
   enumerationTree: Array<Arvore>;
@@ -185,11 +179,11 @@ export class EntradaManualComponent {
 
   templateRangeScalling = {
     Mínimo: 'red',
-    'Mínimo de Alerta': 'orange',
-    'Mínimo de Atenção': 'purple',
-    'Máximo de Atenção': 'green',
-    'Máximo de Alerta': 'purple',
-    Máximo: 'orange',
+    'Mínimo de Alerta': 'red',
+    'Mínimo de Atenção': 'yellow',
+    'Máximo de Atenção': 'yellow',
+    'Máximo de Alerta': 'red',
+    Máximo: 'red',
     Over: 'red',
   };
   templateMax = 'Máximo';
@@ -219,6 +213,7 @@ export class EntradaManualComponent {
       this.loadDataFromStorage();
     }
   }
+
   init() {
     this.elements = null;
     this.propFocous = null;
@@ -319,6 +314,7 @@ export class EntradaManualComponent {
     let enumerationSetsAndValues = await this.getEnumerationSetsValues(
       enumerationSets
     );
+
     this.enumerationTree = enumerationSetsAndValues.map((enumSet) => {
       let tree = new Arvore();
       tree.AplicacaoID = enumSet.WebId;
@@ -326,9 +322,9 @@ export class EntradaManualComponent {
       tree.Caminho = tree.relativePath.split('\\').filter((c) => Boolean(c));
       tree.value = enumSet.valuesSets;
       tree.Nome = enumSet.Name;
+
       return tree;
     });
-
     await this.storageService.store(
       this.storageService.enumerationSets,
       this.enumerationTree
@@ -347,7 +343,6 @@ export class EntradaManualComponent {
         enumset.valuesSets = this.utils.getItems(response['Content']);
       }
     });
-
     return enumerationSets;
   }
   getEnumerationSetsQualyfiers(): Array<string> {
@@ -423,18 +418,20 @@ export class EntradaManualComponent {
         });
 
         this.elements = item.atributos;
-        console.log(this.elements.firstSelection)
         if (this.elements.firstSelection && this.elements.firstSelection.Type) {
           this.elements.firstSelection.valuesSets = this.getOptions(
             this.elements.firstSelection.TypeQualifier
           );
+
+          // console.log(this.elements.firstSelection.valuesSets.map(e => e.Value).sort())
         }
         this.elements.list.forEach((elem) => {
           if (elem.Type == typeEnumeration) {
-            let selectOptions = this.getOptions(elem.TypeQualifier);
+            let selectOptions = this.getOptions(elem.TypeQualifier)
             elem.valuesSets = selectOptions;
           }
         });
+
       } else {
         this.elements = null;
         result.forEach((arvore) => {
@@ -480,7 +477,6 @@ export class EntradaManualComponent {
           let atribute = this.getValueTemplate(attTemp, config);
           let condition = this.getValueTemplate(compTemp, config);
           let value = this.getValueTemplate(valTemp, config);
-
           hasCondition =
             Boolean(atribute) && Boolean(condition) && Boolean(value);
 
@@ -492,13 +488,24 @@ export class EntradaManualComponent {
           index++;
         }
       }
-
       if (!att.visible) {
-        att.Selected = null;
+        att.Selected = 'NO DATA';
       }
     });
+
     this.changeFocous(0);
 
+  }
+
+  sortEnumerations(a, b) {
+    if (a.Value < b.Value) {
+      console.log(a.Value)
+      return -1;
+    }
+    if (a.Value > b.Value) {
+      return 1;
+    }
+    return 0;
   }
 
   changeFocous(index: number) {
@@ -508,7 +515,6 @@ export class EntradaManualComponent {
         (att.mode == 'LeituraEscrita' || att.mode == 'Escrita') &&
         (att.Type == 'Double' || att.Type == 'Single') && i > index
     );
-
     this.lastFocus = this.elements.list.filter(
       (att, i) =>
         att.visible &&
@@ -532,7 +538,6 @@ export class EntradaManualComponent {
 
     let value =
       config && config.Value && config.Value.Good ? config.Value.Value : null;
-
     if (value) {
       configValue = new String(value).toString();
       if (value.Name) {
@@ -548,6 +553,7 @@ export class EntradaManualComponent {
     let request = {};
     for (let key of Object.keys(previusBatch)) {
       let response = previusBatch[key];
+
       if (isResult(response)) {
         let items = response['Content']['Items'] as Array<PIWebAttribute>;
         request = compoundBatches(request, createBatch(items, type));
@@ -576,7 +582,6 @@ export class EntradaManualComponent {
     );
     let valueRequest = createBatch(items, 'Value');
     let valueResponse = await this.api.executeBatchAsync(server, valueRequest);
-
     for (let key in Object.keys(attResponse)) {
       let newAttribute: Attribute = new Attribute();
       let configList = {};
@@ -626,7 +631,6 @@ export class EntradaManualComponent {
   }
   getMode(config: PIWebAttribute[]): EnumModeAttribute {
     let type = config.find((c) => c.Name == this.templateType);
-
     if (
       type &&
       type.Value &&
@@ -639,8 +643,8 @@ export class EntradaManualComponent {
     }
     return EnumModeAttribute.Leitura;
   }
-
   setPropFocous(element: PIWebAttribute) {
+
     if (
       (element.mode == EnumModeAttribute.Escrita ||
         element.mode == EnumModeAttribute['Leitura/Escrita']) &&
@@ -661,8 +665,8 @@ export class EntradaManualComponent {
     let attValue = valueAtt.Value;
     let attValueString = '';
     att.Value = attValue;
-
     if (attValue && attValue.Value) {
+
       if (attValue.Value.Value) {
         attValueString = attValue.Value.Value;
       } else {
@@ -679,7 +683,6 @@ export class EntradaManualComponent {
     }
 
     att.ValueString = attValueString;
-
     return att;
   }
 
@@ -687,6 +690,7 @@ export class EntradaManualComponent {
     let dateStr = this.currentDate
       ? this.currentDate.split('T').find(firstOrNull)
       : null;
+
 
     if (!dateStr) {
       return;
@@ -696,12 +700,13 @@ export class EntradaManualComponent {
     tree.AplicacaoID = this.elements.WebId;
     tree.relativePath = this.elements.RelativePath;
 
+    // console.log(this.elements.list.map(v => v.Value.Value))
     let values = this.utils.getWrittenValues(this.elements);
     tree.date = dateStr;
     tree.value = values;
 
     if (!values.every((t) => t.Selected)) {
-      this.showAlert('Preencha todos os campos!');
+      this.showAlert('Preencha os os campos!');
       return;
     }
     let hasTree = await this.storageService.hasValue(
@@ -719,6 +724,7 @@ export class EntradaManualComponent {
     );
     await this.showAlert('Salvo com sucesso!');
   }
+
   async showConfirm() {
     let choice = false;
     let alert = await this.alertController.create({
@@ -769,7 +775,7 @@ export class EntradaManualComponent {
       let enumerationSet = this.enumerationTree.find(
         (enumset) => enumset.Nome == qualifyer
       );
-      console.log(enumerationSet)
+
       if (enumerationSet) {
         return enumerationSet.value;
       }
@@ -801,9 +807,8 @@ export class EntradaManualComponent {
           });
         }
       });
-
       if (this.navigation.length == 0) {
-        //"NO ReSult"
+        console.log('Arvore Vazia')
       }
     } else {
       this.elements = null;

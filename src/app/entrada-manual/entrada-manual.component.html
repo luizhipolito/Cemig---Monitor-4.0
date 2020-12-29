@@ -46,13 +46,14 @@
 
               <ion-select *ngIf="elements.firstSelection.Type == 'EnumerationValue'" class="select"
                 (ionChange)="onSelect($event)" [(ngModel)]="elements.firstSelection.Selected" (click)="print()">
-                <ion-select-option *ngFor="let valueSet of elements.firstSelection.valuesSets" [value]="valueSet">
+                <ion-select-option *ngFor="let valueSet of elements.firstSelection.valuesSets" [value]="valueSet"
+                  class="boxSelect">
                   {{ valueSet.Name }}</ion-select-option>
               </ion-select>
             </ion-item>
 
             <ion-item *ngFor="let element of elements.list | isVisible: true" (click)="setPropFocous(element)">
-              <ion-label> {{ element.Name }}:</ion-label>
+              <ion-label style="width: 800px;"> {{ element.Name }}: {{element.Value.UnitsAbbreviation}}</ion-label>
               <ion-label *ngIf="element.mode == 'Leitura'" class="read">
                 {{ element.ValueString }}</ion-label>
 
@@ -67,7 +68,9 @@
                     element.mode == 'Escrita') &&
                   element.Type == 'EnumerationValue'
                 " class="select" [value]="element.Selected">
-                <ion-select-option *ngFor="let valueSet of element.valuesSets">{{ valueSet.Name }}</ion-select-option>
+                <ion-select-option *ngFor="let valueSet of element.valuesSets">
+                  {{ valueSet.Name }}
+                </ion-select-option>
               </ion-select>
             </ion-item>
           </ion-list>

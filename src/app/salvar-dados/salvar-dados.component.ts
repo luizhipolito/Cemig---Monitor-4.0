@@ -41,7 +41,6 @@ export class SalvarDadosComponent {
     let writtenValues = await this.storageService.getByKey(
       this.storageService.writtenValues
     );
-
     this.dataToWriteOnPI = writtenValues.map((m) => {
       return { isToSave: true, ...m };
     }) as Array<Arvore>;
@@ -67,7 +66,6 @@ export class SalvarDadosComponent {
       this.showAlert('Confirme o envio dos dados!')
     } else {
       let dataTrue = this.dataToWriteOnPI.filter(u => u.isToSave)
-      console.log(dataTrue)
       if (dataTrue.length == 0) {
         this.showAlert('Não existem dados selecionados!')
       } else {
@@ -91,7 +89,9 @@ export class SalvarDadosComponent {
             );
           }
         }
+        console.log(this.dataToWriteOnPI)
         await this.updateStorage(this.dataToWriteOnPI);
+        this.dismissAlert();
         this.showAlert('Dados enviado(s) com sucesso!')
         this.navCtrl.navigateRoot('entrada-manual')
       }
@@ -119,7 +119,7 @@ export class SalvarDadosComponent {
         if (!res) return;
         this.dataToWriteOnPI = this.dataToWriteOnPI.filter((f) => !f['isToSave']);
         await this.updateStorage(this.dataToWriteOnPI);
-        this.showAlert('Dado(s) Excluído(s) com sucesso!')
+        await this.showAlert('Dado(s) Excluído(s) com sucesso!')
       }
     }
   }
@@ -147,11 +147,11 @@ export class SalvarDadosComponent {
         }],
       })
     await alert.present()
-    if (this.showAlert) {
-      alert.dismiss()
-    }
-  }
 
+  }
+  async dismissAlert() {
+    this.alertController.dismiss()
+  }
 
 
   async showConfirm() {
