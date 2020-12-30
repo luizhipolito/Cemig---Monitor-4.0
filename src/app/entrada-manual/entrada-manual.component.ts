@@ -38,6 +38,7 @@ import { InserirComentarioComponent } from '../inserir-comentario/inserir-coment
 import { element } from 'protractor';
 import { attachView } from '@ionic/angular/providers/angular-delegate';
 import { NODATA } from 'dns';
+import { PIWebValue } from 'src/model/PIWebValue.model';
 
 const typeEnumeration = 'EnumerationValue';
 // let currentModal = null;
@@ -325,11 +326,23 @@ export class EntradaManualComponent {
 
       return tree;
     });
+
     await this.storageService.store(
       this.storageService.enumerationSets,
       this.enumerationTree
     );
   }
+
+  // sortEnumerations(a: Arvore, b: Arvore) {
+  //   if (a.value < b.value) {
+  //     return -1;
+  //   }
+  //   if (a.value > b.value) {
+  //     return 1;
+  //   }
+  //   return 0;
+  // }
+
   async getEnumerationSetsValues(enumerationSets: Array<PIWebObject>) {
     let batchRequest = createBatch(enumerationSets, 'EnumerationSets');
     let batchResponse = await this.api.executeBatchAsync(
@@ -337,12 +350,15 @@ export class EntradaManualComponent {
       batchRequest
     );
 
+
     enumerationSets.forEach((enumset, index) => {
       let response = batchResponse[index];
       if (response && response['Status'] == 200) {
         enumset.valuesSets = this.utils.getItems(response['Content']);
       }
     });
+    // let valuesEnum = enumerationSets.map(e => e.valuesSets.map(r => r.Value)).sort(this.sortEnumerations);
+    // console.log(valuesEnum)
     return enumerationSets;
   }
   getEnumerationSetsQualyfiers(): Array<string> {
@@ -423,7 +439,6 @@ export class EntradaManualComponent {
             this.elements.firstSelection.TypeQualifier
           );
 
-          // console.log(this.elements.firstSelection.valuesSets.map(e => e.Value).sort())
         }
         this.elements.list.forEach((elem) => {
           if (elem.Type == typeEnumeration) {
@@ -495,17 +510,6 @@ export class EntradaManualComponent {
 
     this.changeFocous(0);
 
-  }
-
-  sortEnumerations(a, b) {
-    if (a.Value < b.Value) {
-      console.log(a.Value)
-      return -1;
-    }
-    if (a.Value > b.Value) {
-      return 1;
-    }
-    return 0;
   }
 
   changeFocous(index: number) {

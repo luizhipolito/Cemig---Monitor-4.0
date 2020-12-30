@@ -69,12 +69,13 @@ export class LoginComponent {
             this.router.navigate(['/entrada-manual']);
           } else {
             // this.showMessageBox(data.Mensagem);
-            this.showAlert('Usuário ou Senha Incorreta!')
+            console.log('Mensagem')
+            this.showAlert(data.Mensagem)
           }
         });
     } else {
       // this.showMessageBox('Informe seu usuário e senha para continuar!');
-      this.showAlert('Informe seu usuário e senha para continuar!')
+      this.showAlert('Informe usuário e senha para continuar!')
     }
   }
 
