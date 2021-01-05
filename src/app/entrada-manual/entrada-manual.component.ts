@@ -190,6 +190,13 @@ export class EntradaManualComponent {
   templateMax = 'Máximo';
   templateMaxAtention = 'Máximo de Atenção';
 
+  minimo: any;
+  minimoAlerta: any;
+  minimoAtencao: any;
+  maximoAtencao: any;
+  maximoAlerta: any;
+  maximo: any;
+
   constructor(
     private api: ApiService,
     public utils: AppUtils,
@@ -324,24 +331,25 @@ export class EntradaManualComponent {
       tree.value = enumSet.valuesSets;
       tree.Nome = enumSet.Name;
 
+
       return tree;
     });
-
+    console.log(this.enumerationTree)
     await this.storageService.store(
       this.storageService.enumerationSets,
       this.enumerationTree
     );
   }
 
-  // sortEnumerations(a: Arvore, b: Arvore) {
-  //   if (a.value < b.value) {
-  //     return -1;
-  //   }
-  //   if (a.value > b.value) {
-  //     return 1;
-  //   }
-  //   return 0;
-  // }
+  sortEnumerations(a: PIWebValue, b: PIWebValue) {
+    if (a.Value < b.Value) {
+      return -1;
+    }
+    if (a.Value > b.Value) {
+      return 1;
+    }
+    return 0;
+  }
 
   async getEnumerationSetsValues(enumerationSets: Array<PIWebObject>) {
     let batchRequest = createBatch(enumerationSets, 'EnumerationSets');
@@ -659,6 +667,8 @@ export class EntradaManualComponent {
     }
   }
 
+
+
   getAttValue(
     att: PIWebAttribute,
     valuesItems: Array<PIWebAttribute>
@@ -690,7 +700,42 @@ export class EntradaManualComponent {
     return att;
   }
 
+
+  getAlerts(propFocous: PIWebAttribute) {
+    for (let k of Object.keys(this.templateRangeScalling)) {
+      let config = propFocous.config.find((c) => c.Name == k) as PIWebAttribute;
+      if (config && config.Value) {
+        if (config.Name == 'Mínimo') {
+          this.minimo = config.Value.Value;
+          console.log(this.minimo)
+        }
+        if (config.Name == 'Mínimo de Alerta') {
+          this.minimoAlerta = config.Value.Value;
+          console.log(this.minimoAlerta)
+        }
+        if (config.Name == 'Mínimo de Atenção') {
+          this.minimoAtencao = config.Value.Value;
+          console.log(this.minimoAtencao)
+        }
+        if (config.Name == 'Máximo de Atenção') {
+          this.maximoAtencao = config.Value.Value;
+          console.log(this.maximoAtencao)
+        }
+        if (config.Name == 'Máximo de Alerta') {
+          this.maximoAlerta = config.Value.Value;
+          console.log(this.maximoAlerta)
+        }
+        if (config.Name == 'Máximo') {
+          this.maximo = config.Value.Value;
+          console.log(this.maximo)
+        }
+      }
+    }
+  }
+
+
   async saveElement() {
+
     let dateStr = this.currentDate
       ? this.currentDate.split('T').find(firstOrNull)
       : null;
@@ -704,24 +749,44 @@ export class EntradaManualComponent {
     tree.AplicacaoID = this.elements.WebId;
     tree.relativePath = this.elements.RelativePath;
 
-    // console.log(this.elements.list.map(v => v.Value.Value))
+
     let values = this.utils.getWrittenValues(this.elements);
     tree.date = dateStr;
     tree.value = values;
+
+
 
     if (!values.every((t) => t.Selected)) {
       this.showAlert('Preencha os os campos!');
       return;
     }
+
+    this.getAlerts(this.propFocous)
+    let valueAlert = this.propFocous.Selected
+    console.log(valueAlert)
+
+    if (valueAlert < this.minimo || valueAlert > this.maximo) {
+      await this.showAlert('Valores incorretos ')
+      return;
+    }
+
+    if (valueAlert >= this.minimo && valueAlert < this.minimoAlerta || valueAlert >= this.maximoAlerta && valueAlert < this.maximo) {
+      let res = await this.showConfirm('Valores em Alerta, Deseja Salvar?');
+      if (!res) return;
+    }
+
+
+
     let hasTree = await this.storageService.hasValue(
       this.storageService.writtenValues,
       tree
     );
 
     if (hasTree) {
-      let res = await this.showConfirm();
+      let res = await this.showConfirm('Já existe uma leitura para esta data neste instrumento não salva. Deseja sobrescrever?');
       if (!res) return;
     }
+
     await this.storageService.insertOrUpdate(
       this.storageService.writtenValues,
       tree
@@ -729,12 +794,11 @@ export class EntradaManualComponent {
     await this.showAlert('Salvo com sucesso!');
   }
 
-  async showConfirm() {
+  async showConfirm(message: string) {
     let choice = false;
     let alert = await this.alertController.create({
       header: 'Confirmar',
-      message:
-        'Já existe uma leitura para esta data neste instrumento não salva. Deseja sobrescrever?',
+      message,
       buttons: [
         {
           text: 'Não',

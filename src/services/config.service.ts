@@ -63,17 +63,13 @@ export class ConfigService {
   }
 
   getBaseConfigUrl() {
-
     return `${this.configUrl}/elements?path=${this.configPath}`;
-
   }
 
   getHomeUrl() {
-
     return this.afServer
       ? ` https://${this.afServer}/piwebapi`
       : `${this.configUrl}`;
-
   }
 
   async saveStorage() {

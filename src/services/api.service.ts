@@ -59,8 +59,9 @@ export class ApiService {
   }
 
   async executeBatchAsync(server: string, data: any) {
-    return await this.executeBatch(server, data).toPromise();
+    return await this.executeBatch(server, data).toPromise()
   }
+
 
   post(url: string, data: any, params?: HttpParams) {
     this.showLoader();

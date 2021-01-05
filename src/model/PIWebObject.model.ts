@@ -13,5 +13,6 @@ export class PIWebObject {
   WebId: string;
   relativePath: string;
   values: string;
+
   valuesSets?: Array<PIWebObject>;
 }

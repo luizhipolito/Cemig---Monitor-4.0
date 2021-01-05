@@ -63,15 +63,15 @@
                   (element.Type == 'Double' || element.Type == 'Single')
                 " [ngClass]="element.color">{{ element.Selected }}</ion-label>
 
-              <!-- <ion-select *ngIf="
+              <ion-select *ngIf="
                   (element.mode == 'LeituraEscrita' ||
-                    element.mode == 'Escrita') &&
+                    element.mode == 'Escrita' || element.mode == 'Leitura') &&
                   element.Type == 'EnumerationValue'
                 " class="select" [value]="element.Selected">
                 <ion-select-option *ngFor="let valueSet of element.valuesSets">
                   {{ valueSet.Name }}
                 </ion-select-option>
-              </ion-select> -->
+              </ion-select>
             </ion-item>
           </ion-list>
         </div>
