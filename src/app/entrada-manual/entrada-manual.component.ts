@@ -116,6 +116,7 @@ export class EntradaManualComponent {
         this.changeFocous(firstIndex)
       }
       this.propFocous.color = this.getColorScalling(this.propFocous);
+      console.log(this.propFocous.color)
     }
   }
 
@@ -186,6 +187,7 @@ export class EntradaManualComponent {
     'Máximo de Alerta': 'red',
     Máximo: 'red',
     Over: 'red',
+    white: 'white',
   };
   templateMax = 'Máximo';
   templateMaxAtention = 'Máximo de Atenção';
@@ -707,27 +709,21 @@ export class EntradaManualComponent {
       if (config && config.Value) {
         if (config.Name == 'Mínimo') {
           this.minimo = config.Value.Value;
-          console.log(this.minimo)
         }
         if (config.Name == 'Mínimo de Alerta') {
           this.minimoAlerta = config.Value.Value;
-          console.log(this.minimoAlerta)
         }
         if (config.Name == 'Mínimo de Atenção') {
           this.minimoAtencao = config.Value.Value;
-          console.log(this.minimoAtencao)
         }
         if (config.Name == 'Máximo de Atenção') {
           this.maximoAtencao = config.Value.Value;
-          console.log(this.maximoAtencao)
         }
         if (config.Name == 'Máximo de Alerta') {
           this.maximoAlerta = config.Value.Value;
-          console.log(this.maximoAlerta)
         }
         if (config.Name == 'Máximo') {
           this.maximo = config.Value.Value;
-          console.log(this.maximo)
         }
       }
     }
@@ -763,17 +759,33 @@ export class EntradaManualComponent {
 
     this.getAlerts(this.propFocous)
     let valueAlert = this.propFocous.Selected
-    console.log(valueAlert)
 
-    if (valueAlert < this.minimo || valueAlert > this.maximo) {
-      await this.showAlert('Valores incorretos ')
+    if (valueAlert <= this.minimo || valueAlert >= this.maximo) {
+      await this.showAlert('Atenção! A leitura esta fora dos limites especificados para o equipamento.')
       return;
     }
 
-    if (valueAlert >= this.minimo && valueAlert < this.minimoAlerta || valueAlert >= this.maximoAlerta && valueAlert < this.maximo) {
-      let res = await this.showConfirm('Valores em Alerta, Deseja Salvar?');
+    if (valueAlert > this.minimo && valueAlert <= this.minimoAlerta) {
+      let res = await this.showConfirm('A leitura esta abaixo do limite de alerta. Deseja salvar?');
       if (!res) return;
     }
+
+    if (valueAlert > this.minimoAlerta && valueAlert < this.minimoAtencao) {
+      let res = await this.showConfirm('A leitura esta abaixo do limite de atenção. Deseja salvar?')
+      if (!res) return;
+    }
+
+    if (valueAlert < this.maximoAlerta && valueAlert >= this.maximoAtencao) {
+      let res = await this.showConfirm('A leitura esta acima do limite de atenção. Deseja salvar?')
+      if (!res) return;
+    }
+
+    if (valueAlert >= this.maximoAlerta && valueAlert <= this.maximo) {
+      let res = await this.showConfirm('A leitura esta acima do limite de alerta. Deseja salvar?');
+      if (!res) return;
+    }
+
+
 
 
 
