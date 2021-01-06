@@ -330,27 +330,16 @@ export class EntradaManualComponent {
       tree.AplicacaoID = enumSet.WebId;
       tree.relativePath = enumSet.Path;
       tree.Caminho = tree.relativePath.split('\\').filter((c) => Boolean(c));
-      tree.value = enumSet.valuesSets;
+      tree.value = enumSet.valuesSets.sort(function (a: PIWebObject, b: PIWebObject) {
+        return a.Value < b.Value ? -1 : 1;
+      })
       tree.Nome = enumSet.Name;
-
-
       return tree;
     });
-
     await this.storageService.store(
       this.storageService.enumerationSets,
       this.enumerationTree
-    );
-  }
-
-  sortEnumerations(a: PIWebValue, b: PIWebValue) {
-    if (a.Value < b.Value) {
-      return -1;
-    }
-    if (a.Value > b.Value) {
-      return 1;
-    }
-    return 0;
+    )
   }
 
   async getEnumerationSetsValues(enumerationSets: Array<PIWebObject>) {
@@ -367,9 +356,7 @@ export class EntradaManualComponent {
         enumset.valuesSets = this.utils.getItems(response['Content']);
       }
     });
-    // let valuesEnum = enumerationSets.map(e => e.valuesSets.map(r => r.Value)).sort(this.sortEnumerations);
-    // console.log(valuesEnum)
-    return enumerationSets;
+    return enumerationSets
   }
   getEnumerationSetsQualyfiers(): Array<string> {
     if (this.arvoreLocal) {
@@ -477,6 +464,7 @@ export class EntradaManualComponent {
 
   onSelect($event) {
     this.propFocous = null;
+
     this.elements.list.forEach((att) => {
       if (!att.config.some((s) => s.Name.includes(this.textCondition))) {
         att.visible = true;
@@ -710,27 +698,21 @@ export class EntradaManualComponent {
 
         if (config.Name == 'Mínimo') {
           this.minimo = config.Value.Value;
-          console.log(this.minimo.Name)
         }
         if (config.Name == 'Mínimo de Alerta') {
           this.minimoAlerta = config.Value.Value;
-          console.log(this.minimoAlerta)
         }
         if (config.Name == 'Mínimo de Atenção') {
           this.minimoAtencao = config.Value.Value;
-          console.log(this.minimoAtencao)
         }
         if (config.Name == 'Máximo de Atenção') {
           this.maximoAtencao = config.Value.Value;
-          console.log(this.maximoAtencao)
         }
         if (config.Name == 'Máximo de Alerta') {
           this.maximoAlerta = config.Value.Value;
-          console.log(this.maximoAlerta)
         }
         if (config.Name == 'Máximo') {
           this.maximo = config.Value.Value;
-          console.log(this.maximo)
         }
       }
     }
