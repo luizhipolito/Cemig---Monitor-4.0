@@ -116,7 +116,6 @@ export class EntradaManualComponent {
         this.changeFocous(firstIndex)
       }
       this.propFocous.color = this.getColorScalling(this.propFocous);
-      console.log(this.propFocous.color)
     }
   }
 
@@ -183,11 +182,10 @@ export class EntradaManualComponent {
     Mínimo: 'red',
     'Mínimo de Alerta': 'red',
     'Mínimo de Atenção': 'yellow',
-    'Máximo de Atenção': 'yellow',
-    'Máximo de Alerta': 'red',
+    'Máximo de Atenção': 'white',
+    'Máximo de Alerta': 'yellow',
     Máximo: 'red',
     Over: 'red',
-    white: 'white',
   };
   templateMax = 'Máximo';
   templateMaxAtention = 'Máximo de Atenção';
@@ -217,6 +215,7 @@ export class EntradaManualComponent {
     await this.api.init();
     await this.config.init();
 
+
     if (isToSyncDataFromPI) {
       this.syncDataFromPI();
     } else {
@@ -235,6 +234,7 @@ export class EntradaManualComponent {
     await this.syncConfigFromPI();
     await this.syncNavigationData();
     await this.syncEnumerationSets();
+
     this.config.isToLoadFromPI = false;
   }
 
@@ -336,7 +336,7 @@ export class EntradaManualComponent {
 
       return tree;
     });
-    console.log(this.enumerationTree)
+
     await this.storageService.store(
       this.storageService.enumerationSets,
       this.enumerationTree
@@ -707,23 +707,30 @@ export class EntradaManualComponent {
     for (let k of Object.keys(this.templateRangeScalling)) {
       let config = propFocous.config.find((c) => c.Name == k) as PIWebAttribute;
       if (config && config.Value) {
+
         if (config.Name == 'Mínimo') {
           this.minimo = config.Value.Value;
+          console.log(this.minimo.Name)
         }
         if (config.Name == 'Mínimo de Alerta') {
           this.minimoAlerta = config.Value.Value;
+          console.log(this.minimoAlerta)
         }
         if (config.Name == 'Mínimo de Atenção') {
           this.minimoAtencao = config.Value.Value;
+          console.log(this.minimoAtencao)
         }
         if (config.Name == 'Máximo de Atenção') {
           this.maximoAtencao = config.Value.Value;
+          console.log(this.maximoAtencao)
         }
         if (config.Name == 'Máximo de Alerta') {
           this.maximoAlerta = config.Value.Value;
+          console.log(this.maximoAlerta)
         }
         if (config.Name == 'Máximo') {
           this.maximo = config.Value.Value;
+          console.log(this.maximo)
         }
       }
     }
@@ -753,16 +760,26 @@ export class EntradaManualComponent {
 
 
     if (!values.every((t) => t.Selected)) {
-      this.showAlert('Preencha os os campos!');
+      this.showAlert('Preencha os campos!');
       return;
     }
 
-    this.getAlerts(this.propFocous)
-    let valueAlert = this.propFocous.Selected
 
-    if (valueAlert <= this.minimo || valueAlert >= this.maximo) {
-      await this.showAlert('Atenção! A leitura esta fora dos limites especificados para o equipamento.')
-      return;
+    let valueAlert = this.propFocous.Selected
+    this.getAlerts(this.propFocous)
+
+    if (!this.minimo.Name) {
+      if (valueAlert <= this.minimo) {
+        await this.showAlert('Atenção! A leitura esta fora dos limites especificados para o equipamento.')
+        return;
+      }
+    }
+
+    if (!this.maximo.Name) {
+      if (valueAlert >= this.maximo) {
+        await this.showAlert('Atenção! A leitura esta fora dos limites especificados para o equipamento.')
+        return;
+      }
     }
 
     if (valueAlert > this.minimo && valueAlert <= this.minimoAlerta) {
@@ -775,12 +792,12 @@ export class EntradaManualComponent {
       if (!res) return;
     }
 
-    if (valueAlert < this.maximoAlerta && valueAlert >= this.maximoAtencao) {
+    if (valueAlert >= this.maximoAtencao && valueAlert < this.maximoAlerta) {
       let res = await this.showConfirm('A leitura esta acima do limite de atenção. Deseja salvar?')
       if (!res) return;
     }
 
-    if (valueAlert >= this.maximoAlerta && valueAlert <= this.maximo) {
+    if (valueAlert >= this.maximoAlerta && valueAlert < this.maximo) {
       let res = await this.showConfirm('A leitura esta acima do limite de alerta. Deseja salvar?');
       if (!res) return;
     }
