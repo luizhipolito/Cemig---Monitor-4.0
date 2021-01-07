@@ -39,6 +39,7 @@ import { element } from 'protractor';
 import { attachView } from '@ionic/angular/providers/angular-delegate';
 import { NODATA } from 'dns';
 import { PIWebValue } from 'src/model/PIWebValue.model';
+import { PIWebLink } from 'src/model/PIWebLink.model';
 
 const typeEnumeration = 'EnumerationValue';
 // let currentModal = null;
@@ -128,7 +129,7 @@ export class EntradaManualComponent {
       let config = propFocous.config.find((c) => c.Name == k) as PIWebAttribute;
       if (config && config.Value) {
         valueSK = new Number(config.Value.Value).valueOf();
-        if (selectedValue < valueSK) {
+        if ((selectedValue <= valueSK && k.startsWith('Mínimo')) || (k.startsWith('Máximo') && valueSK > selectedValue)) {
           return sk;
         }
       }
@@ -276,17 +277,17 @@ export class EntradaManualComponent {
       .get(rootUrl, insertParams)
       .pipe(map(this.generateRelativePath))
       .toPromise();
-    let attributes = await this.loadAttributes(navigationData);
+
+    let attributes = await this.loadAttributes(navigationData)
 
     let navigationTree = navigationData.map((nav) => {
       let tree = new Arvore();
-      tree.atributos = attributes.find((att) => att.WebId == nav.WebId);
+      tree.atributos = attributes.find((att) => att.WebId == nav.WebId)
       tree.AplicacaoID = nav.WebId;
       tree.relativePath = nav.relativePath;
       tree.Caminho = tree.relativePath.split('\\').filter((c) => Boolean(c));
       return tree;
     });
-
     await this.storageService.store(
       this.storageService.navigation,
       navigationTree
@@ -330,7 +331,7 @@ export class EntradaManualComponent {
       tree.AplicacaoID = enumSet.WebId;
       tree.relativePath = enumSet.Path;
       tree.Caminho = tree.relativePath.split('\\').filter((c) => Boolean(c));
-      tree.value = enumSet.valuesSets.sort(function (a: PIWebObject, b: PIWebObject) {
+      tree.value = enumSet.valuesSets.sort(function (a: PIWebAttribute, b: PIWebAttribute) {
         return a.Value < b.Value ? -1 : 1;
       })
       tree.Nome = enumSet.Name;
@@ -464,8 +465,8 @@ export class EntradaManualComponent {
 
   onSelect($event) {
     this.propFocous = null;
-
     this.elements.list.forEach((att) => {
+
       if (!att.config.some((s) => s.Name.includes(this.textCondition))) {
         att.visible = true;
       } else {
@@ -502,12 +503,10 @@ export class EntradaManualComponent {
         }
       }
       if (!att.visible) {
-        att.Selected = 'NO DATA';
+        att.Selected = null;
       }
-    });
-
+    })
     this.changeFocous(0);
-
   }
 
   changeFocous(index: number) {
@@ -524,6 +523,7 @@ export class EntradaManualComponent {
         (att.Type == 'Double' || att.Type == 'Single') && i > index
     )
     this.focusLast = this.lastFocus.map(n => n.Name.valueOf())
+
     if (elem) {
       this.propFocous = elem;
     }
@@ -546,7 +546,6 @@ export class EntradaManualComponent {
         configValue = value.Name;
       }
     }
-
     return configValue;
   }
 
@@ -604,11 +603,10 @@ export class EntradaManualComponent {
           configList[parentPath].push(child);
         }
       }
-      // console.log(configList);
       atts = atts.map((att) => {
         att.config = configList[att.Path] || [];
         att.mode = this.getMode(att.config as PIWebAttribute[]);
-        return att;
+        return att
       });
 
       let valuesItems = valueResponse[key]['Content'][
@@ -624,8 +622,14 @@ export class EntradaManualComponent {
       atts.splice(firstSelectionIndex, 1);
       newAttribute.list = atts
         .filter((att) => att.Description.includes(this.config.AppAttributes))
-        .map((att) => this.getAttValue(att, valuesItems));
-
+        .map((att) => this.getAttValue(att, valuesItems))
+        .sort(function (a: PIWebAttribute, b: PIWebAttribute) {
+          let indexA = a.config.find(i => i.Name == 'Indexe') as PIWebAttribute;
+          let indexB = b.config.find(i => i.Name == 'Indexe') as PIWebAttribute;
+          if (indexA && indexB && indexA.Value && indexB.Value)
+            return indexA.Value.Value < indexB.Value.Value ? -1 : 1;
+          return 1;
+        })
       attributesData.push(newAttribute);
     }
 
@@ -656,8 +660,6 @@ export class EntradaManualComponent {
 
     }
   }
-
-
 
   getAttValue(
     att: PIWebAttribute,
@@ -740,11 +742,11 @@ export class EntradaManualComponent {
     tree.value = values;
 
 
-
-    if (!values.every((t) => t.Selected)) {
-      this.showAlert('Preencha os campos!');
-      return;
-    }
+    // console.log(values)
+    // if (!values.every((t) => t.Selected)) {
+    //   this.showAlert('Preencha os campos!');
+    //   return;
+    // }
 
 
     let valueAlert = this.propFocous.Selected
@@ -769,7 +771,7 @@ export class EntradaManualComponent {
       if (!res) return;
     }
 
-    if (valueAlert > this.minimoAlerta && valueAlert < this.minimoAtencao) {
+    if (valueAlert > this.minimoAlerta && valueAlert <= this.minimoAtencao) {
       let res = await this.showConfirm('A leitura esta abaixo do limite de atenção. Deseja salvar?')
       if (!res) return;
     }
@@ -783,10 +785,6 @@ export class EntradaManualComponent {
       let res = await this.showConfirm('A leitura esta acima do limite de alerta. Deseja salvar?');
       if (!res) return;
     }
-
-
-
-
 
     let hasTree = await this.storageService.hasValue(
       this.storageService.writtenValues,

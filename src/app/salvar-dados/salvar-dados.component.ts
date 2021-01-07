@@ -42,7 +42,7 @@ export class SalvarDadosComponent {
       this.storageService.writtenValues
     );
     this.dataToWriteOnPI = writtenValues.map((m) => {
-      return { isToSave: true, ...m };
+      return { isToSave: true, ...m, isSystem: true };
     }) as Array<Arvore>;
   }
 
@@ -70,16 +70,17 @@ export class SalvarDadosComponent {
         this.showAlert('Não existem dados selecionados!')
       } else {
         let dataToWriteOnPI = this.dataToWriteOnPI.filter((f) => f['isToSave']);
+        console.log(dataToWriteOnPI)
         for (let data of dataToWriteOnPI) {
           let values = data.value;
           if (values) {
             this.showAlertCloseAfter('Enviando dados...');
           }
+
           let batch = createBatch(values, 'update', data.date);
           let batchResponse = await this.api
             .executeBatch(this.config.afServer, batch)
             .toPromise();
-          console.log(batch);
           let responses = Object.keys(batchResponse).map((k) => batchResponse[k]);
 
           let isUpdated = responses.every((r) => r.Status >= 200 && r.Status < 400);

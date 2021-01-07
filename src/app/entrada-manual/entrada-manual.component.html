@@ -56,12 +56,12 @@
               <ion-label style="width: 800px;"> {{ element.Name }}: {{element.Value.UnitsAbbreviation}}</ion-label>
               <ion-label *ngIf="element.mode == 'Leitura'" class="read">
                 {{ element.ValueString }}</ion-label>
-
+              <!-- values -->
               <ion-label *ngIf="
                   (element.mode == 'LeituraEscrita' ||
                     element.mode == 'Escrita') &&
                   (element.Type == 'Double' || element.Type == 'Single')
-                " [ngClass]="element.color">{{ element.Selected }}</ion-label>
+                " [ngClass]="element.color">{{element.Selected}}</ion-label>
 
               <ion-select *ngIf="
                   (element.mode == 'LeituraEscrita' ||

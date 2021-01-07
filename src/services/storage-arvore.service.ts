@@ -151,6 +151,7 @@ export class Arvore {
   date: string;
   configValue: string;
   isToSave: boolean;
+  isSystem: boolean
 }
 
 export class ArvoreList {
