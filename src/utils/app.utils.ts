@@ -156,7 +156,14 @@ export function createBatch(
 
       if (!isNaN(value)) {
         value = new Number(value).valueOf();
+      }
 
+      if (value == 0) {
+        value = {
+          Name: "No Data",
+          Value: 248,
+          IsSystem: true
+        }
       }
 
       batchItem[index]['Content'] = JSON.stringify({
