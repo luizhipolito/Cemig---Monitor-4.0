@@ -156,8 +156,9 @@ export function createBatch(
 
       if (!isNaN(value)) {
         value = new Number(value).valueOf();
+
       }
-      console.log(value)
+
       batchItem[index]['Content'] = JSON.stringify({
         Timestamp: date,
         Value: value,

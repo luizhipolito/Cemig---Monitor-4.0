@@ -742,7 +742,7 @@ export class EntradaManualComponent {
     tree.value = values;
 
 
-    // console.log(values)
+
     // if (!values.every((t) => t.Selected)) {
     //   this.showAlert('Preencha os campos!');
     //   return;

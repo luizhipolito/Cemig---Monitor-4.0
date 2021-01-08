@@ -42,7 +42,7 @@ export class SalvarDadosComponent {
       this.storageService.writtenValues
     );
     this.dataToWriteOnPI = writtenValues.map((m) => {
-      return { isToSave: true, ...m, isSystem: true };
+      return { isToSave: true, ...m };
     }) as Array<Arvore>;
   }
 
@@ -78,6 +78,7 @@ export class SalvarDadosComponent {
           }
 
           let batch = createBatch(values, 'update', data.date);
+
           let batchResponse = await this.api
             .executeBatch(this.config.afServer, batch)
             .toPromise();
