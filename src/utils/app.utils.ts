@@ -77,6 +77,7 @@ export class AppUtils {
 
   getWrittenValues(elements: Attribute): Array<PIWebAttribute> {
     let writtenValues = new Array<PIWebAttribute>();
+
     writtenValues.push(elements.firstSelection);
 
     writtenValues = writtenValues.concat(
@@ -86,8 +87,8 @@ export class AppUtils {
           // &&
           (el.mode == EnumModeAttribute.Escrita ||
             el.mode == EnumModeAttribute['Leitura/Escrita'] ||
-            (el.mode == EnumModeAttribute['Escrita (Constante)']) ||
-            el.mode == EnumModeAttribute['Leitura/Escrita (Constante)'])
+            el.mode == EnumModeAttribute['Leitura/Escrita (Constante)']) ||
+          (el.mode == EnumModeAttribute['Escrita (Constante)'] && el.Selected)
       )
     );
 

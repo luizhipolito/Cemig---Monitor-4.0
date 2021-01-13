@@ -71,7 +71,6 @@ export class SalvarDadosComponent {
         this.showAlert('Não existem dados selecionados!')
       } else {
         let dataToWriteOnPI = this.dataToWriteOnPI.filter((f) => f['isToSave']);
-        console.log(dataToWriteOnPI)
         for (let data of dataToWriteOnPI) {
           let values = data.value;
           if (values) {
@@ -100,7 +99,6 @@ export class SalvarDadosComponent {
           }
 
         }
-        console.log(this.dataToWriteOnPI)
         await this.updateStorage(this.dataToWriteOnPI);
         this.dismissAlert();
         this.showAlert('Dados enviado(s) com sucesso!')
