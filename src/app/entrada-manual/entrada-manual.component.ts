@@ -111,9 +111,10 @@ export class EntradaManualComponent {
         let lastI = this.focusLast.reverse();
         let last = this.lastFocus;
         let lastId = last.map(n => n.Name)
-        if (lastI[0] === lastId[0]) {
+        if (lastI[0] == lastId[0]) {
           firstIndex = 0;
         }
+
         this.changeFocous(firstIndex)
       }
       this.propFocous.color = this.getColorScalling(this.propFocous);
@@ -126,6 +127,7 @@ export class EntradaManualComponent {
     let valueSK = Number.MAX_VALUE;
     for (let k of Object.keys(this.templateRangeScalling)) {
       let sk = this.templateRangeScalling[k];
+
       let config = propFocous.config.find((c) => c.Name == k) as PIWebAttribute;
       if (config && config.Value) {
         valueSK = new Number(config.Value.Value).valueOf();
@@ -279,7 +281,7 @@ export class EntradaManualComponent {
       .toPromise();
 
     let attributes = await this.loadAttributes(navigationData)
-
+    console.log(attributes)
     let navigationTree = navigationData.map((nav) => {
       let tree = new Arvore();
       tree.atributos = attributes.find((att) => att.WebId == nav.WebId)
@@ -436,7 +438,6 @@ export class EntradaManualComponent {
           this.elements.firstSelection.valuesSets = this.getOptions(
             this.elements.firstSelection.TypeQualifier
           );
-
         }
         this.elements.list.forEach((elem) => {
           if (elem.Type == typeEnumeration) {
@@ -510,6 +511,7 @@ export class EntradaManualComponent {
   }
 
   changeFocous(index: number) {
+
     let elem = this.elements.list.find(
       (att, i) =>
         att.visible &&
@@ -519,11 +521,11 @@ export class EntradaManualComponent {
     this.lastFocus = this.elements.list.filter(
       (att, i) =>
         att.visible &&
-        (att.mode == 'LeituraEscrita' || att.mode == 'Escrita') &&
+        (att.mode == 'LeituraEscrita' || att.mode == 'Escrita' ||
+          att.mode == 'EscritaConstante' || att.mode == 'LeituraEsConst') &&
         (att.Type == 'Double' || att.Type == 'Single') && i > index
     )
     this.focusLast = this.lastFocus.map(n => n.Name.valueOf())
-
     if (elem) {
       this.propFocous = elem;
     }
@@ -606,6 +608,7 @@ export class EntradaManualComponent {
       atts = atts.map((att) => {
         att.config = configList[att.Path] || [];
         att.mode = this.getMode(att.config as PIWebAttribute[]);
+
         return att
       });
 
@@ -615,7 +618,6 @@ export class EntradaManualComponent {
       let firstSelectionIndex = atts.findIndex(
         (att) => att.Name == this.firstSelection
       );
-
       newAttribute.WebId = items[key].WebId;
       newAttribute.RelativePath = items[key].relativePath;
       newAttribute.firstSelection = atts[firstSelectionIndex];
@@ -650,14 +652,14 @@ export class EntradaManualComponent {
     return EnumModeAttribute.Leitura;
   }
   setPropFocous(element: PIWebAttribute) {
-
     if (
-      (element.mode == EnumModeAttribute.Escrita ||
-        element.mode == EnumModeAttribute['Leitura/Escrita']) &&
+      (element.mode === EnumModeAttribute.Escrita ||
+        element.mode === EnumModeAttribute['Leitura/Escrita'] ||
+        element.mode === EnumModeAttribute['Escrita (Constante)'] ||
+        element.mode === EnumModeAttribute['Leitura/Escrita (Constante)']) &&
       element.Type != typeEnumeration
     ) {
       this.propFocous = element;
-
     }
   }
 
@@ -669,16 +671,25 @@ export class EntradaManualComponent {
       (a) => a.Name == att.Name && a.Path == att.Path
     );
     let attValue = valueAtt.Value;
+
     let attValueString = '';
     att.Value = attValue;
     if (attValue && attValue.Value) {
-
+      let hasNoData = attValue.Value.Name
       if (attValue.Value.Value) {
         attValueString = attValue.Value.Value;
       } else {
         attValueString = new String(attValue.Value).toString();
       }
+      if (hasNoData == 'No Data') {
+        attValueString = ''
+      }
       if (att.mode == EnumModeAttribute['Leitura/Escrita']) {
+
+        att.Selected = attValueString;
+        att.color = this.getColorScalling(att);
+      }
+      if (att.mode == EnumModeAttribute['Leitura/Escrita (Constante)']) {
         att.Selected = attValueString;
         att.color = this.getColorScalling(att);
       }
@@ -693,29 +704,43 @@ export class EntradaManualComponent {
   }
 
 
+
+
   getAlerts(propFocous: PIWebAttribute) {
     for (let k of Object.keys(this.templateRangeScalling)) {
       let config = propFocous.config.find((c) => c.Name == k) as PIWebAttribute;
-      if (config && config.Value) {
 
-        if (config.Name == 'Mínimo') {
+      if (config && config.Name) {
+        if (config.Name === 'Mínimo') {
           this.minimo = config.Value.Value;
+          // console.log(this.minimo)
         }
-        if (config.Name == 'Mínimo de Alerta') {
+
+        if (config.Name === 'Mínimo de Alerta') {
           this.minimoAlerta = config.Value.Value;
+          // console.log(this.minimoAlerta)
         }
-        if (config.Name == 'Mínimo de Atenção') {
+
+        if (config.Name === 'Mínimo de Atenção') {
           this.minimoAtencao = config.Value.Value;
+          // console.log(this.minimoAtencao)
         }
-        if (config.Name == 'Máximo de Atenção') {
+
+        if (config.Name === 'Máximo de Atenção') {
           this.maximoAtencao = config.Value.Value;
+          // console.log(this.maximoAtencao)
         }
-        if (config.Name == 'Máximo de Alerta') {
+
+        if (config.Name === 'Máximo de Alerta') {
           this.maximoAlerta = config.Value.Value;
+          // console.log(this.maximoAlerta)
         }
-        if (config.Name == 'Máximo') {
+
+        if (config.Name === 'Máximo') {
           this.maximo = config.Value.Value;
+          // console.log(this.maximo)
         }
+
       }
     }
   }
@@ -736,7 +761,6 @@ export class EntradaManualComponent {
     tree.AplicacaoID = this.elements.WebId;
     tree.relativePath = this.elements.RelativePath;
 
-
     let values = this.utils.getWrittenValues(this.elements);
     tree.date = dateStr;
     tree.value = values;
@@ -752,14 +776,18 @@ export class EntradaManualComponent {
     let valueAlert = this.propFocous.Selected
     this.getAlerts(this.propFocous)
 
-    if (!this.minimo.Name) {
+    if (!valueAlert) {
+      this.showAlert('Não existem dados preenchidos!')
+      return;
+    }
+
+    if (!this.minimo['Name']) {
       if (valueAlert <= this.minimo) {
         await this.showAlert('Atenção! A leitura esta fora dos limites especificados para o equipamento.')
         return;
       }
     }
-
-    if (!this.maximo.Name) {
+    if (!this.maximo['Name']) {
       if (valueAlert >= this.maximo) {
         await this.showAlert('Atenção! A leitura esta fora dos limites especificados para o equipamento.')
         return;

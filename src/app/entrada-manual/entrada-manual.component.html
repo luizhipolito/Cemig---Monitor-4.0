@@ -59,13 +59,15 @@
               <!-- values -->
               <ion-label *ngIf="
                   (element.mode == 'LeituraEscrita' ||
-                    element.mode == 'Escrita') &&
+                    element.mode == 'Escrita'|| element.mode === 'EscritaConstante' || element.mode === 'LeituraEsConst') &&
                   (element.Type == 'Double' || element.Type == 'Single')
                 " [ngClass]="element.color">{{element.Selected}}</ion-label>
 
+
               <ion-select *ngIf="
                   (element.mode == 'LeituraEscrita' ||
-                    element.mode == 'Escrita' || element.mode == 'Leitura') &&
+                    element.mode == 'Escrita' || element.mode == 'Leitura' || element.mode === 'EscritaConstante' 
+                    || element.mode == 'LeituraEsConst') &&
                   element.Type == 'EnumerationValue'
                 " class="select" [value]="element.Selected">
                 <ion-select-option *ngFor="let valueSet of element.valuesSets">

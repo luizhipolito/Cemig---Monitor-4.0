@@ -9,6 +9,7 @@ import { AppUtils, createBatch } from 'src/utils/app.utils';
 import { ApiService } from 'src/services/api.service';
 import { ConfigService } from 'src/services/config.service';
 import { element } from 'protractor';
+import { error } from 'console';
 
 @Component({
   selector: 'app-salvar-dados',
@@ -83,13 +84,21 @@ export class SalvarDadosComponent {
             .executeBatch(this.config.afServer, batch)
             .toPromise();
           let responses = Object.keys(batchResponse).map((k) => batchResponse[k]);
+          let noUpdate = responses.find(c => c.Status >= 400)
 
+          if (noUpdate) {
+            let error = noUpdate.Content['Errors'];
+            this.dismissAlert();
+            this.showAlert(`Não foi possivel enviar os dados!<br>Erro:${error}`)
+            return;
+          }
           let isUpdated = responses.every((r) => r.Status >= 200 && r.Status < 400);
           if (isUpdated) {
             this.dataToWriteOnPI = this.dataToWriteOnPI.filter(
               (f) => f.isToSave != true
             );
           }
+
         }
         console.log(this.dataToWriteOnPI)
         await this.updateStorage(this.dataToWriteOnPI);

@@ -25,6 +25,9 @@ export class PIWebAttribute extends PIWebObject {
 
 export enum EnumModeAttribute {
   'Leitura/Escrita' = 'LeituraEscrita',
+  'Escrita (Constante)' = 'EscritaConstante',
+  'Leitura/Escrita (Constante)' = 'LeituraEsConst',
   Leitura = 'Leitura',
   Escrita = 'Escrita',
+
 }

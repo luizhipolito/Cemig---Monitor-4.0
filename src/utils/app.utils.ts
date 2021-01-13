@@ -77,7 +77,6 @@ export class AppUtils {
 
   getWrittenValues(elements: Attribute): Array<PIWebAttribute> {
     let writtenValues = new Array<PIWebAttribute>();
-
     writtenValues.push(elements.firstSelection);
 
     writtenValues = writtenValues.concat(
@@ -86,7 +85,9 @@ export class AppUtils {
           // el.visible
           // &&
           (el.mode == EnumModeAttribute.Escrita ||
-            el.mode == EnumModeAttribute['Leitura/Escrita'])
+            el.mode == EnumModeAttribute['Leitura/Escrita'] ||
+            (el.mode == EnumModeAttribute['Escrita (Constante)']) ||
+            el.mode == EnumModeAttribute['Leitura/Escrita (Constante)'])
       )
     );
 
@@ -114,7 +115,7 @@ export function firstOrNull() {
 export function createBatch(
   items: Array<PIWebObject>,
   type: string,
-  date?: string
+  date?: string,
 ) {
   let batchItem = {};
   let method = type == 'update' ? 'PUT' : 'GET';
@@ -140,15 +141,19 @@ export function createBatch(
     type = 'Value';
   }
 
+
   items.forEach((item, index) => {
     let url = `${item.Links[type]}${selectedFieldsParam}`;
     batchItem[index] = {
       Method: method,
       Resource: url,
     };
-
     if (method == 'PUT') {
-      batchItem[index]['Method'] = 'POST';
+      if (item.mode == 'Escrita' || item.mode == 'LeituraEscrita') {
+        batchItem[index]['Method'] = 'POST';
+      } else {
+        batchItem[index]['Method'] = 'PUT';
+      }
       let value =
         item['Selected'] && item['Selected']['Value']
           ? item['Selected']['Value']
@@ -157,7 +162,6 @@ export function createBatch(
       if (!isNaN(value)) {
         value = new Number(value).valueOf();
       }
-
       if (value == 0) {
         value = {
           Name: "No Data",
@@ -165,13 +169,12 @@ export function createBatch(
           IsSystem: true
         }
       }
-
       batchItem[index]['Content'] = JSON.stringify({
         Timestamp: date,
         Value: value,
       });
-
     }
+
   });
   return batchItem;
 }

@@ -9,10 +9,11 @@ export class PIWebObject {
   Links: PIWebLink;
   Name: string;
   Path: string;
+  TraitName: string;
   TemplateName: string;
   WebId: string;
   relativePath: string;
   values: string;
-
   valuesSets?: Array<PIWebObject>;
+  mode: string;
 }
