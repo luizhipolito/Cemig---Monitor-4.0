@@ -706,9 +706,14 @@ export class EntradaManualComponent {
 
 
   getAlerts(propFocous: PIWebAttribute) {
+    this.maximo = null;
+    this.maximoAlerta = null;
+    this.maximoAtencao = null;
+    this.minimo = null;
+    this.minimoAlerta = null;
+    this.minimoAtencao = null;
     for (let k of Object.keys(this.templateRangeScalling)) {
       let config = propFocous.config.find((c) => c.Name == k) as PIWebAttribute;
-
       if (config && config.Name) {
         if (config.Name === 'Mínimo') {
           this.minimo = config.Value.Value;
@@ -744,13 +749,11 @@ export class EntradaManualComponent {
     }
   }
 
-
   async saveElement() {
 
     let dateStr = this.currentDate
       ? this.currentDate.split('T').find(firstOrNull)
       : null;
-
 
     if (!dateStr) {
       return;
@@ -760,20 +763,16 @@ export class EntradaManualComponent {
     tree.AplicacaoID = this.elements.WebId;
     tree.relativePath = this.elements.RelativePath;
 
-
     let values = this.utils.getWrittenValues(this.elements);
     tree.date = dateStr;
     tree.value = values;
-
 
     // if (!values.every((t) => t.Selected)) {
     //   this.showAlert('Preencha os campos!');
     //   return;
     // }
 
-
-    let valueAlert = this.propFocous.Selected
-
+    let valueAlert = this.propFocous.Selected;
 
     if (!valueAlert) {
       this.showAlert('Não existem dados preenchidos!')
@@ -781,41 +780,56 @@ export class EntradaManualComponent {
     }
     if (this.propFocous.mode == 'LeituraEscrita') {
       this.getAlerts(this.propFocous)
-      if (this.maximo || this.minimo || this.minimoAlerta || this.minimoAtencao || this.maximoAlerta || this.maximoAtencao) {
-        if (!this.minimo['Name']) {
-          if (valueAlert <= this.minimo) {
-            await this.showAlert('Atenção! A leitura esta fora dos limites especificados para o equipamento.')
-            return;
-          }
-        }
-        if (!this.maximo['Name']) {
-          if (valueAlert >= this.maximo) {
-            await this.showAlert('Atenção! A leitura esta fora dos limites especificados para o equipamento.')
-            return;
-          }
-        }
-
-        if (valueAlert > this.minimo && valueAlert <= this.minimoAlerta) {
-          let res = await this.showConfirm('A leitura esta abaixo do limite de alerta. Deseja salvar?');
-          if (!res) return;
-        }
-
-        if (valueAlert > this.minimoAlerta && valueAlert <= this.minimoAtencao) {
-          let res = await this.showConfirm('A leitura esta abaixo do limite de atenção. Deseja salvar?')
-          if (!res) return;
-        }
-
-        if (valueAlert >= this.maximoAtencao && valueAlert < this.maximoAlerta) {
-          let res = await this.showConfirm('A leitura esta acima do limite de atenção. Deseja salvar?')
-          if (!res) return;
-        }
-
-        if (valueAlert >= this.maximoAlerta && valueAlert < this.maximo) {
-          let res = await this.showConfirm('A leitura esta acima do limite de alerta. Deseja salvar?');
-          if (!res) return;
+      console.log(this.propFocous)
+    }
+    if (this.propFocous.mode == 'LeituraEsConst') {
+      this.getAlerts(this.propFocous)
+      console.log(this.propFocous)
+    }
+    if (this.propFocous.mode == 'EscritaConstante') {
+      this.getAlerts(this.propFocous)
+      console.log(this.propFocous)
+    }
+    if (this.propFocous.mode == 'Escrita') {
+      this.getAlerts(this.propFocous)
+      console.log(this.propFocous)
+    }
+    if (this.maximo || this.minimo || this.minimoAlerta || this.minimoAtencao || this.maximoAlerta || this.maximoAtencao) {
+      if (!this.minimo['Name']) {
+        if (valueAlert <= this.minimo) {
+          await this.showAlert('Atenção! A leitura esta fora dos limites especificados para o equipamento.')
+          return;
         }
       }
+      if (!this.maximo['Name']) {
+        if (valueAlert >= this.maximo) {
+          await this.showAlert('Atenção! A leitura esta fora dos limites especificados para o equipamento.')
+          return;
+        }
+      }
+
+      if (valueAlert > this.minimo && valueAlert <= this.minimoAlerta) {
+        let res = await this.showConfirm('A leitura esta abaixo do limite de alerta. Deseja salvar?');
+        if (!res) return;
+      }
+
+      if (valueAlert > this.minimoAlerta && valueAlert <= this.minimoAtencao) {
+        let res = await this.showConfirm('A leitura esta abaixo do limite de atenção. Deseja salvar?')
+        if (!res) return;
+      }
+
+      if (valueAlert >= this.maximoAtencao && valueAlert < this.maximoAlerta) {
+        let res = await this.showConfirm('A leitura esta acima do limite de atenção. Deseja salvar?')
+        if (!res) return;
+      }
+
+      if (valueAlert >= this.maximoAlerta && valueAlert < this.maximo) {
+        let res = await this.showConfirm('A leitura esta acima do limite de alerta. Deseja salvar?');
+        if (!res) return;
+      }
     }
+
+
 
     let hasTree = await this.storageService.hasValue(
       this.storageService.writtenValues,
