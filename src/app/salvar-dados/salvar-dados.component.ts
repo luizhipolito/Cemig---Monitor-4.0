@@ -113,6 +113,10 @@ export class SalvarDadosComponent {
     );
   }
 
+  onEdit($event) {
+    console.log(event)
+  }
+
   async removeWritten() {
 
     if (this.confirm == false) {

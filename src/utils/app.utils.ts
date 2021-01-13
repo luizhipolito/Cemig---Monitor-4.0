@@ -160,10 +160,10 @@ export function createBatch(
           ? item['Selected']['Value']
           : item['Selected'];
 
-      if (!isNaN(value)) {
-        value = new Number(value).valueOf();
-      }
-      if (value == 0) {
+      // if (!isNaN(value)) {
+      //   value = new Number(value).valueOf();
+      // }
+      if (value == null) {
         value = {
           Name: "No Data",
           Value: 248,
