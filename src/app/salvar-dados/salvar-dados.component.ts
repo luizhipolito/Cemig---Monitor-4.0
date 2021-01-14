@@ -8,8 +8,6 @@ import {
 import { AppUtils, createBatch } from 'src/utils/app.utils';
 import { ApiService } from 'src/services/api.service';
 import { ConfigService } from 'src/services/config.service';
-import { element } from 'protractor';
-import { error } from 'console';
 
 @Component({
   selector: 'app-salvar-dados',
@@ -113,8 +111,14 @@ export class SalvarDadosComponent {
     );
   }
 
-  onEdit($event) {
-    console.log(event)
+  async onEdit(element) {
+    this.router.navigate(['entrada-manual'])
+    console.log(element.relativePath)
+    return element.relativePath;
+    // let writtenValues = await this.storageService.getByKey(
+    //   this.storageService.writtenValues
+    // )
+    // console.log(writtenValues)
   }
 
   async removeWritten() {

@@ -279,7 +279,6 @@ export class EntradaManualComponent {
       .get(rootUrl, insertParams)
       .pipe(map(this.generateRelativePath))
       .toPromise();
-
     let attributes = await this.loadAttributes(navigationData)
     let navigationTree = navigationData.map((nav) => {
       let tree = new Arvore();
@@ -425,8 +424,10 @@ export class EntradaManualComponent {
     this.storageService.getFilhos(e.path).then((result) => {
       let pathLength = e.path.length;
       this.navigation = new Array<{ path: Array<string>; name: string }>();
+      console.log(result)
       if (result.length == 1) {
         let item = result.find(firstOrNull);
+
         this.navigation.push({
           path: e.path,
           name: item.Nome,
@@ -444,7 +445,6 @@ export class EntradaManualComponent {
             elem.valuesSets = selectOptions;
           }
         });
-
       } else {
         this.elements = null;
         result.forEach((arvore) => {

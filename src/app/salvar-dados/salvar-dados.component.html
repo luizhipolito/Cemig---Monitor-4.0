@@ -10,7 +10,9 @@
           </ion-item-divider>
 
           <ion-item> Data: {{ element.date }}</ion-item>
-
+          <div class="btnEdit">
+            <ion-button (click)="onEdit(element)">Editar</ion-button>
+          </div>
           <ion-item *ngFor="let value of element.value">
             {{ value.Name }}:
             {{
@@ -18,9 +20,7 @@
                 ? value.Selected.Name
                 : value.Selected
             }}</ion-item>
-          <div class="btnEdit">
-            <ion-button (click)="onEdit(event)">Editar</ion-button>
-          </div>
+
         </ion-list>
       </div>
     </div>
