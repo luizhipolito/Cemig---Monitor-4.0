@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { MenuController } from '@ionic/angular';
+import { StorageArvoreService } from 'src/services/storage-arvore.service';
 
 @Component({
   selector: 'app-menu',
@@ -10,7 +11,7 @@ import { MenuController } from '@ionic/angular';
 export class MenuComponent implements OnInit {
   appMenuSwipeGesture: boolean;
 
-  constructor(private router: Router, private menu: MenuController) {}
+  constructor(private router: Router, private menu: MenuController, public storageService: StorageArvoreService) { }
   ionViewWillEnter() {
     this.menu.close();
   }
@@ -24,12 +25,15 @@ export class MenuComponent implements OnInit {
   }
 
   logoutUsuario = () => {
+    this.storageService.removeEdit();
     this.menu.close();
     this.router.navigate(['/']);
+
   };
   onSairClick = (ev) => {
     this.logoutUsuario();
+
   };
 
-  ngOnInit() {}
+  ngOnInit() { }
 }

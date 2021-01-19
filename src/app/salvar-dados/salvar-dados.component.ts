@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Attribute, Input, } from '@angular/core';
 import { MenuController, NavController, AlertController } from '@ionic/angular';
 import { Router } from '@angular/router';
 import {
@@ -8,6 +8,7 @@ import {
 import { AppUtils, createBatch } from 'src/utils/app.utils';
 import { ApiService } from 'src/services/api.service';
 import { ConfigService } from 'src/services/config.service';
+import { EntradaManualComponent } from '../entrada-manual/entrada-manual.component';
 
 @Component({
   selector: 'app-salvar-dados',
@@ -24,10 +25,11 @@ export class SalvarDadosComponent {
     public utils: AppUtils,
     private api: ApiService,
     public config: ConfigService,
-    public alertController: AlertController
+    public alertController: AlertController,
   ) { }
 
   onBack() {
+    this.storageService.removeEdit()
     this.navCtrl.navigateBack('entrada-manual');
   }
 
@@ -40,9 +42,12 @@ export class SalvarDadosComponent {
     let writtenValues = await this.storageService.getByKey(
       this.storageService.writtenValues
     );
+    // this.dataToWriteOnPI = writtenValues.map(v => v.value).find(m => m).filter(m => m.mode != 'Leitura')
     this.dataToWriteOnPI = writtenValues.map((m) => {
+
       return { isToSave: true, ...m };
     }) as Array<Arvore>;
+    // this.dataToWriteOnPI.map(m => m.value).find(s => s).filter(f => f.mode != 'Leitura')
   }
 
   async ionViewWillEnter() {
@@ -70,7 +75,8 @@ export class SalvarDadosComponent {
       } else {
         let dataToWriteOnPI = this.dataToWriteOnPI.filter((f) => f['isToSave']);
         for (let data of dataToWriteOnPI) {
-          let values = data.value;
+          let values = data.value.filter(m => m.mode != 'Leitura')
+          console.log(values)
           if (values) {
             this.showAlertCloseAfter('Enviando dados...');
           }
@@ -97,10 +103,10 @@ export class SalvarDadosComponent {
           }
 
         }
-        await this.updateStorage(this.dataToWriteOnPI);
         this.dismissAlert();
+        await this.updateStorage(this.dataToWriteOnPI);
         this.showAlert('Dados enviado(s) com sucesso!')
-        this.navCtrl.navigateRoot('entrada-manual')
+
       }
     }
   }
@@ -111,14 +117,13 @@ export class SalvarDadosComponent {
     );
   }
 
-  async onEdit(element) {
+
+  onEdit(element) {
+    this.storageService.save(
+      'Edit',
+      element
+    )
     this.router.navigate(['entrada-manual'])
-    console.log(element.relativePath)
-    return element.relativePath;
-    // let writtenValues = await this.storageService.getByKey(
-    //   this.storageService.writtenValues
-    // )
-    // console.log(writtenValues)
   }
 
   async removeWritten() {

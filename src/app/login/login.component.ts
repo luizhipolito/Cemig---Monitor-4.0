@@ -18,11 +18,7 @@ import { AlertController } from '@ionic/angular';
   styleUrls: ['./login.component.scss'],
 })
 export class LoginComponent {
-  private configError: MatSnackBarConfig = {
-    panelClass: ['style-error'],
-    duration: 2000,
-    verticalPosition: 'top',
-  };
+
 
   constructor(
     private router: Router,

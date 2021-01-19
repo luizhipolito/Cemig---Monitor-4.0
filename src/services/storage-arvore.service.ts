@@ -6,6 +6,7 @@ import { Attribute } from 'src/model/Attribute.model';
 import { PIWebValue } from 'src/model/PIWebValue.model';
 import { EnumerationValue } from 'src/model/EnumerationValue.model';
 import { PIWebObject } from 'src/model/PIWebObject.model';
+import { PIWebAttribute } from 'src/model/PIWebAttribute.model';
 
 @Injectable({
   providedIn: 'root',
@@ -33,6 +34,10 @@ export class StorageArvoreService {
   public removeAll() {
     this.storage.remove(this.navigation);
     this.storage.remove(this.enumerationSets);
+  }
+
+  async removeEdit() {
+    await this.storage.remove('Edit');
   }
 
 
@@ -151,7 +156,9 @@ export class Arvore {
   date: string;
   configValue: string;
   isToSave: boolean;
-  isSystem: boolean
+  isSystem: boolean;
+  isEdit: boolean;
+  firstSelection: PIWebAttribute;
 }
 
 export class ArvoreList {

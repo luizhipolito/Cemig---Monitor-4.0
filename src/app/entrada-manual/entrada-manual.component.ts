@@ -40,6 +40,7 @@ import { attachView } from '@ionic/angular/providers/angular-delegate';
 import { NODATA } from 'dns';
 import { PIWebValue } from 'src/model/PIWebValue.model';
 import { PIWebLink } from 'src/model/PIWebLink.model';
+import { SalvarDadosComponent } from '../salvar-dados/salvar-dados.component';
 
 const typeEnumeration = 'EnumerationValue';
 // let currentModal = null;
@@ -159,8 +160,6 @@ export class EntradaManualComponent {
   Elemento = {};
   selectedViews = 'elemento';
 
-
-
   elements: Attribute;
   enumerationTree: Array<Arvore>;
   arvoreLocal: Array<Arvore>;
@@ -209,8 +208,44 @@ export class EntradaManualComponent {
     public storageService: StorageArvoreService,
     public config: ConfigService,
     public modalController: ModalController,
-    public alertController: AlertController
+    public alertController: AlertController,
   ) { }
+  escrita: Array<PIWebAttribute>;
+  async edit() {
+    let editData = await this.storageService.getByKey('Edit')
+
+    if (editData) {
+      editData['isEdit'] = true;
+      if (editData['isEdit'] == true) {
+        if (editData != null) {
+          let pathEdit = editData['relativePath'];
+          let path = pathEdit.split(`\\`).filter(p => Boolean(p))
+          let name = path[path.length - 1];
+
+
+          this.navigation = new Array<{ path: Array<string>; name: string }>();
+          this.navigation.push({
+            path: path,
+            name: undefined,
+          });
+          this.pathNavigation.path = path;
+          this.pathNavigation.name = name;
+          let first = editData['value'].filter(o => o.Name == 'Observação').find(s => s.Selected)
+
+          this.elements = new Attribute();
+
+          this.elements.firstSelection = first;
+          this.elements.RelativePath = pathEdit;
+          this.elements.WebId = editData['AplicacaoID'];
+          this.elements.list = editData['value'];
+
+          this.changeFocous(0)
+        }
+      }
+    }
+  }
+
+
 
   async ionViewWillEnter() {
     let isToSyncDataFromPI = this.config.isToLoadFromPI && true;
@@ -220,10 +255,11 @@ export class EntradaManualComponent {
 
 
     if (isToSyncDataFromPI) {
-      this.syncDataFromPI();
+      await this.syncDataFromPI();
     } else {
-      this.loadDataFromStorage();
+      await this.loadDataFromStorage();
     }
+    await this.edit();
   }
 
   init() {
@@ -384,11 +420,11 @@ export class EntradaManualComponent {
     this.arvoreLocal = await this.storageService.getByKey(
       this.storageService.navigation
     );
-
     this.navigation = new Array<Navigation>();
     if (this.arvoreLocal) {
       this.arvoreLocal.forEach((arvore: Arvore) => {
         let path = arvore.Caminho.find(firstOrNull);
+
         if (!this.navigation.find((n) => n.name == path)) {
           this.navigation.push(Navigation.Create([path], path));
         }
@@ -421,18 +457,17 @@ export class EntradaManualComponent {
 
   onClickId = (e) => {
     this.pathNavigation = e;
+
     this.storageService.getFilhos(e.path).then((result) => {
       let pathLength = e.path.length;
       this.navigation = new Array<{ path: Array<string>; name: string }>();
-      console.log(result)
+
       if (result.length == 1) {
         let item = result.find(firstOrNull);
-
         this.navigation.push({
           path: e.path,
           name: item.Nome,
         });
-
         this.elements = item.atributos;
         if (this.elements.firstSelection && this.elements.firstSelection.Type) {
           this.elements.firstSelection.valuesSets = this.getOptions(
@@ -750,6 +785,7 @@ export class EntradaManualComponent {
   }
 
   async saveElement() {
+    await this.storageService.removeEdit();
 
     let dateStr = this.currentDate
       ? this.currentDate.split('T').find(firstOrNull)
@@ -762,11 +798,10 @@ export class EntradaManualComponent {
     let tree = new Arvore();
     tree.AplicacaoID = this.elements.WebId;
     tree.relativePath = this.elements.RelativePath;
-
+    tree.isEdit = false;
     let values = this.utils.getWrittenValues(this.elements);
     tree.date = dateStr;
     tree.value = values;
-
     // if (!values.every((t) => t.Selected)) {
     //   this.showAlert('Preencha os campos!');
     //   return;
@@ -780,7 +815,6 @@ export class EntradaManualComponent {
     }
     if (this.propFocous.mode == 'LeituraEscrita') {
       this.getAlerts(this.propFocous)
-      console.log(this.propFocous)
     }
     if (this.propFocous.mode == 'LeituraEsConst') {
       this.getAlerts(this.propFocous)
@@ -840,11 +874,12 @@ export class EntradaManualComponent {
       let res = await this.showConfirm('Já existe uma leitura para esta data neste instrumento não salva. Deseja sobrescrever?');
       if (!res) return;
     }
-
+    console.log(tree)
     await this.storageService.insertOrUpdate(
       this.storageService.writtenValues,
       tree
     );
+
     await this.showAlert('Salvo com sucesso!');
   }
 

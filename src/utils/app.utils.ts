@@ -87,6 +87,7 @@ export class AppUtils {
           // &&
           (el.mode == EnumModeAttribute.Escrita ||
             el.mode == EnumModeAttribute['Leitura/Escrita'] ||
+            el.mode == EnumModeAttribute['Leitura'] ||
             el.mode == EnumModeAttribute['Leitura/Escrita (Constante)']) ||
           (el.mode == EnumModeAttribute['Escrita (Constante)'] && el.Selected)
       )

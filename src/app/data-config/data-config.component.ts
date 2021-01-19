@@ -37,6 +37,7 @@ export class DataConfigComponent implements OnInit {
     if (f.valid) {
       // let server = 'https://34.233.235.92/piwebapi';
       // let config = '\\\\EC2AMAZ-T1N5EJ5\\Testes\\APP Entrada Manual';
+
       let server = f.value.server;
       let config = f.value.configuracoes;
 
