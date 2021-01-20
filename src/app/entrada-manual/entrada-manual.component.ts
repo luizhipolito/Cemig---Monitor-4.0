@@ -210,7 +210,7 @@ export class EntradaManualComponent {
     public modalController: ModalController,
     public alertController: AlertController,
   ) { }
-  escrita: Array<PIWebAttribute>;
+
   async edit() {
     let editData = await this.storageService.getByKey('Edit')
 
@@ -232,13 +232,14 @@ export class EntradaManualComponent {
           this.pathNavigation.name = name;
           let first = editData['value'].filter(o => o.Name == 'Observação').find(s => s.Selected)
 
-          this.elements = new Attribute();
+          this.elements = new Attribute;
+          console.log(first)
 
           this.elements.firstSelection = first;
           this.elements.RelativePath = pathEdit;
           this.elements.WebId = editData['AplicacaoID'];
           this.elements.list = editData['value'];
-
+          console.log(this.elements)
           this.changeFocous(0)
         }
       }
@@ -457,11 +458,9 @@ export class EntradaManualComponent {
 
   onClickId = (e) => {
     this.pathNavigation = e;
-
     this.storageService.getFilhos(e.path).then((result) => {
       let pathLength = e.path.length;
       this.navigation = new Array<{ path: Array<string>; name: string }>();
-
       if (result.length == 1) {
         let item = result.find(firstOrNull);
         this.navigation.push({
@@ -802,6 +801,7 @@ export class EntradaManualComponent {
     let values = this.utils.getWrittenValues(this.elements);
     tree.date = dateStr;
     tree.value = values;
+
     // if (!values.every((t) => t.Selected)) {
     //   this.showAlert('Preencha os campos!');
     //   return;
@@ -874,11 +874,17 @@ export class EntradaManualComponent {
       let res = await this.showConfirm('Já existe uma leitura para esta data neste instrumento não salva. Deseja sobrescrever?');
       if (!res) return;
     }
-    console.log(tree)
     await this.storageService.insertOrUpdate(
       this.storageService.writtenValues,
       tree
     );
+    this.elements = null;
+    let pathLength = this.pathNavigation.path.pop();
+    console.log(pathLength)
+    this.onClickId({
+      path: this.pathNavigation.path,
+      name: undefined,
+    })
 
     await this.showAlert('Salvo com sucesso!');
   }

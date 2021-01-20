@@ -42,12 +42,10 @@ export class SalvarDadosComponent {
     let writtenValues = await this.storageService.getByKey(
       this.storageService.writtenValues
     );
-    // this.dataToWriteOnPI = writtenValues.map(v => v.value).find(m => m).filter(m => m.mode != 'Leitura')
     this.dataToWriteOnPI = writtenValues.map((m) => {
 
       return { isToSave: true, ...m };
     }) as Array<Arvore>;
-    // this.dataToWriteOnPI.map(m => m.value).find(s => s).filter(f => f.mode != 'Leitura')
   }
 
   async ionViewWillEnter() {
