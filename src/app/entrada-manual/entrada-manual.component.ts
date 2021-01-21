@@ -233,12 +233,11 @@ export class EntradaManualComponent {
           let first = editData['value'].filter(o => o.Name == 'Observação').find(s => s.Selected)
 
           this.elements = new Attribute;
-          console.log(first)
 
           this.elements.firstSelection = first;
           this.elements.RelativePath = pathEdit;
           this.elements.WebId = editData['AplicacaoID'];
-          this.elements.list = editData['value'];
+          this.elements.list = editData['value'].filter(o => o.Name != 'Observação')
           console.log(this.elements)
           this.changeFocous(0)
         }
