@@ -813,6 +813,7 @@ export class EntradaManualComponent {
       this.showAlert('Não existem dados preenchidos!')
       return;
     }
+
     if (this.propFocous.mode == 'LeituraEscrita') {
       this.getAlerts(this.propFocous)
     }
@@ -828,6 +829,8 @@ export class EntradaManualComponent {
       this.getAlerts(this.propFocous)
       console.log(this.propFocous)
     }
+
+
     if (this.maximo || this.minimo || this.minimoAlerta || this.minimoAtencao || this.maximoAlerta || this.maximoAtencao) {
       if (!this.minimo['Name']) {
         if (valueAlert <= this.minimo) {
@@ -880,7 +883,6 @@ export class EntradaManualComponent {
     );
     this.elements = null;
     let pathLength = this.pathNavigation.path.pop();
-    console.log(pathLength)
     this.onClickId({
       path: this.pathNavigation.path,
       name: undefined,

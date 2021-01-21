@@ -23,11 +23,14 @@ export class DataConfigComponent implements OnInit {
   public serverUrl;
   public configPath;
 
+
   async ionViewWillEnter() {
     await this.config.init();
     this.serverUrl = this.config.configUrl;
     this.configPath = this.config.configPath;
   }
+
+
 
   onBack() {
     this.router.navigate(['/home']);
