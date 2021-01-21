@@ -75,6 +75,7 @@ export class SalvarDadosComponent {
         for (let data of dataToWriteOnPI) {
           let values = data.value.filter(m => m.mode != 'Leitura')
           if (values) {
+            this.dismissAlert();
             this.showAlertCloseAfter('Enviando dados...');
           }
           let batch = createBatch(values, 'update', data.date);
@@ -82,7 +83,7 @@ export class SalvarDadosComponent {
             .executeBatch(this.config.afServer, batch)
             .toPromise();
           let responses = Object.keys(batchResponse).map((k) => batchResponse[k]);
-          let noUpdate = responses.find(c => c.Status >= 400 && (c.Status != 402 && c.Status != 409))
+          let noUpdate = responses.find(c => c.Status >= 400 && (c.Status != 402 && c.Status != 409 && c.Status != 500))
 
           if (noUpdate) {
             let error = noUpdate.Content['Errors'];
@@ -90,18 +91,18 @@ export class SalvarDadosComponent {
             this.showAlert(`Não foi possivel enviar os dados!<br>Erro:${error}`)
             return;
           }
-          let isUpdated = responses.every((r) => (r.Status >= 200 && r.Status < 400) || (r.Status == 402 || r.Status == 409));
+          let isUpdated = responses.every((r) => (r.Status >= 200 && r.Status < 400) || (r.Status == 402 || r.Status == 409 || r.Status == 500));
           if (isUpdated) {
             this.dataToWriteOnPI = this.dataToWriteOnPI.filter(
               (f) => f.isToSave != true
             );
             console.log(this.dataToWriteOnPI)
-            this.dismissAlert();
+
             await this.updateStorage(this.dataToWriteOnPI);
           }
 
         }
-
+        this.dismissAlert();
         this.showAlert('Dados enviado(s) com sucesso!')
 
       }
