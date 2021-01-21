@@ -237,8 +237,7 @@ export class EntradaManualComponent {
           this.elements.firstSelection = first;
           this.elements.RelativePath = pathEdit;
           this.elements.WebId = editData['AplicacaoID'];
-          this.elements.list = editData['value'].filter(o => o.Name != 'Observação')
-          console.log(this.elements)
+          this.elements.list = editData['value'].filter(o => o.Name != 'Observação');
           this.changeFocous(0)
         }
       }
