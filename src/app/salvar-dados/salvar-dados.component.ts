@@ -43,7 +43,6 @@ export class SalvarDadosComponent {
       this.storageService.writtenValues
     );
     this.dataToWriteOnPI = writtenValues.map((m) => {
-
       return { isToSave: true, ...m };
     }) as Array<Arvore>;
   }
@@ -63,6 +62,7 @@ export class SalvarDadosComponent {
     return path;
   }
 
+  responses: any[];
   async saveOnPI() {
     if (this.confirm == false) {
       this.showAlert('Confirme o envio dos dados!')
@@ -83,8 +83,9 @@ export class SalvarDadosComponent {
           let batchResponse = await this.api
             .executeBatch(this.config.afServer, batch)
             .toPromise();
-          let responses = Object.keys(batchResponse).map((k) => batchResponse[k]);
-          let noUpdate = responses.find(c => c.Status >= 400 && (c.Status != 402 && c.Status != 409 && c.Status != 500))
+          this.responses = Object.keys(batchResponse).map((k) => batchResponse[k]);
+          console.log(this.responses)
+          let noUpdate = this.responses.find(c => c.Status >= 400 && (c.Status != 402 && c.Status != 409 && c.Status != 500))
 
           if (noUpdate) {
             let error = noUpdate.Content['Errors'];
@@ -92,17 +93,17 @@ export class SalvarDadosComponent {
             this.showAlert(`Não foi possivel enviar os dados!<br>Erro:${error}`)
             return;
           }
-          let isUpdated = responses.every((r) => (r.Status >= 200 && r.Status < 400) || (r.Status == 402 || r.Status == 409 || r.Status == 500));
-          if (isUpdated) {
-            this.dataToWriteOnPI = this.dataToWriteOnPI.filter(
-              (f) => f.isToSave != true
-            );
-
-          }
+        }
+        let isUpdated = this.responses.every((r) => (r.Status >= 200 && r.Status < 400) || (r.Status == 402 || r.Status == 409 || r.Status == 500));
+        if (isUpdated) {
+          this.dataToWriteOnPI = this.dataToWriteOnPI.filter(
+            (f) => f.isToSave != true
+          );
         }
         await this.updateStorage(this.dataToWriteOnPI);
-        await this.dismissAlert();
-        await this.showAlert('Dados enviado(s) com sucesso!')
+        this.dismissAlert();
+        this.showAlert('Dados enviado(s) com sucesso!');
+
       }
     }
   }
