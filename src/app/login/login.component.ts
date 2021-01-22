@@ -31,8 +31,13 @@ export class LoginComponent {
     public alertController: AlertController
   ) { }
 
+  public user;
+  public pass;
+
   async ionViewWillEnter() {
     this.utils.removeStorgare('Autorizacao');
+    this.user = this.utils.getStorage('user');
+    this.pass = this.utils.getStorage('password');
   }
 
   isActiveToggleTextPassword: Boolean = true;
@@ -44,6 +49,8 @@ export class LoginComponent {
   }
 
   onSubmit(f: NgForm) {
+    this.utils.saveStorage('user', f.value.username)
+    this.utils.saveStorage('password', f.value.password)
 
     if (f.valid) {
       let AuthorizationToken = btoa(f.value.username + ':' + f.value.password);
