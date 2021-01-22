@@ -79,6 +79,7 @@ export class SalvarDadosComponent {
             this.showAlertCloseAfter('Enviando dados...');
           }
           let batch = createBatch(values, 'update', data.date);
+
           let batchResponse = await this.api
             .executeBatch(this.config.afServer, batch)
             .toPromise();
@@ -96,15 +97,12 @@ export class SalvarDadosComponent {
             this.dataToWriteOnPI = this.dataToWriteOnPI.filter(
               (f) => f.isToSave != true
             );
-            console.log(this.dataToWriteOnPI)
 
-            await this.updateStorage(this.dataToWriteOnPI);
           }
-
         }
-        this.dismissAlert();
-        this.showAlert('Dados enviado(s) com sucesso!')
-
+        await this.updateStorage(this.dataToWriteOnPI);
+        await this.dismissAlert();
+        await this.showAlert('Dados enviado(s) com sucesso!')
       }
     }
   }

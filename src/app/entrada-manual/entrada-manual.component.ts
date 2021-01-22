@@ -231,9 +231,9 @@ export class EntradaManualComponent {
           this.pathNavigation.path = path;
           this.pathNavigation.name = name;
           let first = editData['value'].filter(o => o.Name == 'Observação').find(s => s.Selected)
-
+          console.log(editData)
           this.elements = new Attribute;
-
+          this.currentDate = editData['date']
           this.elements.firstSelection = first;
           this.elements.RelativePath = pathEdit;
           this.elements.WebId = editData['AplicacaoID'];
@@ -879,6 +879,7 @@ export class EntradaManualComponent {
       this.storageService.writtenValues,
       tree
     );
+    console.log(this.elements)
     this.elements = null;
     let pathLength = this.pathNavigation.path.pop();
     this.onClickId({
