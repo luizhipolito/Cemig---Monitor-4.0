@@ -84,7 +84,6 @@ export class SalvarDadosComponent {
             .executeBatch(this.config.afServer, batch)
             .toPromise();
           this.responses = Object.keys(batchResponse).map((k) => batchResponse[k]);
-          console.log(this.responses)
           let noUpdate = this.responses.find(c => c.Status >= 400 && (c.Status != 402 && c.Status != 409 && c.Status != 500))
 
           if (noUpdate) {

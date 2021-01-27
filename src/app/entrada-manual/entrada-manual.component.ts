@@ -41,6 +41,7 @@ import { NODATA } from 'dns';
 import { PIWebValue } from 'src/model/PIWebValue.model';
 import { PIWebLink } from 'src/model/PIWebLink.model';
 import { SalvarDadosComponent } from '../salvar-dados/salvar-dados.component';
+import { stringify } from 'querystring';
 
 const typeEnumeration = 'EnumerationValue';
 // let currentModal = null;
@@ -543,13 +544,14 @@ export class EntradaManualComponent {
   }
 
   changeFocous(index: number) {
-
+    console.log(this.elements)
     let elem = this.elements.list.find(
       (att, i) =>
         att.visible &&
         (att.mode == 'LeituraEscrita' || att.mode == 'Escrita') &&
         (att.Type == 'Double' || att.Type == 'Single') && i > index
     );
+    console.log(elem)
     this.lastFocus = this.elements.list.filter(
       (att, i) =>
         att.visible &&
@@ -784,6 +786,7 @@ export class EntradaManualComponent {
 
   async saveElement() {
     await this.storageService.removeEdit();
+    console.log(this.currentDate)
 
     let dateStr = this.currentDate
       ? this.currentDate.split('T').find(firstOrNull)
@@ -812,19 +815,24 @@ export class EntradaManualComponent {
       this.showAlert('Não existem dados preenchidos!')
       return;
     }
+    let leituraEscritaMode = this.elements.list.filter(m => m.mode == 'LeituraEscrita').filter(s => s.Selected != null);
+    let leituraEscritaConstanteMode = this.elements.list.filter(m => m.mode == 'LeituraEsConst').filter(s => s.Selected != null);
+    let EscritaConstanteMode = this.elements.list.filter(m => m.mode == 'EscritaConstante').filter(s => s.Selected != null);
+    let EscritaMode = this.elements.list.filter(m => m.mode == 'Escrita').filter(s => s.Selected != null);
+    console.log(leituraEscritaMode)
 
-    if (this.propFocous.mode == 'LeituraEscrita') {
+    if (leituraEscritaMode) {
       this.getAlerts(this.propFocous)
     }
-    if (this.propFocous.mode == 'LeituraEsConst') {
-      this.getAlerts(this.propFocous)
-      console.log(this.propFocous)
-    }
-    if (this.propFocous.mode == 'EscritaConstante') {
+    if (leituraEscritaConstanteMode) {
       this.getAlerts(this.propFocous)
       console.log(this.propFocous)
     }
-    if (this.propFocous.mode == 'Escrita') {
+    if (EscritaConstanteMode) {
+      this.getAlerts(this.propFocous)
+      console.log(this.propFocous)
+    }
+    if (EscritaMode) {
       this.getAlerts(this.propFocous)
       console.log(this.propFocous)
     }
@@ -880,7 +888,6 @@ export class EntradaManualComponent {
       this.storageService.writtenValues,
       tree
     );
-    console.log(this.elements)
     this.elements = null;
     let pathLength = this.pathNavigation.path.pop();
     this.onClickId({
@@ -945,33 +952,68 @@ export class EntradaManualComponent {
         return enumerationSet.value;
       }
     }
-
     return [];
+  }
+  date: any;
+  async searchDate($event: Event) {
+    this.date = $event.target['value']
+    this.elements = null;
+    this.navigation = new Array<Navigation>();
+    this.arvoreLocal.forEach((arvore: Arvore) => {
+      if (this.date != null) {
+        let proximaDataLeitura = arvore.atributos.list.filter(p => p.mode == 'Data') as PIWebAttribute[];
+        if ((proximaDataLeitura.find(v => v).Value.Value < this.date)) {
+          let indexLastPath = arvore.Caminho.length - 1;
+          this.navigation.push(
+            Navigation.Create(arvore.Caminho, arvore.Caminho[indexLastPath])
+          )
+        }
+      } if (this.navigation.length == 0) {
+        console.log('Arvore Vazia')
+      }
+    })
   }
 
   async search($event: Event) {
     let searchItem = $event.target['value'];
-
     if (searchItem) {
       this.elements = null;
       searchItem = new String(searchItem).toLowerCase();
 
-      this.navigation = new Array<Navigation>();
-
-      this.arvoreLocal.forEach((arvore: Arvore) => {
-        if (arvore && arvore.Caminho && arvore.Caminho.length > 0) {
-          arvore.Caminho.forEach((path, index) => {
-            if (
-              path.toLocaleLowerCase().includes(searchItem) &&
-              !this.navigation.some((n) => n.name == path)
-            ) {
-              this.navigation.push(
-                Navigation.Create(arvore.Caminho.slice(0, index + 1), path)
-              );
-            }
-          });
-        }
-      });
+      if (this.date) {
+        // this.navigation = new Array<Navigation>();
+        this.navigation.forEach((arvore: Navigation) => {
+          if (arvore && arvore.path && arvore.path.length > 0) {
+            arvore.path.forEach((path, index) => {
+              if (
+                path.toLocaleLowerCase().includes(searchItem) &&
+                this.navigation.some((n) => n.name == path)
+              ) {
+                console.log(this.navigation)
+                this.navigation.push(
+                  Navigation.Create(arvore.path, arvore.name)
+                );
+              }
+            });
+          }
+        })
+      } else {
+        this.navigation = new Array<Navigation>();
+        this.arvoreLocal.forEach((arvore: Arvore) => {
+          if (arvore && arvore.Caminho && arvore.Caminho.length > 0) {
+            arvore.Caminho.forEach((path, index) => {
+              if (
+                path.toLocaleLowerCase().includes(searchItem) &&
+                !this.navigation.some((n) => n.name == path)
+              ) {
+                this.navigation.push(
+                  Navigation.Create(arvore.Caminho.slice(0, index + 1), path)
+                );
+              }
+            });
+          }
+        });
+      }
       if (this.navigation.length == 0) {
         console.log('Arvore Vazia')
       }
