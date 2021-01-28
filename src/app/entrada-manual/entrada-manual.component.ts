@@ -48,6 +48,7 @@ const typeEnumeration = 'EnumerationValue';
 class Navigation {
   path: Array<string>;
   name: string;
+  date: Date;
 
   static Instance(): Navigation {
     let n = new Navigation();
@@ -56,10 +57,11 @@ class Navigation {
     return n;
   }
 
-  static Create(path: Array<string>, name: string) {
+  static Create(path: Array<string>, name: string, date: Date) {
     let n = new Navigation();
     n.path = path;
     n.name = name;
+    n.date = date;
     return n;
   }
 }
@@ -165,6 +167,7 @@ export class EntradaManualComponent {
   enumerationTree: Array<Arvore>;
   arvoreLocal: Array<Arvore>;
   navigation: Array<Navigation>;
+  dataNavigation: Array<Navigation>;
   currentDate = this.utils.formatDateTime(new Date());
   pathNavigation: Navigation = Navigation.Instance();
 
@@ -224,10 +227,11 @@ export class EntradaManualComponent {
           let name = path[path.length - 1];
 
 
-          this.navigation = new Array<{ path: Array<string>; name: string }>();
+          this.navigation = new Array<{ path: Array<string>; name: string, date: Date }>();
           this.navigation.push({
             path: path,
             name: undefined,
+            date: undefined
           });
           this.pathNavigation.path = path;
           this.pathNavigation.name = name;
@@ -261,6 +265,7 @@ export class EntradaManualComponent {
       await this.loadDataFromStorage();
     }
     await this.edit();
+    this.date = null;
   }
 
   init() {
@@ -427,7 +432,7 @@ export class EntradaManualComponent {
         let path = arvore.Caminho.find(firstOrNull);
 
         if (!this.navigation.find((n) => n.name == path)) {
-          this.navigation.push(Navigation.Create([path], path));
+          this.navigation.push(Navigation.Create([path], path, undefined));
         }
       });
     }
@@ -457,15 +462,17 @@ export class EntradaManualComponent {
   }
 
   onClickId = (e) => {
+    this.date = null;
     this.pathNavigation = e;
     this.storageService.getFilhos(e.path).then((result) => {
       let pathLength = e.path.length;
-      this.navigation = new Array<{ path: Array<string>; name: string }>();
+      this.navigation = new Array<{ path: Array<string>; name: string; date: Date }>();
       if (result.length == 1) {
         let item = result.find(firstOrNull);
         this.navigation.push({
           path: e.path,
           name: item.Nome,
+          date: undefined
         });
         this.elements = item.atributos;
         if (this.elements.firstSelection && this.elements.firstSelection.Type) {
@@ -488,6 +495,7 @@ export class EntradaManualComponent {
             this.navigation.push({
               path: path,
               name: caminho,
+              date: undefined
             });
           }
         });
@@ -544,14 +552,12 @@ export class EntradaManualComponent {
   }
 
   changeFocous(index: number) {
-    console.log(this.elements)
     let elem = this.elements.list.find(
       (att, i) =>
         att.visible &&
         (att.mode == 'LeituraEscrita' || att.mode == 'Escrita') &&
         (att.Type == 'Double' || att.Type == 'Single') && i > index
     );
-    console.log(elem)
     this.lastFocus = this.elements.list.filter(
       (att, i) =>
         att.visible &&
@@ -748,36 +754,40 @@ export class EntradaManualComponent {
     this.minimoAlerta = null;
     this.minimoAtencao = null;
     for (let k of Object.keys(this.templateRangeScalling)) {
-      let config = propFocous.config.find((c) => c.Name == k) as PIWebAttribute;
-      if (config && config.Name) {
-        if (config.Name === 'Mínimo') {
-          this.minimo = config.Value.Value;
-          // console.log(this.minimo)
-        }
+      if (propFocous) {
+        let config = propFocous.config.find((c) => c.Name == k) as PIWebAttribute;
+        console.log(config)
 
-        if (config.Name === 'Mínimo de Alerta') {
-          this.minimoAlerta = config.Value.Value;
-          // console.log(this.minimoAlerta)
-        }
+        if (config && config.Name) {
+          if (config.Name === 'Mínimo') {
+            this.minimo = config.Value.Value;
+            // console.log(this.minimo)
+          }
 
-        if (config.Name === 'Mínimo de Atenção') {
-          this.minimoAtencao = config.Value.Value;
-          // console.log(this.minimoAtencao)
-        }
+          if (config.Name === 'Mínimo de Alerta') {
+            this.minimoAlerta = config.Value.Value;
+            // console.log(this.minimoAlerta)
+          }
 
-        if (config.Name === 'Máximo de Atenção') {
-          this.maximoAtencao = config.Value.Value;
-          // console.log(this.maximoAtencao)
-        }
+          if (config.Name === 'Mínimo de Atenção') {
+            this.minimoAtencao = config.Value.Value;
+            // console.log(this.minimoAtencao)
+          }
 
-        if (config.Name === 'Máximo de Alerta') {
-          this.maximoAlerta = config.Value.Value;
-          // console.log(this.maximoAlerta)
-        }
+          if (config.Name === 'Máximo de Atenção') {
+            this.maximoAtencao = config.Value.Value;
+            // console.log(this.maximoAtencao)
+          }
 
-        if (config.Name === 'Máximo') {
-          this.maximo = config.Value.Value;
-          // console.log(this.maximo)
+          if (config.Name === 'Máximo de Alerta') {
+            this.maximoAlerta = config.Value.Value;
+            // console.log(this.maximoAlerta)
+          }
+
+          if (config.Name === 'Máximo') {
+            this.maximo = config.Value.Value;
+            // console.log(this.maximo)
+          }
         }
 
       }
@@ -809,67 +819,77 @@ export class EntradaManualComponent {
     //   return;
     // }
 
-    let valueAlert = this.propFocous.Selected;
-
-    if (!valueAlert) {
-      this.showAlert('Não existem dados preenchidos!')
-      return;
-    }
-    let leituraEscritaMode = this.elements.list.filter(m => m.mode == 'LeituraEscrita').filter(s => s.Selected != null);
-    let leituraEscritaConstanteMode = this.elements.list.filter(m => m.mode == 'LeituraEsConst').filter(s => s.Selected != null);
-    let EscritaConstanteMode = this.elements.list.filter(m => m.mode == 'EscritaConstante').filter(s => s.Selected != null);
-    let EscritaMode = this.elements.list.filter(m => m.mode == 'Escrita').filter(s => s.Selected != null);
-    console.log(leituraEscritaMode)
-
-    if (leituraEscritaMode) {
-      this.getAlerts(this.propFocous)
-    }
-    if (leituraEscritaConstanteMode) {
-      this.getAlerts(this.propFocous)
-      console.log(this.propFocous)
-    }
-    if (EscritaConstanteMode) {
-      this.getAlerts(this.propFocous)
-      console.log(this.propFocous)
-    }
-    if (EscritaMode) {
-      this.getAlerts(this.propFocous)
-      console.log(this.propFocous)
-    }
 
 
-    if (this.maximo || this.minimo || this.minimoAlerta || this.minimoAtencao || this.maximoAlerta || this.maximoAtencao) {
-      if (!this.minimo['Name']) {
-        if (valueAlert <= this.minimo) {
-          await this.showAlert('Atenção! A leitura esta fora dos limites especificados para o equipamento.')
-          return;
+    let leituraEscritaMode = this.elements.list.filter(m => m.mode == 'LeituraEscrita').find(s => s.Selected != null);
+    let leituraEscritaConstanteMode = this.elements.list.filter(m => m.mode == 'LeituraEsConst').find(s => s.Selected != null);
+    let EscritaConstanteMode = this.elements.list.filter(m => m.mode == 'EscritaConstante').find(s => s.Selected != null);
+    let EscritaMode = this.elements.list.filter(m => m.mode == 'Escrita').find(s => s.Selected != null);
+    let validationModes = [leituraEscritaMode, leituraEscritaConstanteMode, EscritaConstanteMode, EscritaMode].filter(s => s != null);
+
+    for (let i = 0; i < validationModes.length; i++) {
+      console.log(validationModes)
+      let valueAlert = validationModes[i].Selected;
+      if (!valueAlert) {
+        this.showAlert('Não existem dados preenchidos!')
+        return;
+      }
+      console.log(valueAlert)
+      this.getAlerts(validationModes[i])
+
+      let leitura = validationModes[i].Name;
+      console.log(leitura)
+      // if (leituraEscritaMode) {
+      //   this.getAlerts(leituraEscritaMode)
+      //   console.log(leituraEscritaMode)
+      //   console.log(this.propFocous)
+      // }
+      // if (leituraEscritaConstanteMode) {
+      //   this.getAlerts(this.propFocous)
+      //   console.log(leituraEscritaConstanteMode)
+      // }
+      // if (EscritaConstanteMode) {
+      //   this.getAlerts(this.propFocous)
+      //   console.log(EscritaConstanteMode)
+      // }
+      // if (EscritaMode) {
+      //   console.log(EscritaMode)
+      // }
+
+
+      if (this.maximo || this.minimo || this.minimoAlerta || this.minimoAtencao || this.maximoAlerta || this.maximoAtencao) {
+        if (!this.minimo['Name']) {
+          if (valueAlert <= this.minimo) {
+            await this.showAlert(`Atenção! A leitura ${leitura} esta fora dos limites especificados para o equipamento.`)
+            return;
+          }
         }
-      }
-      if (!this.maximo['Name']) {
-        if (valueAlert >= this.maximo) {
-          await this.showAlert('Atenção! A leitura esta fora dos limites especificados para o equipamento.')
-          return;
+        if (!this.maximo['Name']) {
+          if (valueAlert >= this.maximo) {
+            await this.showAlert(`Atenção! A leitura ${leitura} esta fora dos limites especificados para o equipamento.`)
+            return;
+          }
         }
-      }
 
-      if (valueAlert > this.minimo && valueAlert <= this.minimoAlerta) {
-        let res = await this.showConfirm('A leitura esta abaixo do limite de alerta. Deseja salvar?');
-        if (!res) return;
-      }
+        if (valueAlert > this.minimo && valueAlert <= this.minimoAlerta) {
+          let res = await this.showConfirm(`A leitura  ${leitura} esta abaixo do limite de alerta. Deseja salvar?`);
+          if (!res) return;
+        }
 
-      if (valueAlert > this.minimoAlerta && valueAlert <= this.minimoAtencao) {
-        let res = await this.showConfirm('A leitura esta abaixo do limite de atenção. Deseja salvar?')
-        if (!res) return;
-      }
+        if (valueAlert > this.minimoAlerta && valueAlert <= this.minimoAtencao) {
+          let res = await this.showConfirm(`A leitura ${leitura} esta abaixo do limite de atenção. Deseja salvar?`)
+          if (!res) return;
+        }
 
-      if (valueAlert >= this.maximoAtencao && valueAlert < this.maximoAlerta) {
-        let res = await this.showConfirm('A leitura esta acima do limite de atenção. Deseja salvar?')
-        if (!res) return;
-      }
+        if (valueAlert >= this.maximoAtencao && valueAlert < this.maximoAlerta) {
+          let res = await this.showConfirm(`A leitura ${leitura} esta acima do limite de atenção. Deseja salvar?`)
+          if (!res) return;
+        }
 
-      if (valueAlert >= this.maximoAlerta && valueAlert < this.maximo) {
-        let res = await this.showConfirm('A leitura esta acima do limite de alerta. Deseja salvar?');
-        if (!res) return;
+        if (valueAlert >= this.maximoAlerta && valueAlert < this.maximo) {
+          let res = await this.showConfirm(`A leitura ${leitura} esta acima do limite de alerta. Deseja salvar?`);
+          if (!res) return;
+        }
       }
     }
 
@@ -954,71 +974,106 @@ export class EntradaManualComponent {
     }
     return [];
   }
-  date: any;
-  async searchDate($event: Event) {
-    this.date = $event.target['value']
+  dataLeitura: any;
+  selectedDate: Date;
+  filterByDate(navigation: Array<Navigation>, date: any): Array<Navigation> {
     this.elements = null;
+
     this.navigation = new Array<Navigation>();
     this.arvoreLocal.forEach((arvore: Arvore) => {
       if (this.date != null) {
-        let proximaDataLeitura = arvore.atributos.list.filter(p => p.mode == 'Data') as PIWebAttribute[];
-        if ((proximaDataLeitura.find(v => v).Value.Value < this.date)) {
+        let proximaDataLeitura = arvore.atributos.list.filter(p => p.mode == 'Data')
+        this.dataLeitura = proximaDataLeitura.find(d => d).Value.Value;
+        this.dataLeitura = this.dataLeitura.split('T').find(firstOrNull);
+        console.log(this.dataLeitura)
+        if ((proximaDataLeitura.find(v => v).ValueString < date)) {
           let indexLastPath = arvore.Caminho.length - 1;
           this.navigation.push(
-            Navigation.Create(arvore.Caminho, arvore.Caminho[indexLastPath])
+            Navigation.Create(arvore.Caminho, arvore.Caminho[indexLastPath], this.dataLeitura)
           )
         }
       } if (this.navigation.length == 0) {
         console.log('Arvore Vazia')
       }
     })
+    return;
+  }
+
+  filterByDateAndString(navigation: Array<Navigation>, name: string): Array<Navigation> {
+
+    this.navigation = new Array<Navigation>();
+    navigation.forEach((arvore: Navigation) => {
+      if (arvore && arvore.path && arvore.path.length > 0) {
+        arvore.path.forEach((path, index) => {
+          if (
+            path.toLocaleLowerCase().includes(name) &&
+            !this.navigation.some((n) => n.name == arvore.name)
+          ) {
+            this.navigation.push(
+              Navigation.Create(arvore.path, arvore.name, arvore.date)
+            );
+          }
+        });
+      }
+    });
+    return;
+  }
+
+  filterByString(navigation: Array<Arvore>, name: string): Array<Navigation> {
+    this.navigation = new Array<Navigation>();
+    navigation.forEach((arvore: Arvore) => {
+      if (arvore && arvore.Caminho && arvore.Caminho.length > 0) {
+        arvore.Caminho.forEach((path, index) => {
+          if (
+            path.toLocaleLowerCase().includes(name) &&
+            !this.navigation.some((n) => n.name == path)
+          ) {
+            this.navigation.push(
+              Navigation.Create(arvore.Caminho.slice(0, index + 1), path, this.dataLeitura)
+            );
+          }
+        });
+      }
+    });
+    return;
+  }
+
+  date: any;
+  dateLast: any;
+  async searchDate($event: Event) {
+    this.date = $event.target['value'];
+    this.pathNavigation.path = null;
+
+    this.filterByDate(this.navigation, this.date)
   }
 
   async search($event: Event) {
+
     let searchItem = $event.target['value'];
     if (searchItem) {
       this.elements = null;
       searchItem = new String(searchItem).toLowerCase();
 
       if (this.date) {
-        // this.navigation = new Array<Navigation>();
-        this.navigation.forEach((arvore: Navigation) => {
-          if (arvore && arvore.path && arvore.path.length > 0) {
-            arvore.path.forEach((path, index) => {
-              if (
-                path.toLocaleLowerCase().includes(searchItem) &&
-                this.navigation.some((n) => n.name == path)
-              ) {
-                console.log(this.navigation)
-                this.navigation.push(
-                  Navigation.Create(arvore.path, arvore.name)
-                );
-              }
-            });
-          }
-        })
+        if (!this.dataNavigation) {
+          this.dataNavigation = this.navigation;
+        }
+        if (this.dateLast != this.date) {
+          this.dataNavigation = this.navigation;
+        }
+        this.dateLast = this.date;
+        this.filterByDateAndString(this.dataNavigation, searchItem);
       } else {
-        this.navigation = new Array<Navigation>();
-        this.arvoreLocal.forEach((arvore: Arvore) => {
-          if (arvore && arvore.Caminho && arvore.Caminho.length > 0) {
-            arvore.Caminho.forEach((path, index) => {
-              if (
-                path.toLocaleLowerCase().includes(searchItem) &&
-                !this.navigation.some((n) => n.name == path)
-              ) {
-                this.navigation.push(
-                  Navigation.Create(arvore.Caminho.slice(0, index + 1), path)
-                );
-              }
-            });
-          }
-        });
+        console.log(this.navigation)
+        this.filterByString(this.arvoreLocal, searchItem)
       }
       if (this.navigation.length == 0) {
         console.log('Arvore Vazia')
       }
     } else {
       this.elements = null;
+      this.date = null;
+      this.selectedDate = null;
       await this.loadNavigationDataFromStorage();
     }
   }

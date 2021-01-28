@@ -87,9 +87,14 @@
 
         <div *ngFor="let app of navigation">
           <ion-list (click)="onClickId(app)">
-            <div>
-              {{ app.name }}
+            <div *ngIf="date">
+              {{ app.name }} =
+              {{app.date}}
             </div>
+            <div *ngIf="!date">
+              {{app.name}}
+            </div>
+
           </ion-list>
         </div>
       </div>
