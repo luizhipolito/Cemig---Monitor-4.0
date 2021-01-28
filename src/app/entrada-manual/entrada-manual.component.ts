@@ -756,7 +756,6 @@ export class EntradaManualComponent {
     for (let k of Object.keys(this.templateRangeScalling)) {
       if (propFocous) {
         let config = propFocous.config.find((c) => c.Name == k) as PIWebAttribute;
-        console.log(config)
 
         if (config && config.Name) {
           if (config.Name === 'Mínimo') {
@@ -796,7 +795,6 @@ export class EntradaManualComponent {
 
   async saveElement() {
     await this.storageService.removeEdit();
-    console.log(this.currentDate)
 
     let dateStr = this.currentDate
       ? this.currentDate.split('T').find(firstOrNull)
@@ -828,17 +826,14 @@ export class EntradaManualComponent {
     let validationModes = [leituraEscritaMode, leituraEscritaConstanteMode, EscritaConstanteMode, EscritaMode].filter(s => s != null);
 
     for (let i = 0; i < validationModes.length; i++) {
-      console.log(validationModes)
       let valueAlert = validationModes[i].Selected;
       if (!valueAlert) {
         this.showAlert('Não existem dados preenchidos!')
         return;
       }
-      console.log(valueAlert)
       this.getAlerts(validationModes[i])
 
       let leitura = validationModes[i].Name;
-      console.log(leitura)
       // if (leituraEscritaMode) {
       //   this.getAlerts(leituraEscritaMode)
       //   console.log(leituraEscritaMode)
@@ -985,7 +980,6 @@ export class EntradaManualComponent {
         let proximaDataLeitura = arvore.atributos.list.filter(p => p.mode == 'Data')
         this.dataLeitura = proximaDataLeitura.find(d => d).Value.Value;
         this.dataLeitura = this.dataLeitura.split('T').find(firstOrNull);
-        console.log(this.dataLeitura)
         if ((proximaDataLeitura.find(v => v).ValueString < date)) {
           let indexLastPath = arvore.Caminho.length - 1;
           this.navigation.push(
