@@ -61,7 +61,9 @@
 
             <ion-item *ngFor="let element of elements.list | isVisible: true" (click)="setPropFocous(element)">
               <ion-label style="width: 800px;"> {{ element.Name }}: {{element.Value.UnitsAbbreviation}}</ion-label>
-              <ion-label *ngIf="element.mode == 'Leitura' || element.mode == 'Data'" class="read">
+              <ion-label
+                *ngIf="element.mode == 'Leitura' || element.mode == 'DataProxima' || element.mode == 'DataUltima'"
+                class="read">
                 {{ element.ValueString }}</ion-label>
               <!-- values -->
               <ion-label *ngIf="
