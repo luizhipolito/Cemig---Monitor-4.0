@@ -49,6 +49,7 @@ class Navigation {
   path: Array<string>;
   name: string;
   date: Date;
+  dateLast: Date;
 
   static Instance(): Navigation {
     let n = new Navigation();
@@ -57,11 +58,12 @@ class Navigation {
     return n;
   }
 
-  static Create(path: Array<string>, name: string, date: Date) {
+  static Create(path: Array<string>, name: string, date: Date, dateLast: Date) {
     let n = new Navigation();
     n.path = path;
     n.name = name;
     n.date = date;
+    n.dateLast = dateLast;
     return n;
   }
 }
@@ -162,7 +164,7 @@ export class EntradaManualComponent {
 
   Elemento = {};
   selectedViews = 'elemento';
-
+  date: any;
   elements: Attribute;
   enumerationTree: Array<Arvore>;
   arvoreLocal: Array<Arvore>;
@@ -227,11 +229,12 @@ export class EntradaManualComponent {
           let name = path[path.length - 1];
 
 
-          this.navigation = new Array<{ path: Array<string>; name: string, date: Date }>();
+          this.navigation = new Array<{ path: Array<string>; name: string, date: Date, dateLast: Date }>();
           this.navigation.push({
             path: path,
             name: undefined,
-            date: undefined
+            date: undefined,
+            dateLast: undefined
           });
           this.pathNavigation.path = path;
           this.pathNavigation.name = name;
@@ -415,7 +418,7 @@ export class EntradaManualComponent {
     }
     return [];
   }
-
+  dateLastRead: any;
   loadEnumerationSetsValues = (data): Array<PIWebObject> => {
     return data['Items'].map((e) => {
       return { ...e, values: e.Links.Values };
@@ -427,12 +430,36 @@ export class EntradaManualComponent {
       this.storageService.navigation
     );
     this.navigation = new Array<Navigation>();
-    if (this.arvoreLocal) {
+    if (this.arvoreLocal && this.navigation) {
       this.arvoreLocal.forEach((arvore: Arvore) => {
-        let path = arvore.Caminho.find(firstOrNull);
+        let dateNext = arvore.atributos.list.filter(l => l.mode == 'DataProxima');
+        let datelast = arvore.atributos.list.filter(l => l.mode == 'DataUltima');
+        if (dateNext.length > 0) {
+          this.dataLeitura = dateNext.find(d => d).Value.Value
+          if (datelast.length > 0) {
+            this.dateLastRead = datelast.find(l => l).Value.Value;
+            if (this.dateLastRead != 3000) {
+              this.dateLastRead = this.dateLastRead.split('T').find(firstOrNull);
+              this.dateLastRead = this.dateLastRead.split('-').reverse().join("/", this.dateLastRead, 0, this.dateLastRead.length)
+            }
+          } else {
+            this.dateLastRead = 'Sem Data';
+          }
 
-        if (!this.navigation.find((n) => n.name == path)) {
-          this.navigation.push(Navigation.Create([path], path, undefined));
+          let datePlus = new Date(this.currentDate);
+          let dateMinus = new Date(this.currentDate);
+
+          datePlus.setDate(datePlus.getDate() + 405);
+          dateMinus.setDate(dateMinus.getDate() - 405);
+          this.date = new Date(this.dataLeitura)
+          this.dataLeitura = this.dataLeitura.split('T').find(firstOrNull);
+          this.dataLeitura = this.dataLeitura.split('-').reverse().join("/", this.dataLeitura, 0, this.dataLeitura.length);
+          // this.dataLeitura = this.dataLeitura.join("/", this.dataLeitura, 0, this.dataLeitura.length)
+          let path = arvore.Caminho;
+          let lastIndex = arvore.Caminho.length - 1;
+          if ((this.date > dateMinus && this.date < datePlus)) {
+            this.navigation.push(Navigation.Create(arvore.Caminho, path[lastIndex], this.dataLeitura, this.dateLastRead));
+          }
         }
       });
     }
@@ -462,17 +489,18 @@ export class EntradaManualComponent {
   }
 
   onClickId = (e) => {
-    this.date = null;
+    this.dataLeitura = null;
     this.pathNavigation = e;
     this.storageService.getFilhos(e.path).then((result) => {
       let pathLength = e.path.length;
-      this.navigation = new Array<{ path: Array<string>; name: string; date: Date }>();
+      this.navigation = new Array<{ path: Array<string>; name: string; date: Date; dateLast: Date }>();
       if (result.length == 1) {
         let item = result.find(firstOrNull);
         this.navigation.push({
           path: e.path,
           name: item.Nome,
-          date: undefined
+          date: undefined,
+          dateLast: undefined
         });
         this.elements = item.atributos;
         if (this.elements.firstSelection && this.elements.firstSelection.Type) {
@@ -495,7 +523,8 @@ export class EntradaManualComponent {
             this.navigation.push({
               path: path,
               name: caminho,
-              date: undefined
+              date: undefined,
+              dateLast: undefined
             });
           }
         });
@@ -904,11 +933,13 @@ export class EntradaManualComponent {
       tree
     );
     this.elements = null;
-    let pathLength = this.pathNavigation.path.pop();
-    this.onClickId({
-      path: this.pathNavigation.path,
-      name: undefined,
-    })
+    // let pathLength = this.pathNavigation.path.pop();
+    // this.onClickId({
+    //   path: this.pathNavigation.path,
+    //   name: undefined,
+    // })
+    this.loadNavigationDataFromStorage();
+    this.pathNavigation.path = null;
 
     await this.showAlert('Salvo com sucesso!');
   }
@@ -969,6 +1000,7 @@ export class EntradaManualComponent {
     }
     return [];
   }
+
   dataLeitura: any;
   selectedDate: Date;
   filterByDate(navigation: Array<Navigation>, date: any): Array<Navigation> {
@@ -977,14 +1009,17 @@ export class EntradaManualComponent {
     this.navigation = new Array<Navigation>();
     this.arvoreLocal.forEach((arvore: Arvore) => {
       if (this.date != null) {
-        let proximaDataLeitura = arvore.atributos.list.filter(p => p.mode == 'Data')
-        this.dataLeitura = proximaDataLeitura.find(d => d).Value.Value;
-        this.dataLeitura = this.dataLeitura.split('T').find(firstOrNull);
-        if ((proximaDataLeitura.find(v => v).ValueString < date)) {
-          let indexLastPath = arvore.Caminho.length - 1;
-          this.navigation.push(
-            Navigation.Create(arvore.Caminho, arvore.Caminho[indexLastPath], this.dataLeitura)
-          )
+        let proximaDataLeitura = arvore.atributos.list.filter(p => p.mode == 'DataProxima')
+        if (proximaDataLeitura.length > 0) {
+          this.dataLeitura = proximaDataLeitura.find(d => d).Value.Value;
+          this.dataLeitura = this.dataLeitura.split('T').find(firstOrNull);
+          this.dataLeitura = this.dataLeitura.split('-').reverse().join("/", this.dataLeitura, 0, this.dataLeitura.length);
+          if ((proximaDataLeitura.find(v => v).ValueString < date)) {
+            let indexLastPath = arvore.Caminho.length - 1;
+            this.navigation.push(
+              Navigation.Create(arvore.Caminho, arvore.Caminho[indexLastPath], this.dataLeitura, undefined)
+            )
+          }
         }
       } if (this.navigation.length == 0) {
         console.log('Arvore Vazia')
@@ -1004,7 +1039,7 @@ export class EntradaManualComponent {
             !this.navigation.some((n) => n.name == arvore.name)
           ) {
             this.navigation.push(
-              Navigation.Create(arvore.path, arvore.name, arvore.date)
+              Navigation.Create(arvore.path, arvore.name, arvore.date, undefined)
             );
           }
         });
@@ -1023,7 +1058,7 @@ export class EntradaManualComponent {
             !this.navigation.some((n) => n.name == path)
           ) {
             this.navigation.push(
-              Navigation.Create(arvore.Caminho.slice(0, index + 1), path, this.dataLeitura)
+              Navigation.Create(arvore.Caminho.slice(0, index + 1), path, this.dataLeitura, undefined)
             );
           }
         });
@@ -1032,7 +1067,7 @@ export class EntradaManualComponent {
     return;
   }
 
-  date: any;
+
   dateLast: any;
   async searchDate($event: Event) {
     this.date = $event.target['value'];

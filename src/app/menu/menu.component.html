@@ -1,11 +1,6 @@
 <div class="head">
-  <ion-menu
-    side="start"
-    content-id="main-content"
-    [swipeGesture]="appMenuSwipeGesture"
-    (ionDidOpen)="appMenuSwipeGesture = false"
-    (ionDidClose)="appMenuSwipeGesture = true"
-  >
+  <ion-menu side="start" content-id="main-content" [swipeGesture]="appMenuSwipeGesture"
+    (ionDidOpen)="appMenuSwipeGesture = false" (ionDidClose)="appMenuSwipeGesture = true">
     <ion-header>
       <ion-toolbar translucent>
         <ion-title>Menu</ion-title>
@@ -17,11 +12,18 @@
           <ion-icon name="navigate-outline"></ion-icon>
           <ion-label>Enviar</ion-label>
         </ion-item>
+        <!-- 
+        <ion-item name="return" slot="start" (click)="returnHome()">
+          <ion-icon name="log-out-outline"></ion-icon>
+          <ion-label>Retornar Date</ion-label>
+        </ion-item> -->
 
         <ion-item name="logout" slot="start" (click)="logoutUsuario()">
           <ion-icon name="log-out-outline"></ion-icon>
           <ion-label>Sair</ion-label>
         </ion-item>
+
+
       </ion-list>
     </ion-content>
   </ion-menu>
@@ -34,10 +36,6 @@
   <div class="nomeCentro">ADB Móvel</div>
 
   <div class="logoCemig">
-    <img
-      style="width: 100%; margin-right: -60px"
-      src="../../../assets/logo-cemig-2048.png"
-      alt="logo"
-    />
+    <img style="width: 100%; margin-right: -60px" src="../../../assets/logo-cemig-2048.png" alt="logo" />
   </div>
 </div>

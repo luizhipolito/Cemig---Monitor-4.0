@@ -29,6 +29,6 @@ export enum EnumModeAttribute {
   'Leitura/Escrita (Constante)' = 'LeituraEsConst',
   Leitura = 'Leitura',
   Escrita = 'Escrita',
-  Data = 'Data'
-
+  'Data Próxima' = 'DataProxima',
+  'Data Última' = 'DataUltima',
 }

@@ -3,7 +3,9 @@ ion-content {
   height: 100vh;
 }
 
-
+.tableGrid{
+  border: 1px solid black;
+}
 .allNav {
   width: 100%;
   height: 100%;
@@ -35,7 +37,7 @@ ion-spinner {
   border: 1px solid #ccc;
   border-radius: 20px;
   margin-top: 10px;
-  margin-right: 15px;
+  margin-right: 10px;
 }
 .search > ion-input > ion-icon{
   font-size: 1.4rem;

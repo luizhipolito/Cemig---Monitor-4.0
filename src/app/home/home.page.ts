@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { AppUtils } from 'src/utils/app.utils';
 
 @Component({
   selector: 'app-home',
@@ -18,8 +19,7 @@ export class HomePage implements OnInit {
   goSettings() {
     this.router.navigate(['/data-config']);
   }
+  constructor(private router: Router, public utils: AppUtils) { }
 
-  constructor(private router: Router) {}
-
-  ngOnInit(): void {}
+  ngOnInit(): void { }
 }

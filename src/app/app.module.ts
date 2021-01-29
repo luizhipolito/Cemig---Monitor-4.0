@@ -64,6 +64,7 @@ import { MenuComponent } from './menu/menu.component';
     SQLite,
     SQLitePorter,
     StorageArvoreService,
+    EntradaManualComponent,
   ],
   bootstrap: [AppComponent],
 })

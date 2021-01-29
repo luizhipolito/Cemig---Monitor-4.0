@@ -23,6 +23,10 @@ export class ConfigService {
   AppAttributes: string;
   configUrl: string;
   configPath: string;
+  NomeAppMenu: string;
+  NomeAppInicio: string;
+  DataInicioBusca: any;
+  DataFimBusca: any;
 
   endPoint = {
     asset: 'Databases',
@@ -45,6 +49,10 @@ export class ConfigService {
     descricaoEnumerationSets: 'Descrição Enumeration Sets',
     DataBase: 'Database',
     AppAttributes: 'Descrição Atributo',
+    NomeAppMenu: 'Nome APP Menu',
+    NomeAppInicio: 'Nome APP Inicio',
+    DataFimBusca: 'Data Fim da Busca',
+    DataInicioBusca: 'Data Início da Busca',
   };
 
   constructor(public storageService: StorageArvoreService) { }
