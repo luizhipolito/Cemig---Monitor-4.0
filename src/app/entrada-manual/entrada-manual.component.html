@@ -86,8 +86,29 @@
             </ion-item>
           </ion-list>
         </div>
+        <ion-list *ngIf="dataLeitura">
+          <ion-row class="rowHead">
+            <ion-col>Instrumento</ion-col>
+            <ion-col>Próxima Leitura</ion-col>
+            <ion-col>Última Leitura</ion-col>
+          </ion-row>
+          <div *ngFor="let app of navigation">
+            <ion-row class="rowList">
+              <ion-col (click)="onClickId(app)">{{ app.name }}</ion-col>
+              <ion-col (click)="onClickId(app)">{{app.date}}</ion-col>
+              <ion-col (click)="onClickId(app)">{{app.dateLast}}</ion-col>
+            </ion-row>
+          </div>
+        </ion-list>
 
-        <div *ngFor="let app of navigation">
+        <div *ngIf="!dataLeitura">
+          <ion-list class="nameNav" *ngFor="let app of navigation" (click)="onClickId(app)">
+            {{app.name}}
+          </ion-list>
+        </div>
+
+
+        <!-- <div *ngFor="let app of navigation">
           <ion-list (click)="onClickId(app)">
             <div *ngIf="dataLeitura">
               <ion-row>
@@ -96,13 +117,11 @@
                 <ion-col>{{app.dateLast}}</ion-col>
               </ion-row>
             </div>
-
             <div *ngIf="!dataLeitura">
               {{app.name}}
             </div>
-
           </ion-list>
-        </div>
+        </div> -->
       </div>
       <div *ngIf="elements != null && propFocous" class="controlKeyboard">
         <p>{{ propFocous && propFocous.Name ? propFocous.Name : '' }}</p>

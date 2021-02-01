@@ -219,11 +219,12 @@ export class EntradaManualComponent {
 
   async edit() {
     let editData = await this.storageService.getByKey('Edit')
-
+    // this.dataLeitura = null;
     if (editData) {
       editData['isEdit'] = true;
       if (editData['isEdit'] == true) {
         if (editData != null) {
+          this.dataLeitura = null;
           let pathEdit = editData['relativePath'];
           let path = pathEdit.split(`\\`).filter(p => Boolean(p))
           let name = path[path.length - 1];
@@ -260,7 +261,7 @@ export class EntradaManualComponent {
     this.init();
     await this.api.init();
     await this.config.init();
-
+    this.dataLeitura = null;
 
     if (isToSyncDataFromPI) {
       await this.syncDataFromPI();
@@ -436,7 +437,6 @@ export class EntradaManualComponent {
     if (dataRead) {
       this.pathRead = dataRead.map(p => p.relativePath);
       for (let i = 0; i < this.pathRead.length; i++) {
-        console.log(i)
         this.arvoreLocal = this.arvoreLocal.filter(p => p.relativePath != this.pathRead[i])
       }
     }
@@ -855,6 +855,7 @@ export class EntradaManualComponent {
     tree.relativePath = this.elements.RelativePath;
     tree.isEdit = false;
     let values = this.utils.getWrittenValues(this.elements);
+
     tree.date = dateStr;
     tree.value = values;
 
@@ -943,6 +944,7 @@ export class EntradaManualComponent {
       this.storageService.writtenValues,
       tree
     );
+
     this.elements = null;
     // let pathLength = this.pathNavigation.path.pop();
     // this.onClickId({
@@ -1019,7 +1021,17 @@ export class EntradaManualComponent {
     this.navigation = new Array<Navigation>();
     this.arvoreLocal.forEach((arvore: Arvore) => {
       if (this.date != null) {
-        let proximaDataLeitura = arvore.atributos.list.filter(p => p.mode == 'DataProxima')
+        let proximaDataLeitura = arvore.atributos.list.filter(p => p.mode == 'DataProxima');
+        let datelast = arvore.atributos.list.filter(l => l.mode == 'DataUltima');
+        if (datelast.length > 0) {
+          this.dateLastRead = datelast.find(l => l).Value.Value;
+          if (this.dateLastRead != 3000) {
+            this.dateLastRead = this.dateLastRead.split('T').find(firstOrNull);
+            this.dateLastRead = this.dateLastRead.split('-').reverse().join("/", this.dateLastRead, 0, this.dateLastRead.length)
+          }
+        } else {
+          this.dateLastRead = 'Sem Data';
+        }
         if (proximaDataLeitura.length > 0) {
           this.dataLeitura = proximaDataLeitura.find(d => d).Value.Value;
           this.dataLeitura = this.dataLeitura.split('T').find(firstOrNull);
@@ -1027,14 +1039,19 @@ export class EntradaManualComponent {
           if ((proximaDataLeitura.find(v => v).ValueString < date)) {
             let indexLastPath = arvore.Caminho.length - 1;
             this.navigation.push(
-              Navigation.Create(arvore.Caminho, arvore.Caminho[indexLastPath], this.dataLeitura, undefined)
+              Navigation.Create(arvore.Caminho, arvore.Caminho[indexLastPath], this.dataLeitura, this.dateLastRead)
             )
           }
         }
-      } if (this.navigation.length == 0) {
-        console.log('Arvore Vazia')
       }
     })
+    if (this.navigation.length == 0) {
+      this.dataLeitura = null;
+      this.date = null;
+      this.selectedDate = null;
+      this.showAlert('Não existem dados para esta data!');
+      this.loadNavigationDataFromStorage();
+    }
     return;
   }
 
@@ -1055,6 +1072,11 @@ export class EntradaManualComponent {
         });
       }
     });
+    if (this.navigation.length == 0) {
+      this.dataLeitura = null;
+      // this.date = null;
+
+    }
     return;
   }
 
@@ -1113,7 +1135,6 @@ export class EntradaManualComponent {
     } else {
       this.elements = null;
       this.date = null;
-      this.selectedDate = null;
       await this.loadNavigationDataFromStorage();
     }
   }

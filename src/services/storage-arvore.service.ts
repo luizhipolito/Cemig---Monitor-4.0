@@ -16,6 +16,7 @@ export class StorageArvoreService {
   enumerationSets: string = 'enumerationSets';
   configValues: string = 'config';
   writtenValues: string = 'writtenValues';
+  writtenValuesForList: string = 'writtenList';
   constructor(private storage: Storage) { }
 
   public insert(arvore: Arvore) {
