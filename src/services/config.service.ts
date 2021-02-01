@@ -25,8 +25,8 @@ export class ConfigService {
   configPath: string;
   NomeAppMenu: string;
   NomeAppInicio: string;
-  DataInicioBusca: any;
-  DataFimBusca: any;
+  DataInicioBusca: Number;
+  DataFimBusca: Number;
 
   endPoint = {
     asset: 'Databases',

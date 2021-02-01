@@ -424,11 +424,24 @@ export class EntradaManualComponent {
       return { ...e, values: e.Links.Values };
     });
   };
-
+  pathRead: any;
   async loadNavigationDataFromStorage() {
     this.arvoreLocal = await this.storageService.getByKey(
       this.storageService.navigation
     );
+    let dataRead = await this.storageService.getByKey(
+      this.storageService.writtenValues
+    );
+    console.log(this.arvoreLocal)
+    if (dataRead) {
+      this.pathRead = dataRead.map(p => p.relativePath);
+      for (let i = 0; i < this.pathRead.length; i++) {
+        console.log(i)
+        this.arvoreLocal = this.arvoreLocal.filter(p => p.relativePath != this.pathRead[i])
+      }
+    }
+
+
     this.navigation = new Array<Navigation>();
     if (this.arvoreLocal && this.navigation) {
       this.arvoreLocal.forEach((arvore: Arvore) => {
@@ -449,19 +462,23 @@ export class EntradaManualComponent {
           let datePlus = new Date(this.currentDate);
           let dateMinus = new Date(this.currentDate);
 
-          datePlus.setDate(datePlus.getDate() + 405);
-          dateMinus.setDate(dateMinus.getDate() - 405);
+          datePlus.setDate(datePlus.getDate() + 5);
+          dateMinus.setDate(dateMinus.getDate() - 5);
           this.date = new Date(this.dataLeitura)
           this.dataLeitura = this.dataLeitura.split('T').find(firstOrNull);
           this.dataLeitura = this.dataLeitura.split('-').reverse().join("/", this.dataLeitura, 0, this.dataLeitura.length);
-          // this.dataLeitura = this.dataLeitura.join("/", this.dataLeitura, 0, this.dataLeitura.length)
           let path = arvore.Caminho;
           let lastIndex = arvore.Caminho.length - 1;
+
           if ((this.date > dateMinus && this.date < datePlus)) {
             this.navigation.push(Navigation.Create(arvore.Caminho, path[lastIndex], this.dataLeitura, this.dateLastRead));
           }
         }
       });
+      if (this.navigation.length <= 0) {
+        this.showAlert('Não existem dados para leitura por data!')
+        await this.onClickId(this.pathNavigation)
+      }
     }
   }
 
@@ -841,12 +858,6 @@ export class EntradaManualComponent {
     tree.date = dateStr;
     tree.value = values;
 
-    // if (!values.every((t) => t.Selected)) {
-    //   this.showAlert('Preencha os campos!');
-    //   return;
-    // }
-
-
 
     let leituraEscritaMode = this.elements.list.filter(m => m.mode == 'LeituraEscrita').find(s => s.Selected != null);
     let leituraEscritaConstanteMode = this.elements.list.filter(m => m.mode == 'LeituraEsConst').find(s => s.Selected != null);
@@ -1005,7 +1016,6 @@ export class EntradaManualComponent {
   selectedDate: Date;
   filterByDate(navigation: Array<Navigation>, date: any): Array<Navigation> {
     this.elements = null;
-
     this.navigation = new Array<Navigation>();
     this.arvoreLocal.forEach((arvore: Arvore) => {
       if (this.date != null) {
@@ -1049,6 +1059,7 @@ export class EntradaManualComponent {
   }
 
   filterByString(navigation: Array<Arvore>, name: string): Array<Navigation> {
+    this.dataLeitura = null;
     this.navigation = new Array<Navigation>();
     navigation.forEach((arvore: Arvore) => {
       if (arvore && arvore.Caminho && arvore.Caminho.length > 0) {
@@ -1072,7 +1083,7 @@ export class EntradaManualComponent {
   async searchDate($event: Event) {
     this.date = $event.target['value'];
     this.pathNavigation.path = null;
-
+    this.dataLeitura = null
     this.filterByDate(this.navigation, this.date)
   }
 
