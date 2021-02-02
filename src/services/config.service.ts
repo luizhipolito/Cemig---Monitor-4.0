@@ -84,7 +84,7 @@ export class ConfigService {
     let attributes = Object.keys(this);
     let configTree: Array<Arvore> = new Array<Arvore>();
     attributes.forEach((att) => {
-      if (typeof this[att] == 'string') {
+      if (typeof this[att] == 'string' || typeof this[att] == 'number') {
         let tree = new Arvore();
         tree.Nome = att;
         tree.configValue = this[att];

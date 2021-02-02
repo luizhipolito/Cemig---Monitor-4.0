@@ -28,7 +28,8 @@ export class LoginComponent {
     public storage: StorageArvoreService,
     public configService: ConfigService,
     public config: ConfigService,
-    public alertController: AlertController
+    public alertController: AlertController,
+
   ) { }
 
   public user;

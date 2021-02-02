@@ -26,16 +26,6 @@ export class MenuComponent {
     this.router.navigate(['/salvar-dados']);
   }
 
-
-  // returnHome() {
-  //   this.entradaManual.elements = null;
-  //   this.entradaManual.date = null;
-  //   this.entradaManual.selectedDate = null;
-  //   this.entradaManual.loadNavigationDataFromStorage();
-  //   this.router.navigate(['/entrada-manual'])
-  //   this.menu.close();
-  // }
-
   openMenu() {
     this.menu.open();
   }
@@ -51,5 +41,6 @@ export class MenuComponent {
 
   };
 
-  ngOnInit() { }
+  ngOnInit() {
+  }
 }

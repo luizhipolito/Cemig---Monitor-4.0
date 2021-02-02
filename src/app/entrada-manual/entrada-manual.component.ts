@@ -219,7 +219,6 @@ export class EntradaManualComponent {
 
   async edit() {
     let editData = await this.storageService.getByKey('Edit')
-    // this.dataLeitura = null;
     if (editData) {
       editData['isEdit'] = true;
       if (editData['isEdit'] == true) {
@@ -265,11 +264,14 @@ export class EntradaManualComponent {
 
     if (isToSyncDataFromPI) {
       await this.syncDataFromPI();
+      await this.dataSentTrue();
     } else {
       await this.loadDataFromStorage();
+
     }
     await this.edit();
     this.date = null;
+
   }
 
   init() {
@@ -277,6 +279,7 @@ export class EntradaManualComponent {
     this.propFocous = null;
     this.navigation = new Array<Navigation>();
     this.pathNavigation = Navigation.Instance();
+
   }
 
   async syncDataFromPI() {
@@ -425,67 +428,115 @@ export class EntradaManualComponent {
       return { ...e, values: e.Links.Values };
     });
   };
-  pathRead: any;
+
+  clickMainNavigation() {
+    this.pathNavigation.path = null;
+    this.loadNavigationDataFromStorage();
+  }
+
   async loadNavigationDataFromStorage() {
+    let pathRead: any;
+    let dataLeitura: any;
     this.arvoreLocal = await this.storageService.getByKey(
       this.storageService.navigation
     );
     let dataRead = await this.storageService.getByKey(
       this.storageService.writtenValues
     );
-    console.log(this.arvoreLocal)
     if (dataRead) {
-      this.pathRead = dataRead.map(p => p.relativePath);
-      for (let i = 0; i < this.pathRead.length; i++) {
-        this.arvoreLocal = this.arvoreLocal.filter(p => p.relativePath != this.pathRead[i])
+      pathRead = dataRead.map(p => p.relativePath);
+      for (let i = 0; i < pathRead.length; i++) {
+        this.arvoreLocal = this.arvoreLocal.filter(p => p.relativePath != pathRead[i])
       }
     }
-
+    let dateLastRead: any;
 
     this.navigation = new Array<Navigation>();
-    if (this.arvoreLocal && this.navigation) {
+    if (this.arvoreLocal) {
       this.arvoreLocal.forEach((arvore: Arvore) => {
         let dateNext = arvore.atributos.list.filter(l => l.mode == 'DataProxima');
         let datelast = arvore.atributos.list.filter(l => l.mode == 'DataUltima');
         if (dateNext.length > 0) {
-          this.dataLeitura = dateNext.find(d => d).Value.Value
+          dataLeitura = dateNext.find(d => d).Value.Value
           if (datelast.length > 0) {
-            this.dateLastRead = datelast.find(l => l).Value.Value;
-            if (this.dateLastRead != 3000) {
-              this.dateLastRead = this.dateLastRead.split('T').find(firstOrNull);
-              this.dateLastRead = this.dateLastRead.split('-').reverse().join("/", this.dateLastRead, 0, this.dateLastRead.length)
-            }
+            dateLastRead = datelast.find(l => l).Value.Value;
+            dateLastRead = dateLastRead.split('T').find(firstOrNull);
+            dateLastRead = dateLastRead.split('-').reverse().join("/", dateLastRead, 0, dateLastRead.length)
+
           } else {
-            this.dateLastRead = 'Sem Data';
+            dateLastRead = 'Sem Data';
           }
 
           let datePlus = new Date(this.currentDate);
           let dateMinus = new Date(this.currentDate);
-
-          datePlus.setDate(datePlus.getDate() + 5);
-          dateMinus.setDate(dateMinus.getDate() - 5);
-          this.date = new Date(this.dataLeitura)
-          this.dataLeitura = this.dataLeitura.split('T').find(firstOrNull);
-          this.dataLeitura = this.dataLeitura.split('-').reverse().join("/", this.dataLeitura, 0, this.dataLeitura.length);
+          let dataInicio: any = this.config.DataFimBusca;
+          let dataFim: any = this.config.DataFimBusca;
+          datePlus.setDate(datePlus.getDate() + dataInicio);
+          dateMinus.setDate(dateMinus.getDate() - dataFim);
+          this.date = new Date(dataLeitura)
+          dataLeitura = dataLeitura.split('T').find(firstOrNull);
+          dataLeitura = dataLeitura.split('-').reverse().join("/", dataLeitura, 0, dataLeitura.length);
           let path = arvore.Caminho;
           let lastIndex = arvore.Caminho.length - 1;
-
+          this.dataLeitura = dataLeitura;
           if ((this.date > dateMinus && this.date < datePlus)) {
-            this.navigation.push(Navigation.Create(arvore.Caminho, path[lastIndex], this.dataLeitura, this.dateLastRead));
+            this.navigation.push(Navigation.Create(arvore.Caminho, path[lastIndex], dataLeitura, dateLastRead));
           }
         }
       });
-      if (this.navigation.length <= 0) {
-        this.showAlert('Não existem dados para leitura por data!')
-        await this.onClickId(this.pathNavigation)
-      }
+    }
+    else {
+      this.showAlert('Não existem dados para leitura por data!')
     }
   }
 
   async loadDataFromStorage() {
     await this.loadNavigationDataFromStorage();
     await this.loadEnumerationSetsFromStorage();
+
   }
+
+  async dataSentTrue() {
+    let dataWriteStorage = await this.storageService.getByKey(
+      this.storageService.writtenValues
+    )
+    console.log(dataWriteStorage.length)
+    if (dataWriteStorage.length > 0) {
+      this.confirmDataSent();
+    }
+  }
+  async confirmDataSent() {
+    let choice = false;
+    let alert = await this.alertController.create({
+      header: 'Confirmar',
+      message: 'Existem dados não enviados!</br> Deseja enviar agora?',
+      buttons: [
+        {
+          text: 'Não',
+          handler: () => {
+            alert.dismiss(false);
+            return false;
+          },
+        },
+        {
+          text: 'Sim',
+          handler: () => {
+            alert.dismiss(true);
+            this.router.navigate(['/salvar-dados']);
+            return true;
+          },
+        },
+      ],
+    });
+
+    await alert.present();
+    await alert.onDidDismiss().then((data) => {
+      choice = data.data as boolean;
+    });
+    return choice;
+  }
+
+
   async loadEnumerationSetsFromStorage() {
     this.enumerationTree = await this.storageService.getByKey(
       this.storageService.enumerationSets
@@ -1025,10 +1076,8 @@ export class EntradaManualComponent {
         let datelast = arvore.atributos.list.filter(l => l.mode == 'DataUltima');
         if (datelast.length > 0) {
           this.dateLastRead = datelast.find(l => l).Value.Value;
-          if (this.dateLastRead != 3000) {
-            this.dateLastRead = this.dateLastRead.split('T').find(firstOrNull);
-            this.dateLastRead = this.dateLastRead.split('-').reverse().join("/", this.dateLastRead, 0, this.dateLastRead.length)
-          }
+          this.dateLastRead = this.dateLastRead.split('T').find(firstOrNull);
+          this.dateLastRead = this.dateLastRead.split('-').reverse().join("/", this.dateLastRead, 0, this.dateLastRead.length)
         } else {
           this.dateLastRead = 'Sem Data';
         }
@@ -1046,13 +1095,14 @@ export class EntradaManualComponent {
       }
     })
     if (this.navigation.length == 0) {
+      console.log(this.navigation)
       this.dataLeitura = null;
       this.date = null;
       this.selectedDate = null;
       this.showAlert('Não existem dados para esta data!');
       this.loadNavigationDataFromStorage();
+      return;
     }
-    return;
   }
 
   filterByDateAndString(navigation: Array<Navigation>, name: string): Array<Navigation> {
@@ -1075,6 +1125,7 @@ export class EntradaManualComponent {
     if (this.navigation.length == 0) {
       this.dataLeitura = null;
       // this.date = null;
+      console.log('0000')
 
     }
     return;
@@ -1091,7 +1142,7 @@ export class EntradaManualComponent {
             !this.navigation.some((n) => n.name == path)
           ) {
             this.navigation.push(
-              Navigation.Create(arvore.Caminho.slice(0, index + 1), path, this.dataLeitura, undefined)
+              Navigation.Create(arvore.Caminho.slice(0, index + 1), path, undefined, undefined)
             );
           }
         });
@@ -1106,7 +1157,7 @@ export class EntradaManualComponent {
     this.date = $event.target['value'];
     this.pathNavigation.path = null;
     this.dataLeitura = null
-    this.filterByDate(this.navigation, this.date)
+    await this.filterByDate(this.navigation, this.date)
   }
 
   async search($event: Event) {
@@ -1116,7 +1167,7 @@ export class EntradaManualComponent {
       this.elements = null;
       searchItem = new String(searchItem).toLowerCase();
 
-      if (this.date) {
+      if (this.date && searchItem) {
         if (!this.dataNavigation) {
           this.dataNavigation = this.navigation;
         }
@@ -1126,7 +1177,7 @@ export class EntradaManualComponent {
         this.dateLast = this.date;
         this.filterByDateAndString(this.dataNavigation, searchItem);
       } else {
-        console.log(this.navigation)
+        this.date = null;
         this.filterByString(this.arvoreLocal, searchItem)
       }
       if (this.navigation.length == 0) {
@@ -1134,7 +1185,7 @@ export class EntradaManualComponent {
       }
     } else {
       this.elements = null;
-      this.date = null;
+      // this.date = null;
       await this.loadNavigationDataFromStorage();
     }
   }
