@@ -111,6 +111,10 @@ export class SalvarDadosComponent {
       this.storageService.writtenValues,
       dataToWriteOnPI
     );
+    await this.storageService.store(
+      this.storageService.writtenValuesForList,
+      dataToWriteOnPI
+    )
   }
 
 

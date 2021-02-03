@@ -35,6 +35,7 @@ export class StorageArvoreService {
   public removeAll() {
     this.storage.remove(this.navigation);
     this.storage.remove(this.enumerationSets);
+    this.storage.remove(this.writtenValuesForList);
   }
 
   async removeEdit() {
@@ -110,7 +111,7 @@ export class StorageArvoreService {
       return this.store(key, [value]);
     }
 
-    if (key == this.writtenValues) {
+    if (key == this.writtenValues || key == this.writtenValuesForList) {
       let updateTree = oldTree.find(
         (f) => f.date == value.date && f.AplicacaoID == value.AplicacaoID
       );

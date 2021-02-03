@@ -169,7 +169,7 @@ export class EntradaManualComponent {
   enumerationTree: Array<Arvore>;
   arvoreLocal: Array<Arvore>;
   navigation: Array<Navigation>;
-  dataNavigation: Array<Navigation>;
+  dateLast: any;
   currentDate = this.utils.formatDateTime(new Date());
   pathNavigation: Navigation = Navigation.Instance();
 
@@ -442,7 +442,7 @@ export class EntradaManualComponent {
       this.storageService.navigation
     );
     let dataRead = await this.storageService.getByKey(
-      this.storageService.writtenValues
+      this.storageService.writtenValuesForList
     );
     if (dataRead) {
       pathRead = dataRead.map(p => p.relativePath);
@@ -494,7 +494,6 @@ export class EntradaManualComponent {
   async loadDataFromStorage() {
     await this.loadNavigationDataFromStorage();
     await this.loadEnumerationSetsFromStorage();
-
   }
 
   async dataSentTrue() {
@@ -505,6 +504,7 @@ export class EntradaManualComponent {
       this.confirmDataSent();
     }
   }
+
   async confirmDataSent() {
     let choice = false;
     let alert = await this.alertController.create({
@@ -926,22 +926,6 @@ export class EntradaManualComponent {
       this.getAlerts(validationModes[i])
 
       let leitura = validationModes[i].Name;
-      // if (leituraEscritaMode) {
-      //   this.getAlerts(leituraEscritaMode)
-      //   console.log(leituraEscritaMode)
-      //   console.log(this.propFocous)
-      // }
-      // if (leituraEscritaConstanteMode) {
-      //   this.getAlerts(this.propFocous)
-      //   console.log(leituraEscritaConstanteMode)
-      // }
-      // if (EscritaConstanteMode) {
-      //   this.getAlerts(this.propFocous)
-      //   console.log(EscritaConstanteMode)
-      // }
-      // if (EscritaMode) {
-      //   console.log(EscritaMode)
-      // }
 
 
       if (this.maximo || this.minimo || this.minimoAlerta || this.minimoAtencao || this.maximoAlerta || this.maximoAtencao) {
@@ -995,13 +979,13 @@ export class EntradaManualComponent {
       this.storageService.writtenValues,
       tree
     );
+    await this.storageService.insertOrUpdate(
+      this.storageService.writtenValuesForList,
+      tree
+    );
 
     this.elements = null;
-    // let pathLength = this.pathNavigation.path.pop();
-    // this.onClickId({
-    //   path: this.pathNavigation.path,
-    //   name: undefined,
-    // })
+
     this.loadNavigationDataFromStorage();
     this.pathNavigation.path = null;
 
@@ -1095,7 +1079,6 @@ export class EntradaManualComponent {
       }
     })
     if (this.navigation.length == 0) {
-      console.log(this.navigation)
       this.dataLeitura = null;
       this.date = null;
       this.selectedDate = null;
@@ -1106,7 +1089,7 @@ export class EntradaManualComponent {
   }
 
   filterByDateAndString(navigation: Array<Navigation>, name: string): Array<Navigation> {
-
+    console.log(name)
     this.navigation = new Array<Navigation>();
     navigation.forEach((arvore: Navigation) => {
       if (arvore && arvore.path && arvore.path.length > 0) {
@@ -1126,7 +1109,6 @@ export class EntradaManualComponent {
       this.dataLeitura = null;
       // this.date = null;
       console.log('0000')
-
     }
     return;
   }
@@ -1152,7 +1134,7 @@ export class EntradaManualComponent {
   }
 
 
-  dateLast: any;
+
   async searchDate($event: Event) {
     this.date = $event.target['value'];
     this.pathNavigation.path = null;
@@ -1161,23 +1143,35 @@ export class EntradaManualComponent {
   }
 
   async search($event: Event) {
-
+    let dataNavigation: Array<Navigation>
     let searchItem = $event.target['value'];
     if (searchItem) {
       this.elements = null;
       searchItem = new String(searchItem).toLowerCase();
-
+      // if (this.date && searchItem) {
+      //   if (!dataNavigation) {
+      //     dataNavigation = this.navigation;
+      //   }
+      //   if (this.dateLast != this.date) {
+      //     dataNavigation = this.navigation;
+      //   }
+      //   this.dateLast = this.date;
+      //   this.filterByDateAndString(dataNavigation, searchItem);
+      // } else {
+      //   this.date = null;
+      //   this.filterByString(this.arvoreLocal, searchItem)
+      // }
+      // if (this.navigation.length == 0) {
+      //   console.log('Arvore Vazia')
+      // }
       if (this.date && searchItem) {
-        if (!this.dataNavigation) {
-          this.dataNavigation = this.navigation;
+        if (!dataNavigation) {
+          dataNavigation = this.navigation;
         }
-        if (this.dateLast != this.date) {
-          this.dataNavigation = this.navigation;
-        }
-        this.dateLast = this.date;
-        this.filterByDateAndString(this.dataNavigation, searchItem);
-      } else {
-        this.date = null;
+
+        this.filterByDateAndString(dataNavigation, searchItem);
+      } if (searchItem) {
+
         this.filterByString(this.arvoreLocal, searchItem)
       }
       if (this.navigation.length == 0) {
@@ -1185,7 +1179,6 @@ export class EntradaManualComponent {
       }
     } else {
       this.elements = null;
-      // this.date = null;
       await this.loadNavigationDataFromStorage();
     }
   }
