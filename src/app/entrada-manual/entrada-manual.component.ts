@@ -437,6 +437,7 @@ export class EntradaManualComponent {
   async loadNavigationDataFromStorage() {
     let pathRead: any;
     let dataLeitura: any;
+    this.elements = null;
     this.arvoreLocal = await this.storageService.getByKey(
       this.storageService.navigation
     );
@@ -500,7 +501,6 @@ export class EntradaManualComponent {
     let dataWriteStorage = await this.storageService.getByKey(
       this.storageService.writtenValues
     )
-    console.log(dataWriteStorage.length)
     if (dataWriteStorage.length > 0) {
       this.confirmDataSent();
     }
