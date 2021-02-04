@@ -1083,7 +1083,6 @@ export class EntradaManualComponent {
     })
     if (this.navigation.length == 0) {
       this.dataLeitura = null;
-      this.date = null;
       this.selectedDate = null;
       this.showAlert('Não existem dados para esta data!');
       this.loadNavigationDataFromStorage();
@@ -1139,12 +1138,12 @@ export class EntradaManualComponent {
 
 
   async searchDate($event: Event) {
-    this.date = $event.target['value'];
+    this.dateSelect = $event.target['value'];
     this.pathNavigation.path = null;
     this.dataLeitura = null
-    await this.filterByDate(this.navigation, this.date)
+    await this.filterByDate(this.navigation, this.dateSelect)
   }
-
+  dateSelect: any;
   async search($event: Event) {
     let dataNavigation: Array<Navigation>
     let searchItem = $event.target['value'];
@@ -1167,13 +1166,13 @@ export class EntradaManualComponent {
       // if (this.navigation.length == 0) {
       //   console.log('Arvore Vazia')
       // }
-      if (this.date && searchItem) {
+      if (this.dateSelect && searchItem) {
         if (!dataNavigation) {
           dataNavigation = this.navigation;
+          console.log(dataNavigation)
         }
-
         this.filterByDateAndString(dataNavigation, searchItem);
-      } if (searchItem) {
+      } if (!this.dateSelect && searchItem) {
 
         this.filterByString(this.arvoreLocal, searchItem)
       }
@@ -1183,6 +1182,7 @@ export class EntradaManualComponent {
     } else {
       this.elements = null;
       await this.loadNavigationDataFromStorage();
+
     }
   }
 }
