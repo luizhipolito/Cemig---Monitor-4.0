@@ -111,6 +111,9 @@ export class SalvarDadosComponent {
       this.storageService.writtenValues,
       dataToWriteOnPI
     );
+  }
+
+  async updateStorageList(dataToWriteOnPI: Arvore[]) {
     await this.storageService.store(
       this.storageService.writtenValuesForList,
       dataToWriteOnPI
@@ -141,6 +144,7 @@ export class SalvarDadosComponent {
         if (!res) return;
         this.dataToWriteOnPI = this.dataToWriteOnPI.filter((f) => !f['isToSave']);
         await this.updateStorage(this.dataToWriteOnPI);
+        await this.updateStorageList(this.dataToWriteOnPI);
         await this.showAlert('Dado(s) Excluído(s) com sucesso!')
       }
     }

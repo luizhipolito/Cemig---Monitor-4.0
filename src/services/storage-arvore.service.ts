@@ -28,14 +28,18 @@ export class StorageArvoreService {
     return this.storage.set(key, arvore);
   }
 
+
   public saveConfig(key, value: string) {
     this.storage.set(key, value);
+  }
+
+  public removeWrittenList() {
+    this.storage.remove(this.writtenValuesForList);
   }
 
   public removeAll() {
     this.storage.remove(this.navigation);
     this.storage.remove(this.enumerationSets);
-    this.storage.remove(this.writtenValuesForList);
   }
 
   async removeEdit() {

@@ -25,12 +25,14 @@ export class LoginComponent {
     private api: ApiService,
     public utils: AppUtils,
     private messageBox: MatSnackBar,
-    public storage: StorageArvoreService,
+    public storageService: StorageArvoreService,
     public configService: ConfigService,
     public config: ConfigService,
     public alertController: AlertController,
 
   ) { }
+
+  dataWrittenListToRemove: any;
 
   public user;
   public pass;
@@ -49,7 +51,7 @@ export class LoginComponent {
     return this.isActiveToggleTextPassword ? 'password' : 'text';
   }
 
-  onSubmit(f: NgForm) {
+  async onSubmit(f: NgForm) {
     this.utils.saveStorage('user', f.value.username)
     this.utils.saveStorage('password', f.value.password)
 
@@ -63,12 +65,22 @@ export class LoginComponent {
         this.config.saveStorage();
       }
 
+      let writtenValues = await this.storageService.getByKey(
+        this.storageService.writtenValues
+      );
+      if (writtenValues) {
+        if (writtenValues.length == 0) {
+          this.storageService.removeWrittenList();
+        }
+      }
+
       this.api
         .get(this.configService.getHomeUrl())
         .subscribe((data: Resposta) => {
+
           if (data) {
             this.utils.saveStorage('Authorization', AuthorizationToken);
-            this.storage.removeAll();
+            this.storageService.removeAll();
             this.configService.isToLoadFromPI = true;
             this.router.navigate(['/entrada-manual']);
           } else {

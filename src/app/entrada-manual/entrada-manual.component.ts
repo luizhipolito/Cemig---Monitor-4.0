@@ -500,9 +500,12 @@ export class EntradaManualComponent {
     let dataWriteStorage = await this.storageService.getByKey(
       this.storageService.writtenValues
     )
-    if (dataWriteStorage.length > 0) {
-      this.confirmDataSent();
+    if (dataWriteStorage) {
+      if (dataWriteStorage.length > 0) {
+        this.confirmDataSent();
+      }
     }
+
   }
 
   async confirmDataSent() {
