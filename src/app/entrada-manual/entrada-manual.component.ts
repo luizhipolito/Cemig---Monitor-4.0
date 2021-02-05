@@ -279,7 +279,6 @@ export class EntradaManualComponent {
     this.propFocous = null;
     this.navigation = new Array<Navigation>();
     this.pathNavigation = Navigation.Instance();
-
   }
 
   async syncDataFromPI() {
@@ -1169,7 +1168,6 @@ export class EntradaManualComponent {
       if (this.dateSelect && searchItem) {
         if (!dataNavigation) {
           dataNavigation = this.navigation;
-          console.log(dataNavigation)
         }
         this.filterByDateAndString(dataNavigation, searchItem);
       } if (!this.dateSelect && searchItem) {
@@ -1182,7 +1180,6 @@ export class EntradaManualComponent {
     } else {
       this.elements = null;
       await this.loadNavigationDataFromStorage();
-
     }
   }
 }

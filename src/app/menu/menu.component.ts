@@ -4,6 +4,7 @@ import { MenuController } from '@ionic/angular';
 import { StorageArvoreService } from 'src/services/storage-arvore.service';
 import { AppUtils } from 'src/utils/app.utils';
 import { EntradaManualComponent } from '../entrada-manual/entrada-manual.component';
+import { ConfigService } from 'src/services/config.service';
 
 @Component({
   selector: 'app-menu',
@@ -15,15 +16,29 @@ export class MenuComponent {
   nameMenu: string;
 
 
-  constructor(private router: Router, private menu: MenuController, public storageService: StorageArvoreService, public utils: AppUtils, public entradaManual: EntradaManualComponent) { }
+  constructor(
+    private router: Router,
+    private menu: MenuController,
+    public storageService: StorageArvoreService,
+    public utils: AppUtils,
+    public entradaManual: EntradaManualComponent,
+    public config: ConfigService
+  ) { }
+
   ionViewWillEnter() {
     this.menu.close();
   }
 
 
+
   goSalvarDados() {
     this.menu.close();
     this.router.navigate(['/salvar-dados']);
+  }
+
+  goPageLogs() {
+    this.menu.close();
+    this.router.navigate(['/page-logs']);
   }
 
   openMenu() {

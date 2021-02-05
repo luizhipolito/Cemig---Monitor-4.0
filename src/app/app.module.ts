@@ -28,6 +28,7 @@ import { FilterPipe } from 'src/utils/filters';
 import { SalvarDadosComponent } from './salvar-dados/salvar-dados.component';
 import { InserirComentarioComponent } from './inserir-comentario/inserir-comentario.component';
 import { MenuComponent } from './menu/menu.component';
+import { PageLogsComponent } from './page-logs/page-logs.component';
 
 @NgModule({
   declarations: [
@@ -39,7 +40,8 @@ import { MenuComponent } from './menu/menu.component';
     SalvarDadosComponent,
     InserirComentarioComponent,
     FilterPipe,
-    MenuComponent
+    MenuComponent,
+    PageLogsComponent
   ],
   entryComponents: [InserirComentarioComponent, MenuComponent],
   imports: [

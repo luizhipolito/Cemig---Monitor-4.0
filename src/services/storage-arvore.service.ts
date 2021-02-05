@@ -17,6 +17,7 @@ export class StorageArvoreService {
   configValues: string = 'config';
   writtenValues: string = 'writtenValues';
   writtenValuesForList: string = 'writtenList';
+  writtenLogs: string = 'writtenLogs';
   constructor(private storage: Storage) { }
 
   public insert(arvore: Arvore) {
@@ -115,7 +116,7 @@ export class StorageArvoreService {
       return this.store(key, [value]);
     }
 
-    if (key == this.writtenValues || key == this.writtenValuesForList) {
+    if (key == this.writtenValues || key == this.writtenValuesForList || key == this.writtenLogs) {
       let updateTree = oldTree.find(
         (f) => f.date == value.date && f.AplicacaoID == value.AplicacaoID
       );
@@ -165,6 +166,8 @@ export class Arvore {
   isSystem: boolean;
   isEdit: boolean;
   firstSelection: PIWebAttribute;
+  status: string;
+  user: string;
 }
 
 export class ArvoreList {

@@ -5,6 +5,7 @@ import { EntradaManualComponent } from './entrada-manual/entrada-manual.componen
 import { SenhaOffPageComponent } from './senha-off-page/senha-off-page.component';
 import { DataConfigComponent } from './data-config/data-config.component';
 import { SalvarDadosComponent } from './salvar-dados/salvar-dados.component';
+import { PageLogsComponent } from './page-logs/page-logs.component';
 
 const routes: Routes = [
   {
@@ -38,6 +39,11 @@ const routes: Routes = [
     path: 'salvar-dados',
     component: SalvarDadosComponent,
   },
+  {
+    path: 'page-logs',
+    component: PageLogsComponent,
+  },
+
 ];
 
 @NgModule({
@@ -46,4 +52,4 @@ const routes: Routes = [
   ],
   exports: [RouterModule],
 })
-export class AppRoutingModule {}
+export class AppRoutingModule { }

@@ -9,6 +9,7 @@ import { AppUtils, createBatch } from 'src/utils/app.utils';
 import { ApiService } from 'src/services/api.service';
 import { ConfigService } from 'src/services/config.service';
 import { EntradaManualComponent } from '../entrada-manual/entrada-manual.component';
+import { PIWebObject } from 'src/model/PIWebObject.model';
 
 @Component({
   selector: 'app-salvar-dados',
@@ -36,7 +37,6 @@ export class SalvarDadosComponent {
   ngOnInit() { }
 
   dataToWriteOnPI: Array<Arvore> = [];
-
 
   async loadSaveValues() {
     let writtenValues = await this.storageService.getByKey(
@@ -73,7 +73,7 @@ export class SalvarDadosComponent {
       } else {
         let dataToWriteOnPI = this.dataToWriteOnPI.filter((f) => f['isToSave']);
         for (let data of dataToWriteOnPI) {
-          let values = data.value.filter(m => m.mode != 'Leitura')
+          let values = data.value.filter(m => m.mode != 'Leitura');
           if (values) {
             this.dismissAlert();
             this.showAlertCloseAfter('Enviando dados...');
@@ -86,12 +86,45 @@ export class SalvarDadosComponent {
           this.responses = Object.keys(batchResponse).map((k) => batchResponse[k]);
           let noUpdate = this.responses.find(c => c.Status >= 400 && (c.Status != 402 && c.Status != 409 && c.Status != 500))
 
+
+          let valuesList;
+          let val = this.responses.map(c => c.Status);
+          let user = this.utils.getStorage('user')
+          console.log(user)
+          let stat = data.value.filter(m => m.mode != 'Leitura')
+          console.log(stat)
+          valuesList = stat.map(nav => {
+            let tree = new ArvoreLogs();
+            tree.Name = nav.Name;
+            console.log(this.responses.length)
+            for (let i = 0; i < this.responses.length; i++) {
+              tree.status = val[0];
+            }
+            return tree;
+          })
+
+
+          let treeLogs = new Arvore();
+          treeLogs.user = user;
+          treeLogs.AplicacaoID = data.AplicacaoID
+          treeLogs.date = data.date;
+          treeLogs.relativePath = data.relativePath
+          treeLogs.value = valuesList;
+
+          console.log(treeLogs)
+          await this.storageService.insertOrUpdate(
+            this.storageService.writtenLogs,
+            treeLogs
+          );
+
           if (noUpdate) {
             let error = noUpdate.Content['Errors'];
             this.dismissAlert();
             this.showAlert(`Não foi possivel enviar os dados!<br>Erro:${error}`)
             return;
           }
+
+
         }
         let isUpdated = this.responses.every((r) => (r.Status >= 200 && r.Status < 400) || (r.Status == 402 || r.Status == 409 || r.Status == 500));
         if (isUpdated) {
@@ -212,4 +245,13 @@ export class SalvarDadosComponent {
   }
 
 
+}
+
+export class ArvoreLogs {
+  Name: string;
+  AplicacaoID: string;
+  date: string;
+  relativePath: string;
+  status: Array<string>;
+  values: Array<PIWebObject>;
 }

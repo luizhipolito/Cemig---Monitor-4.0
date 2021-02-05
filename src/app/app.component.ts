@@ -6,7 +6,7 @@ import { StatusBar } from '@ionic-native/status-bar/ngx';
 import { NavigationStart, Router } from '@angular/router';
 import { filter } from 'rxjs/operators';
 
-const menus = ['/entrada-manual', '/salvar-dados'];
+const menus = ['/entrada-manual', '/salvar-dados', '/page-logs'];
 import { ScreenOrientation } from '@ionic-native/screen-orientation/ngx';
 import { Insomnia } from '@ionic-native/insomnia/ngx'
 

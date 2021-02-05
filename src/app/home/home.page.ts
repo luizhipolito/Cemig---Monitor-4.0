@@ -8,7 +8,12 @@ import { ConfigService } from 'src/services/config.service';
   templateUrl: 'home.page.html',
   styleUrls: ['home.page.scss'],
 })
-export class HomePage implements OnInit {
+export class HomePage {
+  ionViewWillEnter() {
+    this.config.init();
+    this.nameHome = this.config.NomeAppInicio;
+  }
+
   goSincronizar() {
     this.router.navigate(['/login']);
   }
@@ -20,6 +25,13 @@ export class HomePage implements OnInit {
   goSettings() {
     this.router.navigate(['/data-config']);
   }
+
+  nameHome: any;
+  getName() {
+
+    console.log(this.nameHome)
+  }
+
   constructor(private router: Router, public utils: AppUtils, public config: ConfigService) { }
 
   ngOnInit(): void {
