@@ -1,0 +1,30 @@
+.boxData{
+    border: 2px solid black;
+    width: calc(100% - 10px);
+    height: calc(100% - 60px);
+    margin: 5px;
+    overflow: auto;
+}
+
+.boxLogs{
+    font-size: 15px;
+    border-bottom: 4px dotted rgb(110, 110, 110);
+}
+
+
+ion-list{
+    margin-left: 10px;
+}
+
+.btn{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    // margin: 5px;
+    // margin-right: 20px;
+}
+
+.iconBack{
+    font-size: 1.6rem;
+    margin: 10px;
+  }

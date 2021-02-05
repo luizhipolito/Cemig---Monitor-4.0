@@ -1,0 +1,19 @@
+<ion-app>
+  <ion-content>
+    <div class="boxData">
+      <div class="boxLogs" *ngFor="let data of dataLogs">
+        <ion-item>Usuario: {{data.user}}</ion-item>
+        <ion-item lines="none">Data: {{data.date}} | Instrumento: {{getRelativePath(data.relativePath)}}</ion-item>
+        <div *ngFor="let value of data.value">
+          <ion-list>{{value.Name}} : Status {{value.status}}</ion-list>
+        </div>
+      </div>
+    </div>
+    <div class="btn">
+      <div class="btn_back">
+        <ion-icon class="iconBack" (click)="onBack()" name="arrow-back-outline"></ion-icon>
+      </div>
+
+    </div>
+  </ion-content>
+</ion-app>
