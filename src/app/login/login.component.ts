@@ -3,10 +3,10 @@ import { Router } from '@angular/router';
 import { Login, Resposta, Autorizacao } from './login.interfaces';
 import { NgForm } from '@angular/forms';
 import { ApiService } from 'src/services/api.service';
-import { AppUtils } from 'src/utils/app.utils';
+import { AppUtils, firstOrNull } from 'src/utils/app.utils';
 import { MatSnackBar, MatSnackBarConfig } from '@angular/material/snack-bar';
 import {
-  StorageArvoreService,
+  StorageArvoreService, Arvore,
 } from '../../services/storage-arvore.service';
 
 import { ConfigService } from 'src/services/config.service';
@@ -36,7 +36,7 @@ export class LoginComponent {
 
   public user;
   public pass;
-
+  currentDate = this.utils.formatDateTimeHours(new Date());
   async ionViewWillEnter() {
     this.utils.removeStorgare('Autorizacao');
     this.user = this.utils.getStorage('user');
@@ -51,19 +51,29 @@ export class LoginComponent {
     return this.isActiveToggleTextPassword ? 'password' : 'text';
   }
 
-  async onSubmit(f: NgForm) {
-    this.utils.saveStorage('user', f.value.username)
-    this.utils.saveStorage('password', f.value.password)
 
+  async onSubmit(f: NgForm) {
+    this.utils.saveStorage('user', f.value.username);
+    this.utils.saveStorage('password', f.value.password);
     if (f.valid) {
       let AuthorizationToken = btoa(f.value.username + ':' + f.value.password);
       this.api.setAuth(AuthorizationToken);
-
       if (!this.configService.configUrl) {
         this.config.configUrl = 'https://34.233.235.92/piwebapi';
         this.config.configPath = '\\\\EC2AMAZ-T1N5EJ5\\Testes\\APP Entrada Manual';
         this.config.saveStorage();
       }
+      let date = new Date(this.currentDate);
+
+      let treeUser = new Arvore();
+      treeUser.user = this.user;
+      treeUser.date = this.currentDate;
+      treeUser.AplicacaoID = this.utils.getRandom().toLocaleString();
+      console.log(treeUser)
+      await this.storageService.insertOrUpdate(
+        this.storageService.writtenLogs,
+        treeUser
+      )
 
       let writtenValues = await this.storageService.getByKey(
         this.storageService.writtenValues

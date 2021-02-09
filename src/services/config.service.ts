@@ -61,9 +61,11 @@ export class ConfigService {
     let config = await this.storageService.getByKey(
       this.storageService.configValues
     );
-    config.forEach((conf) => {
-      this[conf.Nome] = conf.configValue;
-    });
+    if (config) {
+      config.forEach((conf) => {
+        this[conf.Nome] = conf.configValue;
+      });
+    }
   }
 
   getBaseUrl() {

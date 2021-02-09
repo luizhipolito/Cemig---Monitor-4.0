@@ -5,7 +5,7 @@ import {
   Arvore,
   StorageArvoreService,
 } from 'src/services/storage-arvore.service';
-import { AppUtils, createBatch } from 'src/utils/app.utils';
+import { AppUtils, createBatch, firstOrNull } from 'src/utils/app.utils';
 import { ApiService } from 'src/services/api.service';
 import { ConfigService } from 'src/services/config.service';
 import { EntradaManualComponent } from '../entrada-manual/entrada-manual.component';
@@ -42,9 +42,11 @@ export class SalvarDadosComponent {
     let writtenValues = await this.storageService.getByKey(
       this.storageService.writtenValues
     );
-    this.dataToWriteOnPI = writtenValues.map((m) => {
-      return { isToSave: true, ...m };
-    }) as Array<Arvore>;
+    if (writtenValues) {
+      this.dataToWriteOnPI = writtenValues.map((m) => {
+        return { isToSave: true, ...m };
+      }) as Array<Arvore>;
+    }
   }
 
   async ionViewWillEnter() {
@@ -88,31 +90,27 @@ export class SalvarDadosComponent {
 
 
           let valuesList;
-          let val = this.responses.map(c => c.Status);
-          let user = this.utils.getStorage('user')
-          console.log(user)
-          let stat = data.value.filter(m => m.mode != 'Leitura')
-          console.log(stat)
-          valuesList = stat.map(nav => {
+          let val = this.responses.map(c => c);
+          let user = this.utils.getStorage('user');
+          let stat = data.value.filter(m => m.mode != 'Leitura');
+          valuesList = stat.map((nav, index) => {
             let tree = new ArvoreLogs();
             tree.Name = nav.Name;
-            console.log(this.responses.length)
-            for (let i = 0; i < this.responses.length; i++) {
-              tree.status = val[0];
-            }
+            tree.status = val[index];
+
             return tree;
           })
 
 
+          let currentDate = this.utils.formatDateTimeHours(new Date());
           let treeLogs = new Arvore();
           treeLogs.user = user;
-          treeLogs.AplicacaoID = data.AplicacaoID
-          treeLogs.date = data.date;
-          treeLogs.relativePath = data.relativePath
-          treeLogs.value = valuesList;
+          treeLogs.AplicacaoID = this.utils.getRandom().toLocaleString();
+          treeLogs.date = currentDate;
+          treeLogs.relativePath = data.relativePath;
+          treeLogs.value = valuesList
 
-          console.log(treeLogs)
-          await this.storageService.insertOrUpdate(
+          this.storageService.insertOrUpdate(
             this.storageService.writtenLogs,
             treeLogs
           );
@@ -123,9 +121,8 @@ export class SalvarDadosComponent {
             this.showAlert(`Não foi possivel enviar os dados!<br>Erro:${error}`)
             return;
           }
-
-
         }
+
         let isUpdated = this.responses.every((r) => (r.Status >= 200 && r.Status < 400) || (r.Status == 402 || r.Status == 409 || r.Status == 500));
         if (isUpdated) {
           this.dataToWriteOnPI = this.dataToWriteOnPI.filter(
@@ -135,7 +132,6 @@ export class SalvarDadosComponent {
         await this.updateStorage(this.dataToWriteOnPI);
         this.dismissAlert();
         this.showAlert('Dados enviado(s) com sucesso!');
-
       }
     }
   }

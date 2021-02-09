@@ -25,6 +25,28 @@ export class AppUtils {
     return JSON.parse(value || null);
   }
 
+  getRandom() {
+    var dt = new Date().getTime();
+    var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+      var r = (dt + Math.random() * 16) % 16 | 0;
+      dt = Math.floor(dt / 16);
+      return (c == 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+    });
+    return uuid;
+  }
+
+  formatDateTimeHours = (d: Date) => {
+    var dateStr =
+      ('00' + d.getDate()).slice(-2) +
+      '/' +
+      ('00' + (d.getMonth() + 1)).slice(-2) +
+      '/' +
+      d.getFullYear() +
+      ' Horário: ' + d.getHours() + ':' + ('00' + (d.getMinutes() + 1)).slice(-2);
+
+    return dateStr;
+  };
+
   formatDateTime = (d: Date) => {
     var dateStr =
       d.getFullYear() +

@@ -1,11 +1,33 @@
 <ion-app>
   <ion-content>
     <div class="boxData">
+
       <div class="boxLogs" *ngFor="let data of dataLogs">
-        <ion-item>Usuario: {{data.user}}</ion-item>
-        <ion-item lines="none">Data: {{data.date}} | Instrumento: {{getRelativePath(data.relativePath)}}</ion-item>
-        <div *ngFor="let value of data.value">
-          <ion-list>{{value.Name}} : Status {{value.status}}</ion-list>
+        <div *ngIf="!data.relativePath">
+          <h6>Login</h6>
+          <ion-item>Usuario: {{data.user}}</ion-item>
+          <ion-item lines="none">Data: {{data.date}}</ion-item>
+        </div>
+        <div *ngIf="data.relativePath && !data.isEdit">
+          <h6>Dados Enviados</h6>
+          <ion-item>Usuario: {{data.user}}</ion-item>
+          <ion-item lines="none">Data: {{data.date}} | Instrumento: {{getRelativePath(data.relativePath)}}</ion-item>
+          <div>
+            <div *ngFor="let value of data.value">
+              <ion-list>{{value.Name}} : Status {{value.status.Status}}
+              </ion-list>
+            </div>
+          </div>
+        </div>
+        <div *ngIf="data.isEdit == true">
+          <h6>Dados Postados</h6>
+          <ion-item>Usuario: {{data.user}}</ion-item>
+          <ion-item lines="none">Data: {{data.date}} | Instrumento: {{getRelativePath(data.relativePath)}}</ion-item>
+          <div>
+            <div *ngFor="let value of data.value">
+              <ion-list>{{value.Name}} : {{value.Selected}}</ion-list>
+            </div>
+          </div>
         </div>
       </div>
     </div>

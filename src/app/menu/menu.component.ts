@@ -24,9 +24,11 @@ export class MenuComponent {
     public entradaManual: EntradaManualComponent,
     public config: ConfigService
   ) { }
-
   ionViewWillEnter() {
     this.menu.close();
+    this.config.init();
+    this.nameMenu = this.config.NomeAppMenu;
+    console.log(this.nameMenu)
   }
 
 

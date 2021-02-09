@@ -253,10 +253,11 @@ export class EntradaManualComponent {
     }
   }
 
-
+  public user;
 
   async ionViewWillEnter() {
     let isToSyncDataFromPI = this.config.isToLoadFromPI && true;
+    this.user = this.utils.getStorage('user');
     this.init();
     await this.api.init();
     await this.config.init();
@@ -429,8 +430,9 @@ export class EntradaManualComponent {
   };
 
   clickMainNavigation() {
-    this.pathNavigation.path = null;
     this.loadNavigationDataFromStorage();
+    this.pathNavigation.path = null;
+
   }
 
   async loadNavigationDataFromStorage() {
@@ -485,8 +487,9 @@ export class EntradaManualComponent {
         }
       });
     }
-    else {
-      this.showAlert('Não existem dados para leitura por data!')
+    if (this.navigation.length == 0) {
+      this.showAlert('Não existem dados para leitura por data!');
+      this.onClickId(this.pathNavigation)
     }
   }
 
@@ -912,6 +915,23 @@ export class EntradaManualComponent {
     tree.date = dateStr;
     tree.value = values;
 
+    let currentDateLogs = this.utils.formatDateTimeHours(new Date());
+    let treeLogsPost = new Arvore();
+    treeLogsPost.AplicacaoID = this.elements.WebId;
+    treeLogsPost.relativePath = this.elements.RelativePath;
+    treeLogsPost.user = this.user;
+    treeLogsPost.isEdit = true;
+    let valuesLogs = this.utils.getWrittenValues(this.elements);
+
+    treeLogsPost.date = currentDateLogs;
+    treeLogsPost.value = valuesLogs;
+
+    console.log(tree)
+    this.storageService.insertOrUpdate(
+      this.storageService.writtenLogs,
+      treeLogsPost
+    )
+
 
     let leituraEscritaMode = this.elements.list.filter(m => m.mode == 'LeituraEscrita').find(s => s.Selected != null);
     let leituraEscritaConstanteMode = this.elements.list.filter(m => m.mode == 'LeituraEsConst').find(s => s.Selected != null);
@@ -1083,7 +1103,6 @@ export class EntradaManualComponent {
     if (this.navigation.length == 0) {
       this.dataLeitura = null;
       this.selectedDate = null;
-      this.showAlert('Não existem dados para esta data!');
       this.loadNavigationDataFromStorage();
       return;
     }

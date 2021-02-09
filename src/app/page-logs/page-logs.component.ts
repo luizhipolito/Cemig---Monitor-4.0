@@ -18,6 +18,7 @@ export class PageLogsComponent {
     this.storageService.removeEdit()
     this.navCtrl.navigateBack('entrada-manual');
   }
+
   getRelativePath(path: string) {
     if (path.startsWith('\\')) {
       path = path.slice(1);
@@ -25,6 +26,7 @@ export class PageLogsComponent {
     path = path.split('\\').join('➤');
     return path;
   }
+
   dataLogs: any;
   async loadLogValues() {
     this.dataLogs = await this.storageService.getByKey(
