@@ -242,7 +242,7 @@ export class EntradaManualComponent {
 
           this.elements = new Attribute;
 
-          this.currentDate = editData['date']
+          this.currentDate = editData['date'];
           this.elements.firstSelection = first;
           this.elements.RelativePath = pathEdit;
           this.elements.WebId = editData['AplicacaoID'];
@@ -318,6 +318,7 @@ export class EntradaManualComponent {
 
   async syncNavigationData() {
     let rootData = await this.api.get(this.config.getBaseUrl()).toPromise();
+    console.log(rootData)
     let rootUrl = this.utils.getValue(
       rootData,
       this.config.ElementoRaiz,
@@ -431,8 +432,7 @@ export class EntradaManualComponent {
 
   clickMainNavigation() {
     this.loadNavigationDataFromStorage();
-    this.pathNavigation.path = null;
-
+    // this.pathNavigation.path = null;
   }
 
   async loadNavigationDataFromStorage() {
@@ -567,7 +567,10 @@ export class EntradaManualComponent {
     this.storageService.getFilhos(e.path).then((result) => {
       let pathLength = e.path.length;
       this.navigation = new Array<{ path: Array<string>; name: string; date: Date; dateLast: Date }>();
-      if (result.length == 1) {
+      let pathResult = result.find(p => p).relativePath.slice().split('\\').pop();
+      let pathTrue = this.pathNavigation.path;
+      let pathTrues = pathTrue.slice().pop();
+      if (pathTrues == pathResult) {
         let item = result.find(firstOrNull);
         this.navigation.push({
           path: e.path,
@@ -823,7 +826,7 @@ export class EntradaManualComponent {
       } else {
         attValueString = new String(attValue.Value).toString();
       }
-      if (hasNoData == 'No Data') {
+      if (hasNoData == 'No Data' || hasNoData == 'Pt Created') {
         attValueString = ''
       }
       if (att.mode == EnumModeAttribute['Leitura/Escrita']) {
@@ -858,11 +861,12 @@ export class EntradaManualComponent {
     for (let k of Object.keys(this.templateRangeScalling)) {
       if (propFocous) {
         let config = propFocous.config.find((c) => c.Name == k) as PIWebAttribute;
-
-        if (config && config.Name) {
+        // console.log(config.Value.Value.Name)
+        if (config && config.Name && !config.Value.Value.Name) {
           if (config.Name === 'Mínimo') {
             this.minimo = config.Value.Value;
-            // console.log(this.minimo)
+            console.log(config.Value.Value.Name)
+            console.log(this.minimo)
           }
 
           if (config.Name === 'Mínimo de Alerta') {
@@ -916,6 +920,7 @@ export class EntradaManualComponent {
     tree.value = values;
 
     let currentDateLogs = this.utils.formatDateTimeHours(new Date());
+
     let treeLogsPost = new Arvore();
     treeLogsPost.AplicacaoID = this.elements.WebId;
     treeLogsPost.relativePath = this.elements.RelativePath;
@@ -926,7 +931,6 @@ export class EntradaManualComponent {
     treeLogsPost.date = currentDateLogs;
     treeLogsPost.value = valuesLogs;
 
-    console.log(tree)
     this.storageService.insertOrUpdate(
       this.storageService.writtenLogs,
       treeLogsPost
@@ -951,6 +955,7 @@ export class EntradaManualComponent {
 
 
       if (this.maximo || this.minimo || this.minimoAlerta || this.minimoAtencao || this.maximoAlerta || this.maximoAtencao) {
+        console.log(this.minimo)
         if (!this.minimo['Name']) {
           if (valueAlert <= this.minimo) {
             await this.showAlert(`Atenção! A leitura ${leitura} esta fora dos limites especificados para o equipamento.`)
@@ -1005,11 +1010,18 @@ export class EntradaManualComponent {
       this.storageService.writtenValuesForList,
       tree
     );
-
     this.elements = null;
-
-    this.loadNavigationDataFromStorage();
-    this.pathNavigation.path = null;
+    if (this.arvoreLocal.length == 1) {
+      let pathLength = this.pathNavigation.path.pop();
+      this.onClickId({
+        path: this.pathNavigation.path,
+        name: undefined,
+      })
+      this.showAlert('Não existem mais dados para Leitura por Data!');
+    } else {
+      this.loadNavigationDataFromStorage();
+      this.pathNavigation.path = null;
+    }
 
     await this.showAlert('Salvo com sucesso!');
   }
@@ -1104,8 +1116,8 @@ export class EntradaManualComponent {
       this.dataLeitura = null;
       this.selectedDate = null;
       this.loadNavigationDataFromStorage();
-      return;
     }
+    return;
   }
 
   filterByDateAndString(navigation: Array<Navigation>, name: string): Array<Navigation> {

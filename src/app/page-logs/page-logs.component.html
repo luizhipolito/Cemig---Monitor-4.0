@@ -8,6 +8,11 @@
           <ion-item>Usuario: {{data.user}}</ion-item>
           <ion-item lines="none">Data: {{data.date}}</ion-item>
         </div>
+        <div *ngIf="!data.relativePath && data.isToSave == true">
+          <h6>Login OffLine</h6>
+          <ion-item>Usuario: {{data.user}}</ion-item>
+          <ion-item lines="none">Data: {{data.date}}</ion-item>
+        </div>
         <div *ngIf="data.relativePath && !data.isEdit">
           <h6>Dados Enviados</h6>
           <ion-item>Usuario: {{data.user}}</ion-item>
@@ -35,7 +40,7 @@
       <div class="btn_back">
         <ion-icon class="iconBack" (click)="onBack()" name="arrow-back-outline"></ion-icon>
       </div>
-
+      <ion-button (click)="sharingLogs()">Enviar logs</ion-button>
     </div>
   </ion-content>
 </ion-app>

@@ -8,10 +8,11 @@
       <form #f="ngForm" (ngSubmit)="onSubmit(f)">
         <div class="main_inputs">
           <label>PI WEB API</label>
-          <input type="text" name="server" placeholder="https://34.233.235.92/piwebapi" [(ngModel)]="serverUrl" />
+          <input type="text" name="server" placeholder="https://pwnpo-bhepiapp1/piwebapi" [(ngModel)]="serverUrl" />
 
           <label>Configurações</label>
-          <input type="text" name="configuracoes" placeholder="\\EC2AMAZ-T1N5EJ5\Testes\APP Entrada Manual"
+          <input type="text" name="configuracoes"
+            placeholder="\\10.30.48.171\Instrumentação de barragens - MG/SB\CEMIG - Gerência de Segurança de Barragens e Manutenção Civil\Usinas\APP_Entrada_Manual"
             [(ngModel)]="configPath" />
           <button class="btn" type="submit" value="salvar">Salvar</button>
         </div>

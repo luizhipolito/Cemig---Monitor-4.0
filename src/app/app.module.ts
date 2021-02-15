@@ -29,6 +29,7 @@ import { SalvarDadosComponent } from './salvar-dados/salvar-dados.component';
 import { InserirComentarioComponent } from './inserir-comentario/inserir-comentario.component';
 import { MenuComponent } from './menu/menu.component';
 import { PageLogsComponent } from './page-logs/page-logs.component';
+import { SocialSharing } from '@ionic-native/social-sharing/ngx'
 
 @NgModule({
   declarations: [
@@ -67,6 +68,7 @@ import { PageLogsComponent } from './page-logs/page-logs.component';
     SQLitePorter,
     StorageArvoreService,
     EntradaManualComponent,
+    SocialSharing
   ],
   bootstrap: [AppComponent],
 })

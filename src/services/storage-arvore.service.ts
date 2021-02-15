@@ -119,7 +119,6 @@ export class StorageArvoreService {
     if (!oldTree) {
       return this.store(key, [value]);
     }
-    console.log(oldTree)
     if (key == this.writtenValues || key == this.writtenValuesForList || key == this.writtenLogs) {
       let updateTree = oldTree.find(
         (f) => f.date == value.date && f.AplicacaoID == value.AplicacaoID
