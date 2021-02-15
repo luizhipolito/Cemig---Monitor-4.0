@@ -30,6 +30,7 @@ import { InserirComentarioComponent } from './inserir-comentario/inserir-comenta
 import { MenuComponent } from './menu/menu.component';
 import { PageLogsComponent } from './page-logs/page-logs.component';
 import { SocialSharing } from '@ionic-native/social-sharing/ngx'
+import { File } from '@ionic-native/file/ngx';
 
 @NgModule({
   declarations: [
@@ -68,7 +69,8 @@ import { SocialSharing } from '@ionic-native/social-sharing/ngx'
     SQLitePorter,
     StorageArvoreService,
     EntradaManualComponent,
-    SocialSharing
+    SocialSharing,
+    File
   ],
   bootstrap: [AppComponent],
 })

@@ -318,7 +318,6 @@ export class EntradaManualComponent {
 
   async syncNavigationData() {
     let rootData = await this.api.get(this.config.getBaseUrl()).toPromise();
-    console.log(rootData)
     let rootUrl = this.utils.getValue(
       rootData,
       this.config.ElementoRaiz,

@@ -2,7 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { NavController } from '@ionic/angular';
 import { StorageArvoreService, Arvore } from 'src/services/storage-arvore.service';
 import { SocialSharing } from '@ionic-native/social-sharing/ngx'
-import { PIWebObject } from 'src/model/PIWebObject.model';
+import { File } from '@ionic-native/file/ngx';
+import { stringify } from 'querystring';
 
 @Component({
   selector: 'app-page-logs',
@@ -15,7 +16,9 @@ export class PageLogsComponent {
     private navCtrl: NavController,
     public storageService: StorageArvoreService,
     private socialSharing: SocialSharing,
+    private file: File,
   ) { }
+
 
   onBack() {
     this.storageService.removeEdit()
@@ -37,26 +40,38 @@ export class PageLogsComponent {
     )
   }
 
-  sharingLogs() {
-    this.dataLogs.forEach((data: Arvore) => {
-
-      let treeLogs = new Arvore();
-      treeLogs.user = data.user;
-      treeLogs.date = data.date;
-      treeLogs.relativePath = data.relativePath;
-      treeLogs.value = data.value
-      console.log(treeLogs)
-    })
-
-
-    // console.log(this.dataLogs.map(c => c).find(a => a))
-    // console.log(this.dataLogs.length)
-    // let dataLog = this.dataLogs.map(c => c);
-    // console.log(JSON.stringify(dataLog))
-
-    // console.log(JSON.stringify(this.dataLogs))
-    this.socialSharing.share('data');
+  createAccessLogFileAndWrite(text: string) {
+    this.file.checkFile(this.file.dataDirectory, 'access.log')
+      .then(doesExist => {
+        console.log("doesExist : " + doesExist);
+        return this.writeToAccessLogFile(text);
+      }).catch(err => {
+        return this.file.createFile(this.file.dataDirectory, 'access.log', false)
+          .then(FileEntry => this.writeToAccessLogFile(text))
+          .catch(err => console.log('Couldnt create file'));
+      });
   }
+
+  writeToAccessLogFile(text: string) {
+    this.file.writeExistingFile(this.file.dataDirectory, 'access.log', text)
+  }
+
+  someEventFunc(text: string) {
+    console.log(text)
+    // This is an example usage of the above functions
+    // This function is your code where you want to write to access.log file
+    this.createAccessLogFileAndWrite(text);
+  }
+
+  logData: any;
+  async sharingLogs() {
+
+    this.logData = document.getElementById('boxLogsData').innerText;
+    this.someEventFunc(this.logData);
+
+    this.socialSharing.share(this.logData);
+  }
+
 
 
   async ionViewWillEnter() {
