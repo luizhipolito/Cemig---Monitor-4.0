@@ -20,12 +20,16 @@ ion-content {
 }
 
 .spinner {
-  margin-top: 10%;
-  margin-left: 46%;
+  // margin-top: 10%;
+  // margin-left: 46%;
 }
-ion-spinner {
-  align-items: center;
-  transform: scale(3);
+// ion-spinner {
+//   align-items: center;
+//   transform: scale(3);
+// }
+ion-progress-bar{
+  right:  210px;
+  transform: scale(1.5);
 }
 
 .route{

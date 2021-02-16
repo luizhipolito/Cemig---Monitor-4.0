@@ -169,6 +169,7 @@ export class EntradaManualComponent {
   enumerationTree: Array<Arvore>;
   arvoreLocal: Array<Arvore>;
   navigation: Array<Navigation>;
+
   dateLast: any;
   currentDate = this.utils.formatDateTime(new Date());
   pathNavigation: Navigation = Navigation.Instance();
@@ -328,13 +329,14 @@ export class EntradaManualComponent {
       .get(rootUrl, insertParams)
       .pipe(map(this.generateRelativePath))
       .toPromise();
-    let attributes = await this.loadAttributes(navigationData)
+    let attributes = await this.loadAttributes(navigationData);
     let navigationTree = navigationData.map((nav) => {
       let tree = new Arvore();
       tree.atributos = attributes.find((att) => att.WebId == nav.WebId)
       tree.AplicacaoID = nav.WebId;
       tree.relativePath = nav.relativePath;
       tree.Caminho = tree.relativePath.split('\\').filter((c) => Boolean(c));
+
       return tree;
     });
     await this.storageService.store(
@@ -365,6 +367,7 @@ export class EntradaManualComponent {
     let enumerationSets = this.utils
       .getItems(await this.api.get(enumerationRootData).toPromise())
       .filter((enumSet) => qualyfiers.includes(enumSet.Name));
+    console.log(enumerationSets.length)
     return enumerationSets;
   }
 
@@ -398,7 +401,6 @@ export class EntradaManualComponent {
       this.config.afServer,
       batchRequest
     );
-
 
     enumerationSets.forEach((enumset, index) => {
       let response = batchResponse[index];
@@ -919,12 +921,13 @@ export class EntradaManualComponent {
     tree.value = values;
 
     let currentDateLogs = this.utils.formatDateTimeHours(new Date());
-
+    console.log(this.elements)
     let treeLogsPost = new Arvore();
     treeLogsPost.AplicacaoID = this.elements.WebId;
     treeLogsPost.relativePath = this.elements.RelativePath;
     treeLogsPost.user = this.user;
     treeLogsPost.isEdit = true;
+    treeLogsPost.isSystem = false;
     let valuesLogs = this.utils.getWrittenValues(this.elements);
 
     treeLogsPost.date = currentDateLogs;

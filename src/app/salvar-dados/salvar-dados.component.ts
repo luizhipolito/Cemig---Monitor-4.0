@@ -164,14 +164,33 @@ export class SalvarDadosComponent {
       this.showAlert('Confirme a Exclusao.')
     } else {
 
-      let dataToRemoveOnStorage = this.dataToWriteOnPI.filter(r => r.isToSave)
+      let dataToRemoveOnStorage = this.dataToWriteOnPI.filter(r => r.isToSave);
+      console.log(dataToRemoveOnStorage)
 
       if (dataToRemoveOnStorage.length == 0) {
         this.showAlert('Nao existem dados selecionados!');
       } else {
         let res = await this.showConfirm();
         if (!res) return;
+
         this.dataToWriteOnPI = this.dataToWriteOnPI.filter((f) => !f['isToSave']);
+        for (let data of dataToRemoveOnStorage) {
+          let values = data.value.filter(m => m.mode != 'Leitura');
+          let currentDateLogs = this.utils.formatDateTimeHours(new Date());
+          let user = this.utils.getStorage('user');
+          let treeLogsDeleted = new Arvore();
+          treeLogsDeleted.AplicacaoID = this.utils.getRandom().toLocaleString();
+          treeLogsDeleted.relativePath = data.relativePath;
+          treeLogsDeleted.user = user;
+          treeLogsDeleted.isEdit = false;
+          treeLogsDeleted.date = currentDateLogs;
+          treeLogsDeleted.value = values;
+
+          await this.storageService.insertOrUpdate(
+            this.storageService.writtenLogs,
+            treeLogsDeleted
+          );
+        }
         await this.updateStorage(this.dataToWriteOnPI);
         await this.updateStorageList(this.dataToWriteOnPI);
         await this.showAlert('Dado(s) Excluído(s) com sucesso!')

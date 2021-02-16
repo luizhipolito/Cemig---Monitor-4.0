@@ -3,18 +3,18 @@
     <div class="boxData" id="boxLogsData">
 
       <div class="boxLogs" *ngFor="let data of dataLogs">
-        <div *ngIf="!data.relativePath">
-
+        <div *ngIf="data.isSystem == true">
           <h6>Login</h6>
           <ion-item>Usuario: {{data.user}}</ion-item>
           <ion-item lines="none">Data: {{data.date}}</ion-item>
         </div>
         <br>
-        <div *ngIf="!data.relativePath && data.isToSave == true">
+        <div *ngIf="data.isToSave == true">
           <h6>Login OffLine</h6>
           <ion-item>Usuario: {{data.user}}</ion-item>
+          <ion-item lines="none">Data: {{data.date}}</ion-item>
         </div>
-        <div *ngIf="data.relativePath && !data.isEdit">
+        <!-- <div *ngIf="data.relativePath && data.isToSave == false">
           <h6>Dados Enviados</h6>
           <ion-item lines="none">Data: {{data.date}}</ion-item>
           <ion-item>Usuario: {{data.user}}</ion-item>
@@ -26,8 +26,20 @@
             </div>
           </div>
           <br>
+        </div> -->
+        <div *ngIf="data.isEdit === false">
+          <h6>Dados Excluidos</h6>
+          <ion-item>Usuario: {{data.user}}</ion-item>
+          <ion-item lines="none">Data: {{data.date}} | Instrumento: {{getRelativePath(data.relativePath)}}</ion-item>
+          <div>
+            <div *ngFor="let value of data.value">
+              <ion-list>{{value.Name}} : {{value.Selected}}
+              </ion-list>
+            </div>
+          </div>
+          <br>
         </div>
-        <div *ngIf="data.isEdit == true">
+        <div *ngIf="data.isSystem === false">
           <h6>Dados Postados</h6>
           <ion-item>Usuario: {{data.user}}</ion-item>
           <ion-item lines="none">Data: {{data.date}} | Instrumento: {{getRelativePath(data.relativePath)}}</ion-item>

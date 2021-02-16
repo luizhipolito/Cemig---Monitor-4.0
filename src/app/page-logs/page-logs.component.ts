@@ -47,11 +47,10 @@ export class PageLogsComponent {
     console.log(this.logData)
 
     var fileDir = this.file.externalApplicationStorageDirectory;
-    var filename = "result.txt";
-    console.log(fileDir)
+    var filename = "logs.txt";
     this.file.writeFile(fileDir, filename, this.logData, { replace: true });
 
-    await this.socialSharing.share(null, null, fileDir + 'result.txt');
+    await this.socialSharing.share(null, 'Logs CEMIG', fileDir + 'logs.txt');
   }
 
 

@@ -57,12 +57,13 @@ export class LoginComponent {
     this.utils.saveStorage('password', f.value.password);
     if (f.valid) {
       let AuthorizationToken = btoa(f.value.username + ':' + f.value.password);
+
       this.api.setAuth(AuthorizationToken);
       if (!this.configService.configUrl) {
-        // this.config.configUrl = 'https://pwnpo-bhepiapp1/piwebapi';
-        this.config.configUrl = 'https://34.233.235.92/piwebapi';
-        // this.config.configPath = '\\\\10.30.48.171\\Instrumentação de barragens - MG/SB\\CEMIG - Gerência de Segurança de Barragens e Manutenção Civil\\Usinas\\APP_Entrada_Manual';
-        this.config.configPath = '\\\\EC2AMAZ-T1N5EJ5\\Testes\\APP Entrada Manual';
+        this.config.configUrl = 'https://pwnpo-bhepiapp1/piwebapi';
+        // this.config.configUrl = 'https://34.233.235.92/piwebapi';
+        this.config.configPath = '\\\\10.30.48.171\\Instrumentação de barragens - MG/SB\\CEMIG - Gerência de Segurança de Barragens e Manutenção Civil\\Usinas\\APP_Entrada_Manual';
+        // this.config.configPath = '\\\\EC2AMAZ-T1N5EJ5\\Testes\\APP Entrada Manual';
         this.config.saveStorage();
       }
       let date = new Date(this.currentDate);
@@ -70,8 +71,8 @@ export class LoginComponent {
       let treeUser = new Arvore();
       treeUser.user = this.user;
       treeUser.date = this.currentDate;
+      treeUser.isSystem = true;
       treeUser.AplicacaoID = this.utils.getRandom().toLocaleString();
-      console.log(treeUser)
       await this.storageService.insertOrUpdate(
         this.storageService.writtenLogs,
         treeUser
@@ -89,8 +90,8 @@ export class LoginComponent {
       this.api
         .get(this.configService.getHomeUrl())
         .subscribe((data: Resposta) => {
-
           if (data) {
+            console.log(data)
             this.utils.saveStorage('Authorization', AuthorizationToken);
             this.storageService.removeAll();
             this.configService.isToLoadFromPI = true;
@@ -102,7 +103,6 @@ export class LoginComponent {
           }
         });
     } else {
-      // this.showMessageBox('Informe seu usuário e senha para continuar!');
       this.showAlert('Informe usuário e senha para continuar!')
     }
   }
