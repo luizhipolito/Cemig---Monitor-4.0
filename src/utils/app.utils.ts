@@ -6,7 +6,6 @@ import {
   PIWebAttribute,
 } from 'src/model/PIWebAttribute.model';
 import { PIWebObject } from 'src/model/PIWebObject.model';
-import { isNumber } from 'util';
 
 @Injectable({
   providedIn: 'root',

@@ -31,12 +31,12 @@ export class PageLogsComponent {
     path = path.split('\\').join('➤');
     return path;
   }
-
+  dataResponse: string;
   dataLogs: Array<Arvore>;
   async loadLogValues() {
     this.dataLogs = await this.storageService.getByKey(
       this.storageService.writtenLogs
-    )
+    );
   }
 
 

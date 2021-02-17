@@ -50,9 +50,9 @@ export class MenuComponent {
 
   logoutUsuario = () => {
     this.storageService.removeEdit();
+    this.utils.removeStorgare('Authorization');
     this.menu.close();
     this.router.navigate(['/']);
-
   };
   onSairClick = (ev) => {
     this.logoutUsuario();

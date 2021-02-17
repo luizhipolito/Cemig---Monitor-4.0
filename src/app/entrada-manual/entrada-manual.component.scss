@@ -19,17 +19,19 @@ ion-content {
   margin-left: 5px;
 }
 
-.spinner {
-  // margin-top: 10%;
-  // margin-left: 46%;
+.spinner > ion-label {
+  font-size: 1.6rem;
+  font-weight: 600;
+  color: #008f45;
 }
-// ion-spinner {
-//   align-items: center;
-//   transform: scale(3);
-// }
+
 ion-progress-bar{
   right:  210px;
   transform: scale(1.5);
+}
+
+.my-buffer-progress{
+  --buffer-background:#696969 !important;
 }
 
 .route{

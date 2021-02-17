@@ -73,6 +73,13 @@ export class SalvarDadosComponent {
       if (dataTrue.length == 0) {
         this.showAlert('Não existem dados selecionados!')
       } else {
+        let token = this.utils.getStorage('Authorization');
+        if (!token) {
+          let res = await this.showConfirmToken();
+          if (!res) return;
+          this.router.navigate(['/login'])
+          return;
+        }
         let dataToWriteOnPI = this.dataToWriteOnPI.filter((f) => f['isToSave']);
         for (let data of dataToWriteOnPI) {
           let values = data.value.filter(m => m.mode != 'Leitura');
@@ -109,6 +116,7 @@ export class SalvarDadosComponent {
           treeLogs.date = currentDate;
           treeLogs.relativePath = data.relativePath;
           treeLogs.value = valuesList
+          treeLogs.isToSave = false;
 
           this.storageService.insertOrUpdate(
             this.storageService.writtenLogs,
@@ -234,6 +242,37 @@ export class SalvarDadosComponent {
       header: 'Confirmar',
       message:
         'Deseja realmente excluir esses dados?',
+      buttons: [
+        {
+          text: 'Não',
+          handler: () => {
+            alert.dismiss(false);
+            return false;
+          },
+        },
+        {
+          text: 'Sim',
+          handler: () => {
+            alert.dismiss(true);
+            return true;
+          },
+        },
+      ],
+    });
+
+    await alert.present();
+    await alert.onDidDismiss().then((data) => {
+      choice = data.data as boolean;
+    });
+    return choice;
+  }
+
+  async showConfirmToken() {
+    let choice = false;
+    let alert = await this.alertController.create({
+      header: 'Confirmar',
+      message:
+        'Precisa logar para enviar leituras!<br> Deseja ir para tela de Login?',
       buttons: [
         {
           text: 'Não',

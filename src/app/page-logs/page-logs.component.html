@@ -14,19 +14,17 @@
           <ion-item>Usuario: {{data.user}}</ion-item>
           <ion-item lines="none">Data: {{data.date}}</ion-item>
         </div>
-        <!-- <div *ngIf="data.relativePath && data.isToSave == false">
+        <div *ngIf="data.isToSave == false">
           <h6>Dados Enviados</h6>
-          <ion-item lines="none">Data: {{data.date}}</ion-item>
           <ion-item>Usuario: {{data.user}}</ion-item>
           <ion-item lines="none">Data: {{data.date}} | Instrumento: {{getRelativePath(data.relativePath)}}</ion-item>
           <div>
             <div *ngFor="let value of data.value">
-              <ion-list>{{value.Name}} : Status {{value.status.Status}}
-              </ion-list>
+              <ion-list>{{value.Name}} : Status {{value.status.Status}}</ion-list>
             </div>
           </div>
           <br>
-        </div> -->
+        </div>
         <div *ngIf="data.isEdit === false">
           <h6>Dados Excluidos</h6>
           <ion-item>Usuario: {{data.user}}</ion-item>

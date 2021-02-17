@@ -216,7 +216,11 @@ export class EntradaManualComponent {
     public config: ConfigService,
     public modalController: ModalController,
     public alertController: AlertController,
-  ) { }
+  ) {
+  }
+
+
+
 
   async edit() {
     let editData = await this.storageService.getByKey('Edit')
@@ -257,6 +261,8 @@ export class EntradaManualComponent {
   public user;
 
   async ionViewWillEnter() {
+    this.progress = 0.1;
+    this.progressPercent = 10;
     let isToSyncDataFromPI = this.config.isToLoadFromPI && true;
     this.user = this.utils.getStorage('user');
     this.init();
@@ -273,9 +279,10 @@ export class EntradaManualComponent {
     }
     await this.edit();
     this.date = null;
-
   }
 
+  progress = 0.1;
+  progressPercent = Math.ceil(this.progress * 100);
   init() {
     this.elements = null;
     this.propFocous = null;
@@ -367,7 +374,7 @@ export class EntradaManualComponent {
     let enumerationSets = this.utils
       .getItems(await this.api.get(enumerationRootData).toPromise())
       .filter((enumSet) => qualyfiers.includes(enumSet.Name));
-    console.log(enumerationSets.length)
+
     return enumerationSets;
   }
 
@@ -401,6 +408,12 @@ export class EntradaManualComponent {
       this.config.afServer,
       batchRequest
     );
+    if (batchResponse) {
+      this.progress += 0.1;
+      this.progressPercent = Math.ceil(this.progress * 100);
+      console.log(this.progress)
+    }
+
 
     enumerationSets.forEach((enumset, index) => {
       let response = batchResponse[index];
@@ -421,6 +434,7 @@ export class EntradaManualComponent {
         .map((att) => att.TypeQualifier)
         .filter(distinct);
       return qualifyers;
+
     }
     return [];
   }
@@ -709,6 +723,11 @@ export class EntradaManualComponent {
       }
     }
     let response = await this.api.executeBatchAsync(server, request);
+    if (response) {
+      this.progress += 0.2;
+      this.progressPercent = Math.ceil(this.progress * 100);
+      console.log(this.progress)
+    }
     return response;
   }
 
@@ -724,6 +743,11 @@ export class EntradaManualComponent {
     let attributesData: Array<Attribute> = new Array<Attribute>();
     let attRequest = createBatch(items, 'Attributes');
     let attResponse = await this.api.executeBatchAsync(server, attRequest);
+    if (attResponse) {
+      this.progress += 0.2;
+      this.progressPercent = Math.ceil(this.progress * 100);
+      console.log(this.progress);
+    }
     let childAttResponse = await this.getResponse(attResponse, 'Attributes');
     let childValueResponse = await this.getResponse(
       childAttResponse,
@@ -731,6 +755,12 @@ export class EntradaManualComponent {
     );
     let valueRequest = createBatch(items, 'Value');
     let valueResponse = await this.api.executeBatchAsync(server, valueRequest);
+    if (valueResponse) {
+      this.progress += 0.2;
+      this.progressPercent = Math.ceil(this.progress * 100);
+      console.log(this.progress)
+    }
+
     for (let key in Object.keys(attResponse)) {
       let newAttribute: Attribute = new Attribute();
       let configList = {};

@@ -60,10 +60,10 @@ export class LoginComponent {
 
       this.api.setAuth(AuthorizationToken);
       if (!this.configService.configUrl) {
-        this.config.configUrl = 'https://pwnpo-bhepiapp1/piwebapi';
-        // this.config.configUrl = 'https://34.233.235.92/piwebapi';
-        this.config.configPath = '\\\\10.30.48.171\\Instrumentação de barragens - MG/SB\\CEMIG - Gerência de Segurança de Barragens e Manutenção Civil\\Usinas\\APP_Entrada_Manual';
-        // this.config.configPath = '\\\\EC2AMAZ-T1N5EJ5\\Testes\\APP Entrada Manual';
+        // this.config.configUrl = 'https://pwnpo-bhepiapp1/piwebapi';
+        this.config.configUrl = 'https://34.233.235.92/piwebapi';
+        // this.config.configPath = '\\\\10.30.48.171\\Instrumentação de barragens - MG/SB\\CEMIG - Gerência de Segurança de Barragens e Manutenção Civil\\Usinas\\APP_Entrada_Manual';
+        this.config.configPath = '\\\\EC2AMAZ-T1N5EJ5\\Testes\\APP Entrada Manual';
         this.config.saveStorage();
       }
       let date = new Date(this.currentDate);
