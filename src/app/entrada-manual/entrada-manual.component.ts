@@ -1127,13 +1127,14 @@ export class EntradaManualComponent {
     this.navigation = new Array<Navigation>();
     navigation.forEach((arvore: Navigation) => {
       if (arvore && arvore.path && arvore.path.length > 0) {
+        console.log(arvore)
         arvore.path.forEach((path, index) => {
           if (
             path.toLocaleLowerCase().includes(name) &&
             !this.navigation.some((n) => n.name == arvore.name)
           ) {
             this.navigation.push(
-              Navigation.Create(arvore.path, arvore.name, arvore.date, undefined)
+              Navigation.Create(arvore.path, arvore.name, arvore.date, arvore.dateLast)
             );
           }
         });
