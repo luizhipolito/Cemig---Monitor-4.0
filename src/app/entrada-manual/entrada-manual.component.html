@@ -75,7 +75,6 @@
                   (element.Type == 'Double' || element.Type == 'Single')
                 " [ngClass]="element.color">{{element.Selected}}</ion-label>
 
-
               <ion-select *ngIf="
                   (element.mode == 'LeituraEscrita' ||
                     element.mode == 'Escrita' || element.mode == 'Leitura' || element.mode === 'EscritaConstante' 
@@ -110,21 +109,6 @@
           </ion-list>
         </div>
 
-
-        <!-- <div *ngFor="let app of navigation">
-          <ion-list (click)="onClickId(app)">
-            <div *ngIf="dataLeitura">
-              <ion-row>
-                <ion-col>{{ app.name }}</ion-col>
-                <ion-col>{{app.date}}</ion-col>
-                <ion-col>{{app.dateLast}}</ion-col>
-              </ion-row>
-            </div>
-            <div *ngIf="!dataLeitura">
-              {{app.name}}
-            </div>
-          </ion-list>
-        </div> -->
       </div>
       <div *ngIf="elements != null && propFocous" class="controlKeyboard">
         <p>{{ propFocous && propFocous.Name ? propFocous.Name : '' }}</p>

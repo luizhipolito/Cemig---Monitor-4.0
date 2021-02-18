@@ -411,7 +411,6 @@ export class EntradaManualComponent {
     if (batchResponse) {
       this.progress += 0.1;
       this.progressPercent = Math.ceil(this.progress * 100);
-      console.log(this.progress)
     }
 
 
@@ -447,7 +446,7 @@ export class EntradaManualComponent {
 
   clickMainNavigation() {
     this.loadNavigationDataFromStorage();
-    // this.pathNavigation.path = null;
+    this.pathNavigation.path = [];
   }
 
   async loadNavigationDataFromStorage() {
@@ -503,7 +502,8 @@ export class EntradaManualComponent {
       });
     }
     if (this.navigation.length == 0) {
-      this.showAlert('Não existem dados para leitura por data!');
+      // this.showAlert('Não existem dados para leitura por data!');
+      console.log(this.pathNavigation)
       this.onClickId(this.pathNavigation)
     }
   }
@@ -726,7 +726,6 @@ export class EntradaManualComponent {
     if (response) {
       this.progress += 0.2;
       this.progressPercent = Math.ceil(this.progress * 100);
-      console.log(this.progress)
     }
     return response;
   }
@@ -746,7 +745,6 @@ export class EntradaManualComponent {
     if (attResponse) {
       this.progress += 0.2;
       this.progressPercent = Math.ceil(this.progress * 100);
-      console.log(this.progress);
     }
     let childAttResponse = await this.getResponse(attResponse, 'Attributes');
     let childValueResponse = await this.getResponse(
@@ -758,7 +756,6 @@ export class EntradaManualComponent {
     if (valueResponse) {
       this.progress += 0.2;
       this.progressPercent = Math.ceil(this.progress * 100);
-      console.log(this.progress)
     }
 
     for (let key in Object.keys(attResponse)) {
@@ -798,6 +795,7 @@ export class EntradaManualComponent {
       newAttribute.RelativePath = items[key].relativePath;
       newAttribute.firstSelection = atts[firstSelectionIndex];
       atts.splice(firstSelectionIndex, 1);
+
       newAttribute.list = atts
         .filter((att) => att.Description.includes(this.config.AppAttributes))
         .map((att) => this.getAttValue(att, valuesItems))
@@ -892,12 +890,10 @@ export class EntradaManualComponent {
     for (let k of Object.keys(this.templateRangeScalling)) {
       if (propFocous) {
         let config = propFocous.config.find((c) => c.Name == k) as PIWebAttribute;
-        // console.log(config.Value.Value.Name)
         if (config && config.Name && !config.Value.Value.Name) {
           if (config.Name === 'Mínimo') {
             this.minimo = config.Value.Value;
             console.log(config.Value.Value.Name)
-            console.log(this.minimo)
           }
 
           if (config.Name === 'Mínimo de Alerta') {
@@ -951,7 +947,6 @@ export class EntradaManualComponent {
     tree.value = values;
 
     let currentDateLogs = this.utils.formatDateTimeHours(new Date());
-    console.log(this.elements)
     let treeLogsPost = new Arvore();
     treeLogsPost.AplicacaoID = this.elements.WebId;
     treeLogsPost.relativePath = this.elements.RelativePath;
@@ -1043,16 +1038,22 @@ export class EntradaManualComponent {
       tree
     );
     this.elements = null;
-    if (this.arvoreLocal.length == 1) {
-      let pathLength = this.pathNavigation.path.pop();
-      this.onClickId({
-        path: this.pathNavigation.path,
-        name: undefined,
-      })
-      this.showAlert('Não existem mais dados para Leitura por Data!');
-    } else {
-      this.loadNavigationDataFromStorage();
-      this.pathNavigation.path = null;
+    console.log(this.arvoreLocal)
+
+    if (this.arvoreLocal) {
+      if (this.arvoreLocal.length == 0) {
+        console.log(this.pathNavigation.path)
+        let pathLength = this.pathNavigation.path.pop();
+        this.onClickId({
+          path: this.pathNavigation.path,
+          name: undefined,
+        });
+        // this.showAlert('Não existem  dados para Leitura por Data!');
+      } else {
+
+        this.loadNavigationDataFromStorage();
+        this.pathNavigation.path = [];
+      }
     }
 
     await this.showAlert('Salvo com sucesso!');

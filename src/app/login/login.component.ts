@@ -60,10 +60,10 @@ export class LoginComponent {
 
       this.api.setAuth(AuthorizationToken);
       if (!this.configService.configUrl) {
-        // this.config.configUrl = 'https://pwnpo-bhepiapp1/piwebapi';
-        this.config.configUrl = 'https://34.233.235.92/piwebapi';
-        // this.config.configPath = '\\\\10.30.48.171\\Instrumentação de barragens - MG/SB\\CEMIG - Gerência de Segurança de Barragens e Manutenção Civil\\Usinas\\APP_Entrada_Manual';
-        this.config.configPath = '\\\\EC2AMAZ-T1N5EJ5\\Testes\\APP Entrada Manual';
+        this.config.configUrl = 'https://pwnpo-bhepiapp1/piwebapi';
+        // this.config.configUrl = 'https://34.233.235.92/piwebapi';
+        this.config.configPath = '\\\\10.30.48.171\\Instrumentação de barragens - MG/SB\\CEMIG - Gerência de Segurança de Barragens e Manutenção Civil\\Usinas\\APP_Entrada_Manual';
+        // this.config.configPath = '\\\\EC2AMAZ-T1N5EJ5\\Testes\\APP Entrada Manual';
         this.config.saveStorage();
       }
       let date = new Date(this.currentDate);
@@ -87,11 +87,19 @@ export class LoginComponent {
         }
       }
 
+      let hasDataToSend = await this.storageService.getByKey('writtenValues');
+      if (hasDataToSend) {
+        if (hasDataToSend.length > 0) {
+          this.showConfirm('Existem Leituras pendentes para envio!<br> Deseja enviar agora? ou faça o Login offLine');
+          return;
+        }
+      }
+
+
       this.api
         .get(this.configService.getHomeUrl())
         .subscribe((data: Resposta) => {
           if (data) {
-            console.log(data)
             this.utils.saveStorage('Authorization', AuthorizationToken);
             this.storageService.removeAll();
             this.configService.isToLoadFromPI = true;
@@ -120,5 +128,36 @@ export class LoginComponent {
 
   iconBack() {
     this.router.navigate(['home']);
+  }
+
+  async showConfirm(message: string) {
+    let choice = false;
+    let alert = await this.alertController.create({
+      header: 'Confirmar',
+      message,
+      buttons: [
+        {
+          text: 'Não',
+          handler: () => {
+            alert.dismiss(false);
+            return false;
+          },
+        },
+        {
+          text: 'Sim',
+          handler: () => {
+            alert.dismiss(true);
+            this.router.navigate(['salvar-dados']);
+            return true;
+          },
+        },
+      ],
+    });
+
+    await alert.present();
+    await alert.onDidDismiss().then((data) => {
+      choice = data.data as boolean;
+    });
+    return choice;
   }
 }

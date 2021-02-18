@@ -173,7 +173,6 @@ export class SalvarDadosComponent {
     } else {
 
       let dataToRemoveOnStorage = this.dataToWriteOnPI.filter(r => r.isToSave);
-      console.log(dataToRemoveOnStorage)
 
       if (dataToRemoveOnStorage.length == 0) {
         this.showAlert('Nao existem dados selecionados!');
