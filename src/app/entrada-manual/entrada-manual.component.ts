@@ -1048,9 +1048,8 @@ export class EntradaManualComponent {
           path: this.pathNavigation.path,
           name: undefined,
         });
-        // this.showAlert('Não existem  dados para Leitura por Data!');
-      } else {
 
+      } else {
         this.loadNavigationDataFromStorage();
         this.pathNavigation.path = [];
       }
