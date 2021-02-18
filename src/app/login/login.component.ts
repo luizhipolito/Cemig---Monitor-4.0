@@ -51,14 +51,14 @@ export class LoginComponent {
     return this.isActiveToggleTextPassword ? 'password' : 'text';
   }
 
-
+  AuthorizationToken: string;
   async onSubmit(f: NgForm) {
     this.utils.saveStorage('user', f.value.username);
     this.utils.saveStorage('password', f.value.password);
     if (f.valid) {
-      let AuthorizationToken = btoa(f.value.username + ':' + f.value.password);
+      this.AuthorizationToken = btoa(f.value.username + ':' + f.value.password);
 
-      this.api.setAuth(AuthorizationToken);
+      this.api.setAuth(this.AuthorizationToken);
       if (!this.configService.configUrl) {
         this.config.configUrl = 'https://pwnpo-bhepiapp1/piwebapi';
         // this.config.configUrl = 'https://34.233.235.92/piwebapi';
@@ -100,7 +100,7 @@ export class LoginComponent {
         .get(this.configService.getHomeUrl())
         .subscribe((data: Resposta) => {
           if (data) {
-            this.utils.saveStorage('Authorization', AuthorizationToken);
+            this.utils.saveStorage('Authorization', this.AuthorizationToken);
             this.storageService.removeAll();
             this.configService.isToLoadFromPI = true;
             this.router.navigate(['/entrada-manual']);
@@ -147,7 +147,14 @@ export class LoginComponent {
           text: 'Sim',
           handler: () => {
             alert.dismiss(true);
-            this.router.navigate(['salvar-dados']);
+            this.api
+              .get(this.configService.getHomeUrl())
+              .subscribe((data: Resposta) => {
+                if (data) {
+                  this.utils.saveStorage('Authorization', this.AuthorizationToken);
+                  this.router.navigate(['salvar-dados']);
+                }
+              });
             return true;
           },
         },

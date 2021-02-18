@@ -502,8 +502,7 @@ export class EntradaManualComponent {
       });
     }
     if (this.navigation.length == 0) {
-      // this.showAlert('Não existem dados para leitura por data!');
-      console.log(this.pathNavigation)
+      this.showAlert('Não existem dados para leitura por data!');
       this.onClickId(this.pathNavigation)
     }
   }
@@ -1038,7 +1037,6 @@ export class EntradaManualComponent {
       tree
     );
     this.elements = null;
-    console.log(this.arvoreLocal)
 
     if (this.arvoreLocal) {
       if (this.arvoreLocal.length == 0) {
@@ -1048,8 +1046,9 @@ export class EntradaManualComponent {
           path: this.pathNavigation.path,
           name: undefined,
         });
-
+        console.log('dada')
       } else {
+
         this.loadNavigationDataFromStorage();
         this.pathNavigation.path = [];
       }
