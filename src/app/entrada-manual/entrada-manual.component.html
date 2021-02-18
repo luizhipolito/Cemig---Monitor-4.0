@@ -63,17 +63,22 @@
             </ion-item>
 
             <ion-item *ngFor="let element of elements.list | isVisible: true" (click)="setPropFocous(element)">
-              <ion-label style="width: 800px;"> {{ element.Name }}: {{element.Value.UnitsAbbreviation}}</ion-label>
+              <ion-label style="width: 800px">{{ element.Name }}: {{element.Value.UnitsAbbreviation}}</ion-label>
+
               <ion-label
                 *ngIf="element.mode == 'Leitura' || element.mode == 'DataProxima' || element.mode == 'DataUltima'"
                 class="read">
                 {{ element.ValueString }}</ion-label>
+              <ion-input type="text" *ngIf="element.mode == 'LeituraEsConst' && element.Type == 'String'"
+                placeholder="{{element.ValueString}}">
+              </ion-input>
               <!-- values -->
               <ion-label *ngIf="
                   (element.mode == 'LeituraEscrita' ||
                     element.mode == 'Escrita'|| element.mode === 'EscritaConstante' || element.mode === 'LeituraEsConst') &&
                   (element.Type == 'Double' || element.Type == 'Single')
                 " [ngClass]="element.color">{{element.Selected}}</ion-label>
+
 
               <ion-select *ngIf="
                   (element.mode == 'LeituraEscrita' ||
