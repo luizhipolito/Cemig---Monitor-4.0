@@ -90,7 +90,7 @@ export class LoginComponent {
       let hasDataToSend = await this.storageService.getByKey('writtenValues');
       if (hasDataToSend) {
         if (hasDataToSend.length > 0) {
-          this.showConfirm('Existem Leituras pendentes para envio!<br> Deseja enviar agora? ou faça o Login offLine');
+          this.showConfirm('Existem Leituras pendentes para envio!<br> Deseja enviar agora?');
           return;
         }
       }
@@ -139,7 +139,23 @@ export class LoginComponent {
         {
           text: 'Não',
           handler: () => {
+            this.api
+              .get(this.configService.getHomeUrl())
+              .subscribe((data: Resposta) => {
+                if (data) {
+                  this.utils.saveStorage('Authorization', this.AuthorizationToken);
+                  this.storageService.removeAll();
+                  this.configService.isToLoadFromPI = true;
+                  this.router.navigate(['/entrada-manual']);
+                } else {
+                  // this.showMessageBox(data.Mensagem);
+                  console.log('Mensagem')
+                  this.showAlert(data.Mensagem)
+                }
+              });
+
             alert.dismiss(false);
+
             return false;
           },
         },

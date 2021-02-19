@@ -9,6 +9,7 @@ export class PIWebObject {
   Id: string;
   Links: PIWebLink;
   Name: string;
+  Type: string;
   Path: string;
   TraitName: string;
   TemplateName: string;

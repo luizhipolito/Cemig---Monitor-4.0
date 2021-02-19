@@ -69,15 +69,13 @@
                 *ngIf="element.mode == 'Leitura' || element.mode == 'DataProxima' || element.mode == 'DataUltima'"
                 class="read">
                 {{ element.ValueString }}</ion-label>
-              <ion-input type="text" *ngIf="element.mode == 'LeituraEsConst' && element.Type == 'String'"
-                placeholder="{{element.ValueString}}">
+              <ion-input [(ngModel)]="stringInput" class="select"
+                *ngIf="element.mode == 'LeituraEsConst' && element.Type == 'String'">
               </ion-input>
               <!-- values -->
-              <ion-label *ngIf="
-                  (element.mode == 'LeituraEscrita' ||
-                    element.mode == 'Escrita'|| element.mode === 'EscritaConstante' || element.mode === 'LeituraEsConst') &&
-                  (element.Type == 'Double' || element.Type == 'Single')
-                " [ngClass]="element.color">{{element.Selected}}</ion-label>
+              <ion-label *ngIf=" (element.mode=='LeituraEscrita' || element.mode=='Escrita' ||
+                element.mode==='EscritaConstante' || element.mode==='LeituraEsConst' ) && (element.Type=='Double' ||
+                element.Type=='Single' ) " [ngClass]=" element.color">{{element.Selected}}</ion-label>
 
 
               <ion-select *ngIf="

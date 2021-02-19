@@ -33,7 +33,7 @@ import {
 import { map, last } from 'rxjs/operators';
 import { Attribute } from 'src/model/Attribute.model';
 import { __await } from 'tslib';
-import { isNumber } from 'util';
+import { isNumber, isString } from 'util';
 import { InserirComentarioComponent } from '../inserir-comentario/inserir-comentario.component';
 import { element } from 'protractor';
 import { attachView } from '@ionic/angular/providers/angular-delegate';
@@ -42,6 +42,7 @@ import { PIWebValue } from 'src/model/PIWebValue.model';
 import { PIWebLink } from 'src/model/PIWebLink.model';
 import { SalvarDadosComponent } from '../salvar-dados/salvar-dados.component';
 import { stringify } from 'querystring';
+import { NgForm } from '@angular/forms';
 
 const typeEnumeration = 'EnumerationValue';
 // let currentModal = null;
@@ -505,7 +506,6 @@ export class EntradaManualComponent {
       if (this.pathNavigation.date) {
         this.showAlert('Não existem dados para leitura por data!');
       }
-      console.log(this.pathNavigation)
       this.onClickId(this.pathNavigation)
     }
   }
@@ -666,6 +666,7 @@ export class EntradaManualComponent {
           index++;
         }
       }
+
       if (!att.visible) {
         att.Selected = null;
       }
@@ -827,14 +828,16 @@ export class EntradaManualComponent {
     }
     return EnumModeAttribute.Leitura;
   }
+
+  stringInput: string;
   setPropFocous(element: PIWebAttribute) {
     if (
       (element.mode === EnumModeAttribute.Escrita ||
         element.mode === EnumModeAttribute['Leitura/Escrita'] ||
         element.mode === EnumModeAttribute['Escrita (Constante)'] ||
-        element.mode === EnumModeAttribute['Leitura/Escrita (Constante)']) &&
-      element.Type != typeEnumeration
+        element.mode === EnumModeAttribute['Leitura/Escrita (Constante)'])
     ) {
+
       this.propFocous = element;
     }
   }
@@ -847,7 +850,6 @@ export class EntradaManualComponent {
       (a) => a.Name == att.Name && a.Path == att.Path
     );
     let attValue = valueAtt.Value;
-
     let attValueString = '';
     att.Value = attValue;
     if (attValue && attValue.Value) {
@@ -861,7 +863,6 @@ export class EntradaManualComponent {
         attValueString = ''
       }
       if (att.mode == EnumModeAttribute['Leitura/Escrita']) {
-
         att.Selected = attValueString;
         att.color = this.getColorScalling(att);
       }
@@ -870,11 +871,11 @@ export class EntradaManualComponent {
         att.color = this.getColorScalling(att);
       }
 
+
       if (attValue.UnitsAbbreviation) {
         attValueString = attValueString + ' ' + attValue.UnitsAbbreviation;
       }
     }
-
     att.ValueString = attValueString;
     return att;
   }
@@ -895,7 +896,6 @@ export class EntradaManualComponent {
         if (config && config.Name && !config.Value.Value.Name) {
           if (config.Name === 'Mínimo') {
             this.minimo = config.Value.Value;
-            console.log(config.Value.Value.Name)
           }
 
           if (config.Name === 'Mínimo de Alerta') {
@@ -929,6 +929,7 @@ export class EntradaManualComponent {
   }
 
   async saveElement() {
+    console.log(this.elements)
     await this.storageService.removeEdit();
 
     let dateStr = this.currentDate
@@ -939,12 +940,17 @@ export class EntradaManualComponent {
       return;
     }
 
+    console.log(this.elements)
+    let type = this.elements.list.filter(c => c.Type == 'String')
+    console.log(type)
+
     let tree = new Arvore();
     tree.AplicacaoID = this.elements.WebId;
     tree.relativePath = this.elements.RelativePath;
     tree.isEdit = false;
     let values = this.utils.getWrittenValues(this.elements);
 
+    console.log(values)
     tree.date = dateStr;
     tree.value = values;
 
@@ -984,7 +990,6 @@ export class EntradaManualComponent {
 
 
       if (this.maximo || this.minimo || this.minimoAlerta || this.minimoAtencao || this.maximoAlerta || this.maximoAtencao) {
-        console.log(this.minimo)
         if (!this.minimo['Name']) {
           if (valueAlert <= this.minimo) {
             await this.showAlert(`Atenção! A leitura ${leitura} esta fora dos limites especificados para o equipamento.`)
