@@ -217,8 +217,7 @@ export class EntradaManualComponent {
     public config: ConfigService,
     public modalController: ModalController,
     public alertController: AlertController,
-  ) {
-  }
+  ) { }
 
 
 
@@ -262,6 +261,7 @@ export class EntradaManualComponent {
   public user;
 
   async ionViewWillEnter() {
+
     this.progress = 0.1;
     this.progressPercent = 10;
     let isToSyncDataFromPI = this.config.isToLoadFromPI && true;
@@ -740,6 +740,7 @@ export class EntradaManualComponent {
   }
 
   async loadAttributes(items: Array<PIWebObject>) {
+
     let server = this.config.afServer;
     let attributesData: Array<Attribute> = new Array<Attribute>();
     let attRequest = createBatch(items, 'Attributes');
@@ -1115,6 +1116,7 @@ export class EntradaManualComponent {
   dataLeitura: any;
   selectedDate: Date;
   filterByDate(navigation: Array<Navigation>, date: any): Array<Navigation> {
+    console.log(this.arvoreLocal)
     this.elements = null;
     this.navigation = new Array<Navigation>();
     this.arvoreLocal.forEach((arvore: Arvore) => {
@@ -1200,7 +1202,7 @@ export class EntradaManualComponent {
   async searchDate($event: Event) {
     this.dateSelect = $event.target['value'];
     this.pathNavigation.path = null;
-    this.dataLeitura = null
+    // this.dataLeitura = null
     await this.filterByDate(this.navigation, this.dateSelect)
   }
   dateSelect: any;

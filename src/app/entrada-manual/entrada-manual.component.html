@@ -21,9 +21,7 @@
         </ion-datetime>
         <ion-icon class="iconCalendar" name="calendar-outline"></ion-icon>
       </ion-item>
-      <!-- <ion-input class="search-input" inputmode="search" [value]="searchField">
-        <ion-icon (click)="search()" name="search-outline"></ion-icon>
-      </ion-input> -->
+
     </div>
   </div>
 
@@ -32,7 +30,6 @@
     <div class="allNav">
       <div class="boxData" [ngClass]="elements == null ? 'boxTotal' : 'boxShort'">
         <div *ngIf="!navigation || navigation.length == 0" class="spinner">
-          <!-- <ion-spinner name="bubbles"></ion-spinner> -->
           <ion-label>{{progressPercent}} %</ion-label>
           <ion-progress-bar [value]="progress"></ion-progress-bar>
         </div>

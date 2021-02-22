@@ -173,6 +173,8 @@ export class Arvore {
   deviceId: string;
   deviceModel: string;
   device: string;
+  deviceVersion: string;
+  devicePlatform: string;
 }
 
 export class ArvoreList {

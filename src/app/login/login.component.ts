@@ -77,6 +77,8 @@ export class LoginComponent {
       treeUser.deviceModel = this.device.model;
       treeUser.deviceId = this.device.uuid;
       treeUser.device = this.device.manufacturer;
+      treeUser.deviceVersion = this.device.version;
+      treeUser.devicePlatform = this.device.platform;
       treeUser.isSystem = true;
       treeUser.AplicacaoID = this.utils.getRandom().toLocaleString();
       await this.storageService.insertOrUpdate(

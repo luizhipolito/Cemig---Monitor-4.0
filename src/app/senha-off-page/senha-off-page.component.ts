@@ -60,6 +60,8 @@ export class SenhaOffPageComponent {
       treeUserOff.deviceModel = this.device.model;
       treeUserOff.deviceId = this.device.uuid;
       treeUserOff.device = this.device.manufacturer;
+      treeUserOff.deviceVersion = this.device.version;
+      treeUserOff.devicePlatform = this.device.platform;
       treeUserOff.isToSave = true;
       treeUserOff.AplicacaoID = this.utils.getRandom().toLocaleString();
 

@@ -73,7 +73,7 @@ ion-progress-bar{
   margin-top: -17px;
 }
 .search > ion-item > ion-datetime{
-  margin-top: -14px !important;
+  margin-top: -14px;
 }
 .search > ion-item > ion-icon{
   margin-top: -20px;
@@ -262,26 +262,43 @@ ion-select.myCustomSelect{
   border-radius: 50px;
 }
 
-@media screen and(max-width: 750px) {
+@media screen and(max-width: 824px) {
   
-
-  .route {
-    height: 4%;
-  }
   .routeSelect {
     font-size: 0.8rem;
   }
 
-  .search > ion-input{
-    width: 70%;
-    height:  30px !important;
-    margin-left: 60px;
-  }
-  .search > ion-input > ion-icon {
-    font-size: 20px;
+  .routeSelect{
+    margin-top: -2px;
   }
 
- 
+  .search{
+    height: 35px;
+    width: 40%;
+    margin-top: 2px;
+  }
+
+  .search > ion-input{
+    max-width: 40%;
+    margin-top: 7px;
+    height:  20px !important;
+  }
+
+  .search > ion-input > ion-icon {
+    font-size: 1rem !important;
+  }
+
+  .search > ion-item {
+    margin-top: 0;
+    margin-left: -20px !important;
+    width: 65% !important;
+  }
+  
+  .search > ion-item > ion-icon{
+    font-size: 1.2rem;
+    margin-top: -17px;
+    z-index: 4;
+  }
  
   ion-list {
     font-size: 1.5rem !important;
@@ -306,6 +323,31 @@ ion-select.myCustomSelect{
     width: 50%;
     height: 25px;
     font-size: 0.7rem;
+  }
+
+  .boxData {
+    border: 2px solid black;
+    width: calc(100% - 10px);
+    height: calc(100% - 10px);
+    margin: 5px;
+    margin-bottom: 10px !important;
+    overflow: auto;  
+  }
+
+  ion-list{
+    font-size: 1.8rem;
+    padding: 10px !important;
+  }
+
+  .spinner > ion-label {
+    font-size: 1.6rem;
+    font-weight: 600;
+    color: #008f45;
+  }
+  
+  ion-progress-bar{
+    right:  150px;
+    transform: scale(1.2);
   }
 }
 

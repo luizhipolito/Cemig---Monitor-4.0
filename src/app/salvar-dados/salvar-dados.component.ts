@@ -137,9 +137,11 @@ export class SalvarDadosComponent {
             (f) => f.isToSave != true
           );
         }
+
         await this.updateStorage(this.dataToWriteOnPI);
         this.dismissAlert();
-        this.showAlert('Dados enviado(s) com sucesso!');
+        let res = await this.showConfirmSincronism();
+        if (!res) return;
       }
     }
   }
@@ -284,6 +286,38 @@ export class SalvarDadosComponent {
           text: 'Sim',
           handler: () => {
             alert.dismiss(true);
+            return true;
+          },
+        },
+      ],
+    });
+
+    await alert.present();
+    await alert.onDidDismiss().then((data) => {
+      choice = data.data as boolean;
+    });
+    return choice;
+  }
+
+  async showConfirmSincronism() {
+    let choice = false;
+    let alert = await this.alertController.create({
+      message:
+        'Dado(s) enviado(s) com sucesso!</br>Deseja Sincronizar dados?',
+      buttons: [
+        {
+          text: 'Não',
+          handler: () => {
+            alert.dismiss(false);
+            return false;
+          },
+        },
+        {
+          text: 'Sim',
+          handler: () => {
+            alert.dismiss(true);
+            this.config.isToLoadFromPI = true;
+            this.router.navigate(['entrada-manual'])
             return true;
           },
         },
