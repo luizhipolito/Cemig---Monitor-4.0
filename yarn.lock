@@ -1083,6 +1083,13 @@
   dependencies:
     "@types/cordova" latest
 
+"@ionic-native/device@^5.31.1":
+  version "5.31.1"
+  resolved "https://registry.yarnpkg.com/@ionic-native/device/-/device-5.31.1.tgz#0eebc3a94e88a9d50eeeb81b167a95851a1e112c"
+  integrity sha512-cC6FXNfpUFqxPYLTsP+uHHehdqsw3xSUX14ZNA8L48yLqTugqsl10cenSfKiyek8boRdHd80Oh1h9/jz+tYnsQ==
+  dependencies:
+    "@types/cordova" latest
+
 "@ionic-native/file@^5.31.1":
   version "5.31.1"
   resolved "https://registry.yarnpkg.com/@ionic-native/file/-/file-5.31.1.tgz#b39b0b017134c0a44d716ba21733e56f1a672b10"

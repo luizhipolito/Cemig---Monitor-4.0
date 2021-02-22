@@ -68,7 +68,7 @@
               <ion-label
                 *ngIf="element.mode == 'Leitura' || element.mode == 'DataProxima' || element.mode == 'DataUltima'"
                 class="read">
-                {{ element.ValueString }}aa</ion-label>
+                {{ element.ValueString }}</ion-label>
 
               <ion-input [(ngModel)]="element.Selected" class="select"
                 *ngIf="element.mode == 'LeituraEsConst' && element.Type == 'String'">
@@ -115,7 +115,7 @@
         </div>
 
       </div>
-      <div *ngIf="elements != null && propFocous" class="controlKeyboard">
+      <div *ngIf="elements != null" class="controlKeyboard">
         <p>{{ propFocous && propFocous.Name ? propFocous.Name : '' }}</p>
         <div class="keyboard">
           <div *ngFor="let numGroup of numberGroups">

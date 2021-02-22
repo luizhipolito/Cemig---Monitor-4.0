@@ -31,6 +31,7 @@ import { MenuComponent } from './menu/menu.component';
 import { PageLogsComponent } from './page-logs/page-logs.component';
 import { SocialSharing } from '@ionic-native/social-sharing/ngx'
 import { File } from '@ionic-native/file/ngx';
+import { Device } from '@ionic-native/device/ngx'
 
 @NgModule({
   declarations: [
@@ -70,7 +71,8 @@ import { File } from '@ionic-native/file/ngx';
     StorageArvoreService,
     EntradaManualComponent,
     SocialSharing,
-    File
+    File,
+    Device
   ],
   bootstrap: [AppComponent],
 })

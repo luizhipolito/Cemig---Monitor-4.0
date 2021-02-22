@@ -7,6 +7,7 @@ import { NgForm } from '@angular/forms';
 import { ConfigService } from 'src/services/config.service';
 import { AlertController } from '@ionic/angular';
 import { AppUtils } from 'src/utils/app.utils';
+import { Device } from '@ionic-native/device/ngx';
 
 @Component({
   selector: 'app-senha-off-page',
@@ -27,9 +28,12 @@ export class SenhaOffPageComponent {
     public configService: ConfigService,
     public alertController: AlertController,
     public utils: AppUtils,
+    public device: Device,
   ) { }
 
+
   isActiveToggleTextPassword: Boolean = true;
+
   public toggleTextPassword(): void {
     this.isActiveToggleTextPassword = (this.isActiveToggleTextPassword == true) ? false : true;
   }
@@ -53,6 +57,9 @@ export class SenhaOffPageComponent {
       let treeUserOff = new Arvore();
       treeUserOff.user = this.user;
       treeUserOff.date = this.currentDate;
+      treeUserOff.deviceModel = this.device.model;
+      treeUserOff.deviceId = this.device.uuid;
+      treeUserOff.device = this.device.manufacturer;
       treeUserOff.isToSave = true;
       treeUserOff.AplicacaoID = this.utils.getRandom().toLocaleString();
 

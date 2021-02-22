@@ -170,6 +170,9 @@ export class Arvore {
   firstSelection: PIWebAttribute;
   status: string;
   user: string;
+  deviceId: string;
+  deviceModel: string;
+  device: string;
 }
 
 export class ArvoreList {

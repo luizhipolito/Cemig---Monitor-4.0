@@ -11,6 +11,7 @@ import {
 
 import { ConfigService } from 'src/services/config.service';
 import { AlertController } from '@ionic/angular';
+import { Device } from '@ionic-native/device/ngx';
 
 @Component({
   selector: 'app-login',
@@ -29,7 +30,7 @@ export class LoginComponent {
     public configService: ConfigService,
     public config: ConfigService,
     public alertController: AlertController,
-
+    public device: Device
   ) { }
 
   dataWrittenListToRemove: any;
@@ -53,6 +54,8 @@ export class LoginComponent {
 
   AuthorizationToken: string;
   async onSubmit(f: NgForm) {
+
+
     this.utils.saveStorage('user', f.value.username);
     this.utils.saveStorage('password', f.value.password);
     if (f.valid) {
@@ -71,6 +74,9 @@ export class LoginComponent {
       let treeUser = new Arvore();
       treeUser.user = this.user;
       treeUser.date = this.currentDate;
+      treeUser.deviceModel = this.device.model;
+      treeUser.deviceId = this.device.uuid;
+      treeUser.device = this.device.manufacturer;
       treeUser.isSystem = true;
       treeUser.AplicacaoID = this.utils.getRandom().toLocaleString();
       await this.storageService.insertOrUpdate(

@@ -848,8 +848,7 @@ export class EntradaManualComponent {
     let valueAtt = valuesItems.find(
       (a) => a.Name == att.Name && a.Path == att.Path
     );
-    console.log(att)
-    console.log(valuesItems)
+
     let attValue = valueAtt.Value;
     let attValueString = '';
     att.Value = attValue;
