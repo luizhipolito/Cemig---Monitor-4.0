@@ -68,14 +68,16 @@
               <ion-label
                 *ngIf="element.mode == 'Leitura' || element.mode == 'DataProxima' || element.mode == 'DataUltima'"
                 class="read">
-                {{ element.ValueString }}</ion-label>
-              <ion-input [(ngModel)]="stringInput" class="select"
+                {{ element.ValueString }}aa</ion-label>
+
+              <ion-input [(ngModel)]="element.Selected" class="select"
                 *ngIf="element.mode == 'LeituraEsConst' && element.Type == 'String'">
               </ion-input>
               <!-- values -->
               <ion-label *ngIf=" (element.mode=='LeituraEscrita' || element.mode=='Escrita' ||
                 element.mode==='EscritaConstante' || element.mode==='LeituraEsConst' ) && (element.Type=='Double' ||
-                element.Type=='Single' ) " [ngClass]=" element.color">{{element.Selected}}</ion-label>
+                element.Type=='Single' ) " [ngClass]=" element.color">{{element.Selected}}
+              </ion-label>
 
 
               <ion-select *ngIf="

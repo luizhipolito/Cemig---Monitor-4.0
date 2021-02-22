@@ -702,7 +702,6 @@ export class EntradaManualComponent {
   getValueTemplate(attTemp: string, configs: PIWebAttribute[]): string {
     let config = configs.find((f) => f.Name == attTemp);
     let configValue = null;
-
     let value =
       config && config.Value && config.Value.Good ? config.Value.Value : null;
     if (value) {
@@ -849,6 +848,8 @@ export class EntradaManualComponent {
     let valueAtt = valuesItems.find(
       (a) => a.Name == att.Name && a.Path == att.Path
     );
+    console.log(att)
+    console.log(valuesItems)
     let attValue = valueAtt.Value;
     let attValueString = '';
     att.Value = attValue;
@@ -929,7 +930,6 @@ export class EntradaManualComponent {
   }
 
   async saveElement() {
-    console.log(this.elements)
     await this.storageService.removeEdit();
 
     let dateStr = this.currentDate
@@ -939,18 +939,12 @@ export class EntradaManualComponent {
     if (!dateStr) {
       return;
     }
-
-    console.log(this.elements)
-    let type = this.elements.list.filter(c => c.Type == 'String')
-    console.log(type)
-
     let tree = new Arvore();
     tree.AplicacaoID = this.elements.WebId;
     tree.relativePath = this.elements.RelativePath;
     tree.isEdit = false;
     let values = this.utils.getWrittenValues(this.elements);
 
-    console.log(values)
     tree.date = dateStr;
     tree.value = values;
 
