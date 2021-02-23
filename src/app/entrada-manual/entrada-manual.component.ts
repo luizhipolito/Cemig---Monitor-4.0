@@ -1117,8 +1117,6 @@ export class EntradaManualComponent {
   selectedDate: Date;
 
   filterByDate(navigation: Array<Navigation>, date: any): Array<Navigation> {
-    console.log(this.navigation)
-    this.elements = null;
     this.navigation = new Array<Navigation>();
     this.arvoreLocal.forEach((arvore: Arvore) => {
       if (date != null) {
@@ -1142,19 +1140,14 @@ export class EntradaManualComponent {
               Navigation.Create(arvore.Caminho, arvore.Caminho[indexLastPath], this.dataLeitura, this.dateLastRead)
             )
           } else {
-            this.dataLeitura = null;
-            this.elements = null;
-            this.pathNavigation.path = [];
+            this.pathNavigation.path = []
             this.onClickId(this.pathNavigation)
+
           }
         }
       }
     })
-    if (this.navigation.length == 0) {
-      this.dataLeitura = null;
-      this.selectedDate = null;
-      this.loadNavigationDataFromStorage();
-    }
+
     return;
   }
 
