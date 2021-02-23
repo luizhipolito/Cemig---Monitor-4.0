@@ -1115,12 +1115,13 @@ export class EntradaManualComponent {
 
   dataLeitura: any;
   selectedDate: Date;
+
   filterByDate(navigation: Array<Navigation>, date: any): Array<Navigation> {
-    console.log(this.arvoreLocal)
+    console.log(this.navigation)
     this.elements = null;
     this.navigation = new Array<Navigation>();
     this.arvoreLocal.forEach((arvore: Arvore) => {
-      if (this.date != null) {
+      if (date != null) {
         let proximaDataLeitura = arvore.atributos.list.filter(p => p.mode == 'DataProxima');
         let datelast = arvore.atributos.list.filter(l => l.mode == 'DataUltima');
         if (datelast.length > 0) {
@@ -1135,10 +1136,16 @@ export class EntradaManualComponent {
           this.dataLeitura = this.dataLeitura.split('T').find(firstOrNull);
           this.dataLeitura = this.dataLeitura.split('-').reverse().join("/", this.dataLeitura, 0, this.dataLeitura.length);
           if ((proximaDataLeitura.find(v => v).ValueString < date)) {
+
             let indexLastPath = arvore.Caminho.length - 1;
             this.navigation.push(
               Navigation.Create(arvore.Caminho, arvore.Caminho[indexLastPath], this.dataLeitura, this.dateLastRead)
             )
+          } else {
+            this.dataLeitura = null;
+            this.elements = null;
+            this.pathNavigation.path = [];
+            this.onClickId(this.pathNavigation)
           }
         }
       }
@@ -1197,16 +1204,17 @@ export class EntradaManualComponent {
     return;
   }
 
-
+  dateSelect: any;
 
   async searchDate($event: Event) {
     this.dateSelect = $event.target['value'];
     this.pathNavigation.path = null;
-    // this.dataLeitura = null
-    await this.filterByDate(this.navigation, this.dateSelect)
+    this.dataLeitura = null
+    await this.filterByDate(this.navigation, this.dateSelect);
   }
-  dateSelect: any;
+
   async search($event: Event) {
+    console.log('search')
     let dataNavigation: Array<Navigation>
     let searchItem = $event.target['value'];
     if (searchItem) {

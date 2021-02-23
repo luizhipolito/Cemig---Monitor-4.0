@@ -182,12 +182,12 @@ ion-select.myCustomSelect{
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-top: 10px;
+  margin-top: 2px;
 }
 .btns > ion-button {
   width: 50%;
   height: 40px;
-  margin: 3px;
+  margin: 2px;
   background: #008f45 !important;
   font-size: 1rem;
   border-radius: 10px;
@@ -262,7 +262,7 @@ ion-select.myCustomSelect{
   border-radius: 50px;
 }
 
-@media screen and(max-width: 824px) {
+@media screen and(max-width: 825px) {
   
   .routeSelect {
     font-size: 0.8rem;
