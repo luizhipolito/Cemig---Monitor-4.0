@@ -69,7 +69,7 @@ export class SalvarDadosComponent {
     if (this.confirm == false) {
       this.showAlert('Confirme o envio dos dados!')
     } else {
-      let dataTrue = this.dataToWriteOnPI.filter(u => u.isToSave)
+      let dataTrue = this.dataToWriteOnPI.filter(u => u.isToSave);
       if (dataTrue.length == 0) {
         this.showAlert('Não existem dados selecionados!')
       } else {

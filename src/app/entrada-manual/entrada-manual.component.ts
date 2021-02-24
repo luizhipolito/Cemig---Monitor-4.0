@@ -964,20 +964,22 @@ export class EntradaManualComponent {
       this.storageService.writtenLogs,
       treeLogsPost
     )
-
+    console.log(valuesLogs)
 
     let leituraEscritaMode = this.elements.list.filter(m => m.mode == 'LeituraEscrita').find(s => s.Selected != null);
     let leituraEscritaConstanteMode = this.elements.list.filter(m => m.mode == 'LeituraEsConst').find(s => s.Selected != null);
     let EscritaConstanteMode = this.elements.list.filter(m => m.mode == 'EscritaConstante').find(s => s.Selected != null);
     let EscritaMode = this.elements.list.filter(m => m.mode == 'Escrita').find(s => s.Selected != null);
-    let validationModes = [leituraEscritaMode, leituraEscritaConstanteMode, EscritaConstanteMode, EscritaMode].filter(s => s != null);
+    let validationModes = [leituraEscritaMode, leituraEscritaConstanteMode, EscritaConstanteMode, EscritaMode].filter(s => s != null && s.Type != 'String');
 
     for (let i = 0; i < validationModes.length; i++) {
       let valueAlert = validationModes[i].Selected;
+
       if (!valueAlert) {
         this.showAlert('Não existem dados preenchidos!')
         return;
       }
+
       this.getAlerts(validationModes[i])
 
       let leitura = validationModes[i].Name;
