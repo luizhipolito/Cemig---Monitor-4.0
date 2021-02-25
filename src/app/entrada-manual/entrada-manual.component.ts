@@ -471,10 +471,12 @@ export class EntradaManualComponent {
     this.navigation = new Array<Navigation>();
     if (this.arvoreLocal) {
       this.arvoreLocal.forEach((arvore: Arvore) => {
-        let dateNext = arvore.atributos.list.filter(l => l.mode == 'DataProxima');
-        let datelast = arvore.atributos.list.filter(l => l.mode == 'DataUltima');
+        let dateNext = arvore.atributos.list.filter(l => l.mode == 'DataProxima' && l.Value.Value.Name != 'Calc Failed');
+        let datelast = arvore.atributos.list.filter(l => l.mode == 'DataUltima' && l.Value.Value.Name != 'Calc Failed');
         if (dateNext.length > 0) {
-          dataLeitura = dateNext.find(d => d).Value.Value
+
+          dataLeitura = dateNext.find(d => d).Value.Value;
+
           if (datelast.length > 0) {
             dateLastRead = datelast.find(l => l).Value.Value;
             dateLastRead = dateLastRead.split('T').find(firstOrNull);
@@ -490,6 +492,7 @@ export class EntradaManualComponent {
           let dataFim: any = this.config.DataFimBusca;
           datePlus.setDate(datePlus.getDate() + dataInicio);
           dateMinus.setDate(dateMinus.getDate() - dataFim);
+
           this.date = new Date(dataLeitura)
           dataLeitura = dataLeitura.split('T').find(firstOrNull);
           dataLeitura = dataLeitura.split('-').reverse().join("/", dataLeitura, 0, dataLeitura.length);
@@ -740,7 +743,7 @@ export class EntradaManualComponent {
   }
 
   async loadAttributes(items: Array<PIWebObject>) {
-
+    console.log(items)
     let server = this.config.afServer;
     let attributesData: Array<Attribute> = new Array<Attribute>();
     let attRequest = createBatch(items, 'Attributes');
@@ -1204,7 +1207,7 @@ export class EntradaManualComponent {
   async searchDate($event: Event) {
     this.dateSelect = $event.target['value'];
     this.pathNavigation.path = null;
-    this.dataLeitura = null
+    this.dataLeitura = null;
     await this.filterByDate(this.navigation, this.dateSelect);
   }
 

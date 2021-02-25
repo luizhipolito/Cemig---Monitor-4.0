@@ -197,7 +197,6 @@ export function createBatch(
         Value: value,
       });
     }
-
   });
   return batchItem;
 }
