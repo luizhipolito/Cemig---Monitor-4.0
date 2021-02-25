@@ -1125,10 +1125,11 @@ export class EntradaManualComponent {
     this.navigation = new Array<Navigation>();
     this.arvoreLocal.forEach((arvore: Arvore) => {
       if (date != null) {
-        let proximaDataLeitura = arvore.atributos.list.filter(p => p.mode == 'DataProxima');
-        let datelast = arvore.atributos.list.filter(l => l.mode == 'DataUltima');
+        let proximaDataLeitura = arvore.atributos.list.filter(p => p.mode == 'DataProxima' && p.Value.Value.Name != 'Calc Failed');
+        let datelast = arvore.atributos.list.filter(l => l.mode == 'DataUltima' && l.Value.Value.Name != 'Calc Failed');
         if (datelast.length > 0) {
           this.dateLastRead = datelast.find(l => l).Value.Value;
+          console.log(this.dateLastRead)
           this.dateLastRead = this.dateLastRead.split('T').find(firstOrNull);
           this.dateLastRead = this.dateLastRead.split('-').reverse().join("/", this.dateLastRead, 0, this.dateLastRead.length)
         } else {
@@ -1139,25 +1140,23 @@ export class EntradaManualComponent {
           this.dataLeitura = this.dataLeitura.split('T').find(firstOrNull);
           this.dataLeitura = this.dataLeitura.split('-').reverse().join("/", this.dataLeitura, 0, this.dataLeitura.length);
           if ((proximaDataLeitura.find(v => v).ValueString < date)) {
-
             let indexLastPath = arvore.Caminho.length - 1;
             this.navigation.push(
               Navigation.Create(arvore.Caminho, arvore.Caminho[indexLastPath], this.dataLeitura, this.dateLastRead)
             )
-          } else {
-            this.pathNavigation.path = []
-            this.onClickId(this.pathNavigation)
-
           }
         }
       }
     })
-
+    if (this.navigation.length == 0) {
+      this.pathNavigation.path = [];
+      this.onClickId(this.pathNavigation);
+      this.showAlert('Não existem leituras para esta data!')
+    }
     return;
   }
 
   filterByDateAndString(navigation: Array<Navigation>, name: string): Array<Navigation> {
-    console.log(name)
     this.navigation = new Array<Navigation>();
     navigation.forEach((arvore: Navigation) => {
       if (arvore && arvore.path && arvore.path.length > 0) {
@@ -1175,9 +1174,9 @@ export class EntradaManualComponent {
       }
     });
     if (this.navigation.length == 0) {
-      this.dataLeitura = null;
+      // this.dataLeitura = null;
       // this.date = null;
-      console.log('0000')
+      // console.log('0000')
     }
     return;
   }
@@ -1197,6 +1196,7 @@ export class EntradaManualComponent {
             );
           }
         });
+        console.log(this.navigation)
       }
     });
     return;
@@ -1206,13 +1206,12 @@ export class EntradaManualComponent {
 
   async searchDate($event: Event) {
     this.dateSelect = $event.target['value'];
-    this.pathNavigation.path = null;
-    this.dataLeitura = null;
+    // this.pathNavigation.path = null;
+    // this.dataLeitura = null;
     await this.filterByDate(this.navigation, this.dateSelect);
   }
 
   async search($event: Event) {
-    console.log('search')
     let dataNavigation: Array<Navigation>
     let searchItem = $event.target['value'];
     if (searchItem) {
@@ -1242,9 +1241,6 @@ export class EntradaManualComponent {
       } if (!this.dateSelect && searchItem) {
 
         this.filterByString(this.arvoreLocal, searchItem)
-      }
-      if (this.navigation.length == 0) {
-        console.log('Arvore Vazia')
       }
     } else {
       this.elements = null;

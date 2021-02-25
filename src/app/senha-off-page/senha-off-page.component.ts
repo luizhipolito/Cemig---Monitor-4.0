@@ -51,6 +51,11 @@ export class SenhaOffPageComponent {
 
   async onSubmit(f: NgForm) {
     let senhaOff = this.configService.SenhaOff;
+    if (!senhaOff) {
+      this.showAlert('Sincronize os dados!')
+      await this.router.navigate(['login'])
+      return;
+    }
     if (f.value.password === senhaOff) {
       this.configService.isToLoadFromPI = false;
 
