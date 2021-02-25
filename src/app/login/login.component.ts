@@ -65,7 +65,7 @@ export class LoginComponent {
     this.utils.saveStorage('password', f.value.password);
     if (f.valid) {
       this.AuthorizationToken = btoa(f.value.username + ':' + f.value.password);
-
+      console.log(this.AuthorizationToken)
       this.api.setAuth(this.AuthorizationToken);
       if (!this.configService.configUrl) {
         this.config.configUrl = 'https://pwnpo-bhepiapp1/piwebapi';
@@ -128,6 +128,7 @@ export class LoginComponent {
     } else {
       this.showAlert('Informe usuário e senha para continuar!')
     }
+    loading.dismiss();
   }
 
   async showAlert(message: string) {
