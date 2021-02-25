@@ -665,6 +665,7 @@ export class EntradaManualComponent {
           if (hasCondition) {
             att.visible =
               att.visible || this.IsConditionValid(selector, condition, value);
+            console.log(selector, condition, value);
           }
           index++;
         }
@@ -743,7 +744,6 @@ export class EntradaManualComponent {
   }
 
   async loadAttributes(items: Array<PIWebObject>) {
-    console.log(items)
     let server = this.config.afServer;
     let attributesData: Array<Attribute> = new Array<Attribute>();
     let attRequest = createBatch(items, 'Attributes');

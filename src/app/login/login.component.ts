@@ -56,7 +56,7 @@ export class LoginComponent {
   AuthorizationToken: string;
   async onSubmit(f: NgForm) {
     const loading = await this.loadingController.create({
-      message: 'Please wait...',
+      message: 'Aguarde...',
     });
 
     await loading.present()
@@ -103,6 +103,7 @@ export class LoginComponent {
       let hasDataToSend = await this.storageService.getByKey('writtenValues');
       if (hasDataToSend) {
         if (hasDataToSend.length > 0) {
+          loading.dismiss();
           this.showConfirm('Existem Leituras pendentes para envio!<br> Deseja enviar agora?');
           return;
         }
