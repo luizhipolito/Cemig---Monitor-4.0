@@ -135,7 +135,7 @@ export class EntradaManualComponent {
     for (let k of Object.keys(this.templateRangeScalling)) {
       let sk = this.templateRangeScalling[k];
 
-      let config = propFocous.config.find((c) => c.Name == k) as PIWebAttribute;
+      let config = propFocous.config.find((c) => c?.Name == k) as PIWebAttribute;
       if (config && config.Value) {
         valueSK = new Number(config.Value.Value).valueOf();
         if ((selectedValue <= valueSK && k.startsWith('Mínimo')) || (k.startsWith('Máximo') && valueSK > selectedValue)) {
@@ -633,10 +633,11 @@ export class EntradaManualComponent {
   onSelect($event) {
     this.propFocous = null;
     this.elements.list.forEach((att) => {
-
+      console.log(att)
       if (!att.config.some((s) => s.Name.includes(this.textCondition))) {
         att.visible = true;
       } else {
+
         att.visible = false;
         let hasCondition = true;
         let index = 1;
@@ -653,19 +654,17 @@ export class EntradaManualComponent {
             this.templateIndex,
             ' ' + index + ' '
           );
-
+          console.log(attTemp)
           let config = att.config as PIWebAttribute[];
           let atribute = this.getValueTemplate(attTemp, config);
           let condition = this.getValueTemplate(compTemp, config);
           let value = this.getValueTemplate(valTemp, config);
           hasCondition =
             Boolean(atribute) && Boolean(condition) && Boolean(value);
-
           let selector = $event.target.value.Name;
           if (hasCondition) {
             att.visible =
               att.visible || this.IsConditionValid(selector, condition, value);
-            console.log(selector, condition, value);
           }
           index++;
         }
@@ -700,7 +699,6 @@ export class EntradaManualComponent {
 
   IsConditionValid(selector, condition, value): boolean {
     let conditionValue = eval(`'${selector}' ${condition} '${value}'`);
-
     return conditionValue;
   }
   getValueTemplate(attTemp: string, configs: PIWebAttribute[]): string {
@@ -897,34 +895,36 @@ export class EntradaManualComponent {
     for (let k of Object.keys(this.templateRangeScalling)) {
       if (propFocous) {
         let config = propFocous.config.find((c) => c.Name == k) as PIWebAttribute;
+        console.log(config)
         if (config && config.Name && !config.Value.Value.Name) {
           if (config.Name === 'Mínimo') {
             this.minimo = config.Value.Value;
+            console.log(this.minimo)
           }
 
           if (config.Name === 'Mínimo de Alerta') {
             this.minimoAlerta = config.Value.Value;
-            // console.log(this.minimoAlerta)
+            console.log(this.minimoAlerta)
           }
 
           if (config.Name === 'Mínimo de Atenção') {
             this.minimoAtencao = config.Value.Value;
-            // console.log(this.minimoAtencao)
+            console.log(this.minimoAtencao)
           }
 
           if (config.Name === 'Máximo de Atenção') {
             this.maximoAtencao = config.Value.Value;
-            // console.log(this.maximoAtencao)
+            console.log(this.maximoAtencao)
           }
 
           if (config.Name === 'Máximo de Alerta') {
             this.maximoAlerta = config.Value.Value;
-            // console.log(this.maximoAlerta)
+            console.log(this.maximoAlerta)
           }
 
           if (config.Name === 'Máximo') {
             this.maximo = config.Value.Value;
-            // console.log(this.maximo)
+            console.log(this.maximo)
           }
         }
 
@@ -967,7 +967,6 @@ export class EntradaManualComponent {
       this.storageService.writtenLogs,
       treeLogsPost
     )
-    console.log(valuesLogs)
 
     let leituraEscritaMode = this.elements.list.filter(m => m.mode == 'LeituraEscrita').find(s => s.Selected != null);
     let leituraEscritaConstanteMode = this.elements.list.filter(m => m.mode == 'LeituraEsConst').find(s => s.Selected != null);
@@ -976,6 +975,7 @@ export class EntradaManualComponent {
     let validationModes = [leituraEscritaMode, leituraEscritaConstanteMode, EscritaConstanteMode, EscritaMode].filter(s => s != null && s.Type != 'String');
 
     for (let i = 0; i < validationModes.length; i++) {
+
       let valueAlert = validationModes[i].Selected;
 
       if (!valueAlert) {
@@ -989,18 +989,17 @@ export class EntradaManualComponent {
 
 
       if (this.maximo || this.minimo || this.minimoAlerta || this.minimoAtencao || this.maximoAlerta || this.maximoAtencao) {
-        if (!this.minimo['Name']) {
-          if (valueAlert <= this.minimo) {
-            await this.showAlert(`Atenção! A leitura ${leitura} esta fora dos limites especificados para o equipamento.`)
-            return;
-          }
+
+        if (valueAlert <= this.minimo) {
+          await this.showAlert(`Atenção! A leitura ${leitura} esta fora dos limites especificados para o equipamento.`)
+          return;
         }
-        if (!this.maximo['Name']) {
-          if (valueAlert >= this.maximo) {
-            await this.showAlert(`Atenção! A leitura ${leitura} esta fora dos limites especificados para o equipamento.`)
-            return;
-          }
+
+        if (valueAlert >= this.maximo) {
+          await this.showAlert(`Atenção! A leitura ${leitura} esta fora dos limites especificados para o equipamento.`)
+          return;
         }
+
 
         if (valueAlert > this.minimo && valueAlert <= this.minimoAlerta) {
           let res = await this.showConfirm(`A leitura  ${leitura} esta abaixo do limite de alerta. Deseja salvar?`);
@@ -1016,10 +1015,11 @@ export class EntradaManualComponent {
           let res = await this.showConfirm(`A leitura ${leitura} esta acima do limite de atenção. Deseja salvar?`)
           if (!res) return;
         }
-
-        if (valueAlert >= this.maximoAlerta && valueAlert < this.maximo) {
-          let res = await this.showConfirm(`A leitura ${leitura} esta acima do limite de alerta. Deseja salvar?`);
-          if (!res) return;
+        if (this.maximoAlerta != null) {
+          if (valueAlert >= this.maximoAlerta && valueAlert < this.maximo) {
+            let res = await this.showConfirm(`A leitura ${leitura} esta acima do limite de alerta. Deseja salvar?`);
+            if (!res) return;
+          }
         }
       }
     }
