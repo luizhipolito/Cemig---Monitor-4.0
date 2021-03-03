@@ -5,6 +5,7 @@ export class PIWebAttribute extends PIWebObject {
   Type: string;
   TypeQualifier: string;
   DefaultUnitsName: string;
+  DefaultUnitsNameAbbreviation: string;
   DataReferencePlugIn: string;
   ConfigString: string;
   IsConfigurationItem: boolean;
@@ -13,7 +14,7 @@ export class PIWebAttribute extends PIWebObject {
   IsManualDataEntry: boolean;
   HasChildren: boolean;
   Step: boolean;
-  TraitName: any;
+  TraitName: string;
   Value?: PIWebValue;
   ValueString: string;
   Selected: any;
