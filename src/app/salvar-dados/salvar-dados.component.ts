@@ -194,7 +194,7 @@ export class SalvarDadosComponent {
           treeLogsDeleted.isEdit = false;
           treeLogsDeleted.date = currentDateLogs;
           treeLogsDeleted.value = values;
-
+          console.log(treeLogsDeleted)
           await this.storageService.insertOrUpdate(
             this.storageService.writtenLogs,
             treeLogsDeleted

@@ -344,7 +344,6 @@ export class EntradaManualComponent {
       tree.AplicacaoID = nav.WebId;
       tree.relativePath = nav.relativePath;
       tree.Caminho = tree.relativePath.split('\\').filter((c) => Boolean(c));
-
       return tree;
     });
     await this.storageService.store(
@@ -797,7 +796,6 @@ export class EntradaManualComponent {
       newAttribute.RelativePath = items[key].relativePath;
       newAttribute.firstSelection = atts[firstSelectionIndex];
       atts.splice(firstSelectionIndex, 1);
-
       newAttribute.list = atts
         .filter((att) => att.Description.includes(this.config.AppAttributes))
         .map((att) => this.getAttValue(att, valuesItems))
@@ -864,13 +862,10 @@ export class EntradaManualComponent {
       }
       if (att.mode == EnumModeAttribute['Leitura/Escrita']) {
         att.Selected = attValueString;
-        console.log(att)
-
         att.color = this.getColorScalling(att);
       }
       if (att.mode == EnumModeAttribute['Leitura/Escrita (Constante)']) {
         att.Selected = attValueString;
-        console.log(att)
         att.color = this.getColorScalling(att);
       }
 
@@ -1130,7 +1125,6 @@ export class EntradaManualComponent {
         let datelast = arvore.atributos.list.filter(l => l.mode == 'DataUltima' && l.Value.Value.Name != 'Calc Failed');
         if (datelast.length > 0) {
           this.dateLastRead = datelast.find(l => l).Value.Value;
-          console.log(this.dateLastRead)
           this.dateLastRead = this.dateLastRead.split('T').find(firstOrNull);
           this.dateLastRead = this.dateLastRead.split('-').reverse().join("/", this.dateLastRead, 0, this.dateLastRead.length)
         } else {

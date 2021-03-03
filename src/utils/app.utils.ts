@@ -100,7 +100,7 @@ export class AppUtils {
     let writtenValues = new Array<PIWebAttribute>();
 
     writtenValues.push(elements.firstSelection);
-
+    console.log(elements)
     writtenValues = writtenValues.concat(
       elements.list.filter(
         (el) =>

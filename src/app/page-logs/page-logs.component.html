@@ -40,7 +40,9 @@
           <ion-item lines="none">Data: {{data.date}} | Instrumento: {{getRelativePath(data.relativePath)}}</ion-item>
           <div>
             <div *ngFor="let value of data.value">
-              <ion-list>{{value.Name}} : {{value.Selected}}
+              <ion-list>{{value.Name}} : {{value.Selected && value.Selected.Name
+                ? value.Selected.Name
+                : value.Selected}}
               </ion-list>
             </div>
           </div>
@@ -52,7 +54,9 @@
           <ion-item lines="none">Data: {{data.date}} | Instrumento: {{getRelativePath(data.relativePath)}}</ion-item>
           <div>
             <div *ngFor="let value of data.value">
-              <ion-list>{{value.Name}} : {{value.Selected}}</ion-list>
+              <ion-list>{{value.Name}} : {{value.Selected && value.Selected.Name
+                ? value.Selected.Name
+                : value.Selected}}</ion-list>
             </div>
           </div>
           <br>

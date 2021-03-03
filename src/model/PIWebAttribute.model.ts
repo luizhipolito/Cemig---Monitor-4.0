@@ -13,7 +13,7 @@ export class PIWebAttribute extends PIWebObject {
   IsManualDataEntry: boolean;
   HasChildren: boolean;
   Step: boolean;
-  TraitName: string;
+  TraitName: any;
   Value?: PIWebValue;
   ValueString: string;
   Selected: any;

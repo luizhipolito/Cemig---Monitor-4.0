@@ -176,6 +176,7 @@ export class Arvore {
   deviceVersion: string;
   devicePlatform: string;
   Type: string;
+  TraitName: any;
 }
 
 export class ArvoreList {
