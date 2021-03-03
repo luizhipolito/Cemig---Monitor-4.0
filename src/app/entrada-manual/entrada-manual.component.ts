@@ -190,15 +190,15 @@ export class EntradaManualComponent {
 
   templateRangeScalling = {
     Mínimo: 'red',
-    'Mínimo de Alerta': 'red',
-    'Mínimo de Atenção': 'yellow',
-    'Máximo de Atenção': 'white',
-    'Máximo de Alerta': 'yellow',
+    'Mínimo Alerta': 'red',
+    'Mínimo Atenção': 'yellow',
+    'Máximo Atenção': 'white',
+    'Máximo Alerta': 'yellow',
     Máximo: 'red',
     Over: 'red',
   };
   templateMax = 'Máximo';
-  templateMaxAtention = 'Máximo de Atenção';
+  templateMaxAtention = 'Máximo Atenção';
 
   minimo: any;
   minimoAlerta: any;
@@ -633,7 +633,6 @@ export class EntradaManualComponent {
   onSelect($event) {
     this.propFocous = null;
     this.elements.list.forEach((att) => {
-      console.log(att)
       if (!att.config.some((s) => s.Name.includes(this.textCondition))) {
         att.visible = true;
       } else {
@@ -654,7 +653,6 @@ export class EntradaManualComponent {
             this.templateIndex,
             ' ' + index + ' '
           );
-          console.log(attTemp)
           let config = att.config as PIWebAttribute[];
           let atribute = this.getValueTemplate(attTemp, config);
           let condition = this.getValueTemplate(compTemp, config);
@@ -866,10 +864,13 @@ export class EntradaManualComponent {
       }
       if (att.mode == EnumModeAttribute['Leitura/Escrita']) {
         att.Selected = attValueString;
+        console.log(att)
+
         att.color = this.getColorScalling(att);
       }
       if (att.mode == EnumModeAttribute['Leitura/Escrita (Constante)']) {
         att.Selected = attValueString;
+        console.log(att)
         att.color = this.getColorScalling(att);
       }
 
@@ -902,22 +903,22 @@ export class EntradaManualComponent {
             console.log(this.minimo)
           }
 
-          if (config.Name === 'Mínimo de Alerta') {
+          if (config.Name === 'Mínimo Alerta') {
             this.minimoAlerta = config.Value.Value;
             console.log(this.minimoAlerta)
           }
 
-          if (config.Name === 'Mínimo de Atenção') {
+          if (config.Name === 'Mínimo Atenção') {
             this.minimoAtencao = config.Value.Value;
             console.log(this.minimoAtencao)
           }
 
-          if (config.Name === 'Máximo de Atenção') {
+          if (config.Name === 'Máximo Atenção') {
             this.maximoAtencao = config.Value.Value;
             console.log(this.maximoAtencao)
           }
 
-          if (config.Name === 'Máximo de Alerta') {
+          if (config.Name === 'Máximo Alerta') {
             this.maximoAlerta = config.Value.Value;
             console.log(this.maximoAlerta)
           }
