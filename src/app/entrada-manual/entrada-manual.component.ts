@@ -1050,7 +1050,6 @@ export class EntradaManualComponent {
 
 
       if (this.maximo || this.minimo || this.minimoAlerta || this.minimoAtencao || this.maximoAlerta || this.maximoAtencao) {
-        console.log(valueAlert)
         if (this.minimo || this.minimo == 0) {
           if (valueAlert <= this.minimo) {
             await this.showAlert(`Atenção! A leitura ${leitura} esta fora dos limites especificados para o equipamento.`)
@@ -1074,7 +1073,6 @@ export class EntradaManualComponent {
 
         if (this.minimoAtencao && !this.minimoAlerta) {
           if (valueAlert <= this.minimoAtencao) {
-            console.log('minimo atencao')
             let res = await this.showConfirm(`A leitura ${leitura} esta abaixo do limite de atenção. Deseja salvar?`)
             if (!res) return;
           }
@@ -1090,11 +1088,20 @@ export class EntradaManualComponent {
           let res = await this.showConfirm(`A leitura  ${leitura} esta abaixo do limite de alerta. Deseja salvar?`);
           if (!res) return;
         }
-
-        if (valueAlert >= this.maximoAtencao && valueAlert < this.maximoAlerta) {
-          let res = await this.showConfirm(`A leitura ${leitura} esta acima do limite de atenção. Deseja salvar?`)
-          if (!res) return;
+        if (this.maximoAtencao && this.maximoAlerta) {
+          if (valueAlert >= this.maximoAtencao && valueAlert < this.maximoAlerta) {
+            let res = await this.showConfirm(`A leitura ${leitura} esta acima do limite de atenção. Deseja salvar?`)
+            if (!res) return;
+          }
         }
+        if (this.maximoAtencao && this.maximoAlerta) {
+          if (valueAlert >= this.maximoAtencao && valueAlert < this.maximoAlerta) {
+            console.log('atencao')
+            let res = await this.showConfirm(`A leitura ${leitura} esta acima do limite de atenção. Deseja salvar?`)
+            if (!res) return;
+          }
+        }
+
         if (this.maximoAlerta) {
           if (valueAlert >= this.maximoAlerta && valueAlert < this.maximo) {
             let res = await this.showConfirm(`A leitura ${leitura} esta acima do limite de alerta. Deseja salvar?`);
