@@ -11,7 +11,7 @@ export class PIWebObject {
   Name: string;
   Type: string;
   Path: string;
-  TraitName: any;
+  TraitName: string;
   TemplateName: string;
   WebId: string;
   relativePath: string;

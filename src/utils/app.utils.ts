@@ -144,11 +144,11 @@ export function createBatch(
   let method = type == 'update' ? 'PUT' : 'GET';
 
   let selectedFieldsParam =
-    '?selectedFields=Items.WebId;Items.Description;Items.Name;Items.Path;Items.Type;Items.TypeQualifier;Items.HasChildren;Items.Links.Attributes;Items.Links.Value';
+    '?selectedFields=Items.WebId;Items.Description;Items.Name;Items.Path;Items.Type;Items.TypeQualifier;Items.HasChildren;Items.Links.Attributes;Items.Links.Value;Items.TraitName';
 
   if (type == 'Value') {
     selectedFieldsParam =
-      '?selectedFields=Items.Name;Items.Value;Items.Path;Items.HasChildren';
+      '?selectedFields=Items.Name;Items.Value;Items.Path;Items.HasChildren;Items.TraitName';
   }
   if (type == 'EnumerationSets') {
     selectedFieldsParam = '';

@@ -132,22 +132,98 @@ export class EntradaManualComponent {
     let selectedValue = new Number(propFocous.Selected).valueOf();
     let colorClass = 'black';
     let valueSK = Number.MAX_VALUE;
+    this.getAlerts(this.propFocous)
     for (let k of Object.keys(this.templateRangeScalling)) {
       let sk = this.templateRangeScalling[k];
-
-      let config = propFocous.config.find((c) => c?.Name == k) as PIWebAttribute;
+      let config = propFocous.config.find((c) => c?.TraitName == k) as PIWebAttribute;
       if (config && config.Value) {
         valueSK = new Number(config.Value.Value).valueOf();
-        if ((selectedValue <= valueSK && k.startsWith('Mínimo')) || (k.startsWith('Máximo') && valueSK > selectedValue)) {
+        // if ((selectedValue <= valueSK) || (valueSK > selectedValue)) {
+        //   console.log(sk)
+        //   sk = 'green';
+        //   return sk;
+        // }
+      }
+      if (this.minimo || this.minimo == 0) {
+        if (selectedValue <= this.minimo) {
+          console.log(this.minimo)
+          sk = 'red';
+          return sk;
+        }
+      }
+      if (!this.minimoAtencao && this.minimoAlerta) {
+        if (selectedValue <= this.minimoAlerta) {
+          console.log(this.minimoAlerta)
+          sk = 'red';
+          return sk;
+        }
+      }
+      if (this.minimoAtencao && !this.minimoAlerta) {
+        if (selectedValue <= this.minimoAtencao) {
+          console.log(this.minimoAtencao)
+          sk = 'yellow';
+          return sk;
+        }
+      }
+      if (this.minimoAtencao && this.minimoAlerta) {
+        if (selectedValue > this.minimoAlerta && selectedValue <= this.minimoAtencao) {
+          sk = 'yellow';
+          return sk;
+        }
+      }
+      if (selectedValue > this.minimo && selectedValue <= this.minimoAlerta) {
+        sk = 'red';
+        return sk;
+      }
+      if (this.maximo) {
+        if (selectedValue >= this.maximo) {
+          sk = 'red';
+          return sk;
+        }
+      }
+      if (this.maximoAtencao && this.maximoAlerta) {
+        if (selectedValue >= this.maximoAtencao && selectedValue < this.maximoAlerta) {
+          sk = 'yellow';
+          return sk;
+        }
+      }
+
+      if (this.maximoAlerta) {
+        if (selectedValue >= this.maximoAlerta && selectedValue < this.maximo) {
+          sk = 'red';
+          return sk;
+        }
+      }
+      if (this.maximoAlerta && !this.maximoAtencao) {
+        if (selectedValue >= this.maximoAlerta) {
+          sk = 'red';
+          return sk;
+        }
+      }
+      if (this.maximoAtencao && !this.maximoAlerta) {
+        if (selectedValue >= this.maximoAtencao) {
+          sk = 'yellow';
           return sk;
         }
       }
     }
-    if (selectedValue >= valueSK && valueSK > 0) {
-      return this.templateRangeScalling.Over;
-    }
+    // if (selectedValue >= valueSK && valueSK > 0) {
+    //   return this.templateRangeScalling.Over;
+    // }
     return colorClass;
   }
+
+  templateRangeScalling = {
+    LimitMinimum: 'red',
+    'LimitLoLo': 'red',
+    'LimitLo': 'yellow',
+    'LimitHi': 'white',
+    'LimitHiHi': 'yellow',
+    LimitMaximum: 'red',
+    Over: 'red',
+  };
+  templateMax = 'LimitMaximum';
+  templateMaxAtention = 'LimitHiHi';
 
   // async goInserirComentario() {
   //   let modal = await this.modalController.create({
@@ -187,18 +263,6 @@ export class EntradaManualComponent {
   templateIndex = ' X ';
   templateType = 'Tipo';
   searchField = '';
-
-  templateRangeScalling = {
-    Mínimo: 'red',
-    'Mínimo Alerta': 'red',
-    'Mínimo Atenção': 'yellow',
-    'Máximo Atenção': 'white',
-    'Máximo Alerta': 'yellow',
-    Máximo: 'red',
-    Over: 'red',
-  };
-  templateMax = 'Máximo';
-  templateMaxAtention = 'Máximo Atenção';
 
   minimo: any;
   minimoAlerta: any;
@@ -326,7 +390,6 @@ export class EntradaManualComponent {
   }
 
   async syncNavigationData() {
-    console.log(this.config)
     let rootData = await this.api.get(this.config.getBaseUrl()).toPromise();
     let rootUrl = this.utils.getValue(
       rootData,
@@ -334,6 +397,7 @@ export class EntradaManualComponent {
       this.config.endPoint.database
     );
     let insertParams = this.api.getCatagoryParams(this.config.Insercao);
+
     let navigationData = await this.api
       .get(rootUrl, insertParams)
       .pipe(map(this.generateRelativePath))
@@ -759,16 +823,16 @@ export class EntradaManualComponent {
       this.progress += 0.2;
       this.progressPercent = Math.ceil(this.progress * 100);
     }
-
     for (let key in Object.keys(attResponse)) {
       let newAttribute: Attribute = new Attribute();
       let configList = {};
       let atts = attResponse[key]['Content']['Items'] as Array<PIWebAttribute>;
+      // console.log(atts)
       for (let attKey in atts) {
         let children = this.read(childAttResponse)['Content'][
           'Items'
         ] as Array<PIWebAttribute>;
-
+        // console.log(children)
         for (let keyChild in children) {
           let child = children[keyChild];
           child.Value = this.read(childValueResponse)['Content'];
@@ -891,35 +955,34 @@ export class EntradaManualComponent {
     this.minimoAtencao = null;
     for (let k of Object.keys(this.templateRangeScalling)) {
       if (propFocous) {
-        let config = propFocous.config.find((c) => c.Name == k) as PIWebAttribute;
-        console.log(config)
+        let config = propFocous.config.find((c) => c?.TraitName == k) as PIWebAttribute;
         if (config && config.Name && !config.Value.Value.Name) {
-          if (config.Name === 'Mínimo') {
+          if (config.TraitName === 'LimitMinimum') {
             this.minimo = config.Value.Value;
             console.log(this.minimo)
           }
 
-          if (config.Name === 'Mínimo Alerta') {
+          if (config.TraitName === 'LimitLoLo') {
             this.minimoAlerta = config.Value.Value;
             console.log(this.minimoAlerta)
           }
 
-          if (config.Name === 'Mínimo Atenção') {
+          if (config.TraitName === 'LimitLo') {
             this.minimoAtencao = config.Value.Value;
             console.log(this.minimoAtencao)
           }
 
-          if (config.Name === 'Máximo Atenção') {
+          if (config.TraitName === 'LimitHi') {
             this.maximoAtencao = config.Value.Value;
             console.log(this.maximoAtencao)
           }
 
-          if (config.Name === 'Máximo Alerta') {
+          if (config.TraitName === 'LimitHiHi') {
             this.maximoAlerta = config.Value.Value;
             console.log(this.maximoAlerta)
           }
 
-          if (config.Name === 'Máximo') {
+          if (config.TraitName === 'LimitMaximum') {
             this.maximo = config.Value.Value;
             console.log(this.maximo)
           }
@@ -963,13 +1026,14 @@ export class EntradaManualComponent {
     this.storageService.insertOrUpdate(
       this.storageService.writtenLogs,
       treeLogsPost
-    )
+    );
 
-    let leituraEscritaMode = this.elements.list.filter(m => m.mode == 'LeituraEscrita').find(s => s.Selected != null);
-    let leituraEscritaConstanteMode = this.elements.list.filter(m => m.mode == 'LeituraEsConst').find(s => s.Selected != null);
-    let EscritaConstanteMode = this.elements.list.filter(m => m.mode == 'EscritaConstante').find(s => s.Selected != null);
-    let EscritaMode = this.elements.list.filter(m => m.mode == 'Escrita').find(s => s.Selected != null);
-    let validationModes = [leituraEscritaMode, leituraEscritaConstanteMode, EscritaConstanteMode, EscritaMode].filter(s => s != null && s.Type != 'String');
+    let validationModes: any;
+    let leituraEscritaMode = this.elements.list.filter(m => m.mode == 'LeituraEscrita').filter(s => s?.Selected);
+    let leituraEscritaConstanteMode = this.elements.list.filter(m => m.mode == 'LeituraEsConst').filter(s => s?.Selected);
+    let EscritaConstanteMode = this.elements.list.filter(m => m.mode == 'EscritaConstante').filter(s => s?.Selected);
+    let EscritaMode = this.elements.list.filter(m => m.mode == 'Escrita').find(s => s?.Selected);
+    validationModes = leituraEscritaMode.concat(leituraEscritaConstanteMode, EscritaConstanteMode, EscritaMode).filter(s => s != null && s?.Type != 'String');
 
     for (let i = 0; i < validationModes.length; i++) {
 
@@ -986,25 +1050,44 @@ export class EntradaManualComponent {
 
 
       if (this.maximo || this.minimo || this.minimoAlerta || this.minimoAtencao || this.maximoAlerta || this.maximoAtencao) {
-
-        if (valueAlert <= this.minimo) {
-          await this.showAlert(`Atenção! A leitura ${leitura} esta fora dos limites especificados para o equipamento.`)
-          return;
+        console.log(valueAlert)
+        if (this.minimo || this.minimo == 0) {
+          if (valueAlert <= this.minimo) {
+            await this.showAlert(`Atenção! A leitura ${leitura} esta fora dos limites especificados para o equipamento.`)
+            return;
+          }
         }
 
-        if (valueAlert >= this.maximo) {
-          await this.showAlert(`Atenção! A leitura ${leitura} esta fora dos limites especificados para o equipamento.`)
-          return;
+        if (this.maximo) {
+          if (valueAlert >= this.maximo) {
+            await this.showAlert(`Atenção! A leitura ${leitura} esta fora dos limites especificados para o equipamento.`)
+            return;
+          }
         }
 
+        if (!this.minimoAtencao && this.minimoAlerta) {
+          if (valueAlert <= this.minimoAlerta) {
+            let res = await this.showConfirm(`A leitura  ${leitura} esta abaixo do limite de alerta. Deseja salvar?`);
+            if (!res) return;
+          }
+        }
 
+        if (this.minimoAtencao && !this.minimoAlerta) {
+          if (valueAlert <= this.minimoAtencao) {
+            console.log('minimo atencao')
+            let res = await this.showConfirm(`A leitura ${leitura} esta abaixo do limite de atenção. Deseja salvar?`)
+            if (!res) return;
+          }
+        }
+
+        if (this.minimoAtencao && this.minimoAlerta) {
+          if (valueAlert > this.minimoAlerta && valueAlert <= this.minimoAtencao) {
+            let res = await this.showConfirm(`A leitura ${leitura} esta abaixo do limite de atenção. Deseja salvar?`)
+            if (!res) return;
+          }
+        }
         if (valueAlert > this.minimo && valueAlert <= this.minimoAlerta) {
           let res = await this.showConfirm(`A leitura  ${leitura} esta abaixo do limite de alerta. Deseja salvar?`);
-          if (!res) return;
-        }
-
-        if (valueAlert > this.minimoAlerta && valueAlert <= this.minimoAtencao) {
-          let res = await this.showConfirm(`A leitura ${leitura} esta abaixo do limite de atenção. Deseja salvar?`)
           if (!res) return;
         }
 
@@ -1012,9 +1095,22 @@ export class EntradaManualComponent {
           let res = await this.showConfirm(`A leitura ${leitura} esta acima do limite de atenção. Deseja salvar?`)
           if (!res) return;
         }
-        if (this.maximoAlerta != null) {
+        if (this.maximoAlerta) {
           if (valueAlert >= this.maximoAlerta && valueAlert < this.maximo) {
             let res = await this.showConfirm(`A leitura ${leitura} esta acima do limite de alerta. Deseja salvar?`);
+            if (!res) return;
+          }
+        }
+        if (this.minimoAlerta && !this.maximoAtencao) {
+          if (valueAlert >= this.maximoAlerta) {
+            let res = await this.showConfirm(`A leitura ${leitura} esta acima do limite de alerta. Deseja salvar?`);
+            if (!res) return;
+          }
+        }
+
+        if (this.maximoAtencao && !this.maximoAlerta) {
+          if (valueAlert >= this.maximoAtencao) {
+            let res = await this.showConfirm(`A leitura ${leitura} esta acima do limite de atenção. Deseja salvar?`)
             if (!res) return;
           }
         }
@@ -1119,6 +1215,7 @@ export class EntradaManualComponent {
   selectedDate: Date;
 
   filterByDate(navigation: Array<Navigation>, date: any): Array<Navigation> {
+    this.elements = null;
     this.navigation = new Array<Navigation>();
     this.arvoreLocal.forEach((arvore: Arvore) => {
       if (date != null) {
