@@ -1101,7 +1101,7 @@ export class EntradaManualComponent {
             if (!res) return;
           }
         }
-        if (this.minimoAlerta && !this.maximoAtencao) {
+        if (this.maximoAlerta && !this.maximoAtencao) {
           if (valueAlert >= this.maximoAlerta) {
             let res = await this.showConfirm(`A leitura ${leitura} esta acima do limite de alerta. Deseja salvar?`);
             if (!res) return;
