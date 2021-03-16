@@ -262,6 +262,11 @@ ion-select.myCustomSelect{
   border-radius: 50px;
 }
 
+.selectInputText{
+  width: 50%;
+  border: 2px solid rgb(163, 162, 162);
+}
+
 @media screen and(max-width: 825px) {
   
   .routeSelect {

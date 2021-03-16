@@ -478,7 +478,6 @@ export class EntradaManualComponent {
       this.progressPercent = Math.ceil(this.progress * 100);
     }
 
-
     enumerationSets.forEach((enumset, index) => {
       let response = batchResponse[index];
       if (response && response['Status'] == 200) {
@@ -491,14 +490,12 @@ export class EntradaManualComponent {
     if (this.arvoreLocal) {
       const aggregateAttributes = (acc: Array<PIWebAttribute>, cur: Arvore) =>
         acc.concat(cur.atributos.list).concat([cur.atributos.firstSelection]);
-
       let qualifyers = this.arvoreLocal
         .reduce(aggregateAttributes, [])
         .filter((att) => att && att.Type == typeEnumeration)
         .map((att) => att.TypeQualifier)
         .filter(distinct);
       return qualifyers;
-
     }
     return [];
   }
@@ -514,6 +511,8 @@ export class EntradaManualComponent {
     this.pathNavigation.path = [];
   }
 
+  dataRead: Array<Arvore>;
+  dataReadPath: any;
   async loadNavigationDataFromStorage() {
     let pathRead: any;
     let dataLeitura: any;
@@ -521,19 +520,20 @@ export class EntradaManualComponent {
     this.arvoreLocal = await this.storageService.getByKey(
       this.storageService.navigation
     );
-    let dataRead = await this.storageService.getByKey(
-      this.storageService.writtenValuesForList
-    );
-    if (dataRead) {
-      pathRead = dataRead.map(p => p.relativePath);
-      for (let i = 0; i < pathRead.length; i++) {
-        this.arvoreLocal = this.arvoreLocal.filter(p => p.relativePath != pathRead[i])
-      }
-    }
+
     let dateLastRead: any;
 
     this.navigation = new Array<Navigation>();
     if (this.arvoreLocal) {
+      this.dataRead = await this.storageService.getByKey(
+        this.storageService.writtenValuesForList
+      );
+      if (this.dataRead != null) {
+        this.dataReadPath = this.dataRead.map(p => p.relativePath.split('\\').pop());
+      } else {
+        this.dataReadPath = [];
+      }
+
       this.arvoreLocal.forEach((arvore: Arvore) => {
         let dateNext = arvore.atributos.list.filter(l => l.mode == 'DataProxima' && l.Value.Value.Name != 'Calc Failed');
         let datelast = arvore.atributos.list.filter(l => l.mode == 'DataUltima' && l.Value.Value.Name != 'Calc Failed');
@@ -827,12 +827,10 @@ export class EntradaManualComponent {
       let newAttribute: Attribute = new Attribute();
       let configList = {};
       let atts = attResponse[key]['Content']['Items'] as Array<PIWebAttribute>;
-      // console.log(atts)
       for (let attKey in atts) {
         let children = this.read(childAttResponse)['Content'][
           'Items'
         ] as Array<PIWebAttribute>;
-        // console.log(children)
         for (let keyChild in children) {
           let child = children[keyChild];
           child.Value = this.read(childValueResponse)['Content'];
@@ -959,32 +957,26 @@ export class EntradaManualComponent {
         if (config && config.Name && !config.Value.Value.Name) {
           if (config.TraitName === 'LimitMinimum') {
             this.minimo = config.Value.Value;
-            console.log(this.minimo)
           }
 
           if (config.TraitName === 'LimitLoLo') {
             this.minimoAlerta = config.Value.Value;
-            console.log(this.minimoAlerta)
           }
 
           if (config.TraitName === 'LimitLo') {
             this.minimoAtencao = config.Value.Value;
-            console.log(this.minimoAtencao)
           }
 
           if (config.TraitName === 'LimitHi') {
             this.maximoAtencao = config.Value.Value;
-            console.log(this.maximoAtencao)
           }
 
           if (config.TraitName === 'LimitHiHi') {
             this.maximoAlerta = config.Value.Value;
-            console.log(this.maximoAlerta)
           }
 
           if (config.TraitName === 'LimitMaximum') {
             this.maximo = config.Value.Value;
-            console.log(this.maximo)
           }
         }
 

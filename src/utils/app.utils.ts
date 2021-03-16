@@ -100,7 +100,6 @@ export class AppUtils {
     let writtenValues = new Array<PIWebAttribute>();
 
     writtenValues.push(elements.firstSelection);
-    console.log(elements)
     writtenValues = writtenValues.concat(
       elements.list.filter(
         (el) =>
@@ -171,6 +170,7 @@ export function createBatch(
       Method: method,
       Resource: url,
     };
+
     if (method == 'PUT') {
       if (item.mode == 'Escrita' || item.mode == 'LeituraEscrita') {
         batchItem[index]['Method'] = 'POST';
@@ -181,7 +181,6 @@ export function createBatch(
         item['Selected'] && item['Selected']['Value']
           ? item['Selected']['Value']
           : item['Selected'];
-
       // if (!isNaN(value)) {
       //   value = new Number(value).valueOf();
       // }

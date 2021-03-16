@@ -67,9 +67,9 @@
                 class="read">
                 {{ element.ValueString }}</ion-label>
 
-              <ion-input [(ngModel)]="element.Selected" class="select"
-                *ngIf="element.mode == 'LeituraEsConst' && element.Type == 'String'">
-              </ion-input>
+              <input [(ngModel)]="element.Selected" class="selectInputText"
+                *ngIf="element.mode == 'LeituraEsConst' && element.Type == 'String'" />
+
               <!-- values -->
               <ion-label *ngIf=" (element.mode=='LeituraEscrita' || element.mode=='Escrita' ||
                 element.mode==='EscritaConstante' || element.mode==='LeituraEsConst' ) && (element.Type=='Double' ||
@@ -96,12 +96,15 @@
             <ion-col>Próxima Leitura</ion-col>
             <ion-col>Última Leitura</ion-col>
           </ion-row>
+
           <div *ngFor="let app of navigation">
-            <ion-row class="rowList">
-              <ion-col (click)="onClickId(app)">{{ app.name }}</ion-col>
-              <ion-col (click)="onClickId(app)">{{app.date}}</ion-col>
-              <ion-col (click)="onClickId(app)">{{app.dateLast}}</ion-col>
-            </ion-row>
+            <div *ngIf="dataReadPath.indexOf(app.name) == -1">
+              <ion-row class="rowList">
+                <ion-col (click)="onClickId(app)">{{ app.name }}</ion-col>
+                <ion-col (click)="onClickId(app)">{{app.date}}</ion-col>
+                <ion-col (click)="onClickId(app)">{{app.dateLast}}</ion-col>
+              </ion-row>
+            </div>
           </div>
         </ion-list>
 
