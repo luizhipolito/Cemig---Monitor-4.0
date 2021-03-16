@@ -194,7 +194,7 @@ export class EntradaManualComponent {
           return sk;
         }
       }
-      if (this.maximoAlerta && !this.maximoAtencao) {
+      if (this.maximoAlerta && !this.maximo) {
         if (selectedValue >= this.maximoAlerta) {
           sk = 'red';
           return sk;
@@ -1100,7 +1100,7 @@ export class EntradaManualComponent {
             if (!res) return;
           }
         }
-        if (this.maximoAlerta && !this.maximoAtencao) {
+        if (this.maximoAlerta && !this.maximo) {
           if (valueAlert >= this.maximoAlerta) {
             let res = await this.showConfirm(`A leitura ${leitura} esta acima do limite de alerta. Deseja salvar?`);
             if (!res) return;
