@@ -43,6 +43,7 @@ import { PIWebLink } from 'src/model/PIWebLink.model';
 import { SalvarDadosComponent } from '../salvar-dados/salvar-dados.component';
 import { stringify } from 'querystring';
 import { NgForm } from '@angular/forms';
+import { formatDate } from '@angular/common';
 
 const typeEnumeration = 'EnumerationValue';
 // let currentModal = null;
@@ -696,7 +697,15 @@ export class EntradaManualComponent {
 
   onSelect($event) {
     this.propFocous = null;
+    const format: string = this.config.FormatoData;
+
     this.elements.list.forEach((att) => {
+
+      if(att.Type == "DateTime" && att.ValueString){
+        const date = new Date(att.ValueString);
+        att.ValueStringView = date as any == 'Invalid Date' ? "" : formatDate(date, format, 'en');
+      }
+      
       if (!att.config.some((s) => s.Name.includes(this.textCondition))) {
         att.visible = true;
       } else {

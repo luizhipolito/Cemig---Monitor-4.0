@@ -27,6 +27,7 @@ export class ConfigService {
   NomeAppInicio: string;
   DataInicioBusca: Number;
   DataFimBusca: Number;
+  FormatoData: string;
 
   endPoint = {
     asset: 'Databases',
@@ -53,6 +54,7 @@ export class ConfigService {
     NomeAppInicio: 'Nome APP Inicio',
     DataFimBusca: 'Data Fim da Busca',
     DataInicioBusca: 'Data Início da Busca',
+    FormatoData: 'Formato data',
   };
 
   constructor(public storageService: StorageArvoreService) { }
