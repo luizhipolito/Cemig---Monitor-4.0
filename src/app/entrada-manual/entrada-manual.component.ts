@@ -693,7 +693,23 @@ export class EntradaManualComponent {
     });
   };
 
+  formatDateAttr(att, format: string){
 
+    if(att.Type == "DateTime" && att.ValueString){
+      const defaultFormat = "dd/MM/yyyy hh:mm:ss";
+      format = format ? format : defaultFormat;
+    
+      const date = new Date(att.ValueString);
+
+      if(date as any != 'Invalid Date') {
+        try {
+          att.ValueStringView = formatDate(date, format, 'en');
+        } catch (e) {
+          att.ValueStringView = formatDate(date, defaultFormat, 'en');
+        }
+      }
+    }
+  }
 
   onSelect($event) {
     this.propFocous = null;
@@ -701,10 +717,7 @@ export class EntradaManualComponent {
 
     this.elements.list.forEach((att) => {
 
-      if(att.Type == "DateTime" && att.ValueString){
-        const date = new Date(att.ValueString);
-        att.ValueStringView = date as any == 'Invalid Date' ? "" : formatDate(date, format, 'en');
-      }
+      this.formatDateAttr(att, format);
       
       if (!att.config.some((s) => s.Name.includes(this.textCondition))) {
         att.visible = true;
