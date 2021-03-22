@@ -164,6 +164,8 @@ export class Arvore {
   atributos: Attribute;
   date: string;
   configValue: string;
+  isConnectionError: boolean;
+  errorMessage: string;
   isToSave: boolean;
   isSystem: boolean;
   isEdit: boolean;

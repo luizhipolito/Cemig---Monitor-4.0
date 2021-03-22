@@ -61,6 +61,16 @@
           </div>
           <br>
         </div>
+        <div *ngIf="data.isConnectionError == true">
+          <h6>Erro de Conexão</h6>
+          <ion-item>Modelo: {{data.device}} {{data.deviceModel}} Versão: {{data.devicePlatform}} {{data.deviceVersion}}
+            ID:
+            {{data.deviceId}}
+          </ion-item>
+          <ion-item>Usuario: {{data.user}}</ion-item>
+          <ion-item>Data: {{data.date}}</ion-item>
+          <ion-item lines="none">Mensagem: {{data.errorMessage}}</ion-item>
+        </div>
       </div>
     </div>
     <div class="btn">
