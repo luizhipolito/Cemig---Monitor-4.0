@@ -799,9 +799,29 @@ export class EntradaManualComponent {
     return configValue;
   }
 
+  splitRequest(request, maxLen: number = 1000): Array<any> {
+    let newRequests = [];
+
+    do {
+      var len = request.length > maxLen ? maxLen : request.length;
+      var deleteds = request.splice(0, len);
+      var obj = {};
+      for(var i=0; i < deleteds.length; i++) {
+        obj[i] = deleteds[i];
+      }
+      newRequests.push(obj);
+    } while(request.length);
+    
+    if(!newRequests.length) {
+      newRequests.push({});
+    }
+
+    return newRequests;
+  }
+
   async getResponse(previusBatch: any, type: string) {
     let server = this.config.afServer;
-    let request = {};
+    let request = [];
     for (let key of Object.keys(previusBatch)) {
       let response = previusBatch[key];
 
@@ -810,7 +830,20 @@ export class EntradaManualComponent {
         request = compoundBatches(request, createBatch(items, type));
       }
     }
-    let response = await this.api.executeBatchAsync(server, request);
+
+    let response = {};
+    var countReponse = 0;
+    let splitedRequest = this.splitRequest(request);
+
+    for(let requestSet of splitedRequest) {
+      let resp = await this.api.executeBatchAsync(server, requestSet);
+
+      for (let key of Object.keys(resp)) {
+        response[countReponse] = resp[key];
+        countReponse++;
+      }
+    }
+
     if (response) {
       this.progress += 0.2;
       this.progressPercent = Math.ceil(this.progress * 100);
