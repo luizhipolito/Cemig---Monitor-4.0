@@ -819,8 +819,33 @@ export class EntradaManualComponent {
     return newRequests;
   }
 
-  async getResponse(previusBatch: any, type: string) {
+  async executeRequestAsync(request){
     let server = this.config.afServer;
+    let response = {};
+    
+    let splitedRequest = this.splitRequest(request);
+
+    let responses = await Promise.all(
+        splitedRequest.map(async requestSet => {
+        return await this.api.executeBatchAsync(server, requestSet);
+      })
+    );
+
+    if(response) {
+      var countReponse = 0;
+      responses.forEach(resp => {
+        for (let key of Object.keys(resp)) {
+          response[countReponse] = resp[key];
+          countReponse++;
+        }
+      });
+    }
+    
+    return response;
+  }
+
+  getResponse(previusBatch: any, type: string) {
+    
     let request = [];
     for (let key of Object.keys(previusBatch)) {
       let response = previusBatch[key];
@@ -831,18 +856,7 @@ export class EntradaManualComponent {
       }
     }
 
-    let response = {};
-    var countReponse = 0;
-    let splitedRequest = this.splitRequest(request);
-
-    for(let requestSet of splitedRequest) {
-      let resp = await this.api.executeBatchAsync(server, requestSet);
-
-      for (let key of Object.keys(resp)) {
-        response[countReponse] = resp[key];
-        countReponse++;
-      }
-    }
+    var response = this.executeRequestAsync(request);
 
     if (response) {
       this.progress += 0.2;
