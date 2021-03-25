@@ -326,9 +326,9 @@ export class EntradaManualComponent {
   public user;
 
   async ionViewWillEnter() {
-
-    this.progress = 0.1;
-    this.progressPercent = 10;
+    this.currentIndexProgress = 0;
+    this.progress = 0;
+    this.progressPercent = 0;
     let isToSyncDataFromPI = this.config.isToLoadFromPI && true;
     this.user = this.utils.getStorage('user');
     this.init();
@@ -347,7 +347,26 @@ export class EntradaManualComponent {
     this.date = null;
   }
 
-  progress = 0.1;
+  arrayProgress = [0, 0.05, 0.1, 0.2, 0.35, 0.55, 0.6, 0.9, 0.95, 1];
+  currentIndexProgress = 0;
+
+  nextProgress() {
+    this.currentIndexProgress++;
+    this.progress = this.arrayProgress[this.currentIndexProgress];
+    this.progressPercent = Math.ceil(this.progress * 100);
+  }
+
+  updateLoopProgress(lenLoop: number){
+    let current = this.arrayProgress[this.currentIndexProgress];
+    let next = this.arrayProgress[this.currentIndexProgress + 1];
+    let diff = (next - current);
+    let percentIteration = diff / lenLoop;
+
+    this.progress += percentIteration;
+    this.progressPercent = Math.ceil(this.progress * 100);
+  }
+
+  progress = 0;
   progressPercent = Math.ceil(this.progress * 100);
   init() {
     this.elements = null;
@@ -360,7 +379,6 @@ export class EntradaManualComponent {
     await this.syncConfigFromPI();
     await this.syncNavigationData();
     await this.syncEnumerationSets();
-
     this.config.isToLoadFromPI = false;
   }
 
@@ -398,11 +416,14 @@ export class EntradaManualComponent {
       this.config.endPoint.database
     );
     let insertParams = this.api.getCatagoryParams(this.config.Insercao);
+    this.nextProgress();
 
     let navigationData = await this.api
       .get(rootUrl, insertParams)
       .pipe(map(this.generateRelativePath))
       .toPromise();
+    this.nextProgress();
+
     let attributes = await this.loadAttributes(navigationData);
     let navigationTree = navigationData.map((nav) => {
       let tree = new Arvore();
@@ -418,6 +439,7 @@ export class EntradaManualComponent {
     );
     this.api.hideLoader();
     await this.loadDataFromStorage();
+    this.nextProgress();
   }
 
   async getEnumarationSets(
@@ -470,14 +492,8 @@ export class EntradaManualComponent {
 
   async getEnumerationSetsValues(enumerationSets: Array<PIWebObject>) {
     let batchRequest = createBatch(enumerationSets, 'EnumerationSets');
-    let batchResponse = await this.api.executeBatchAsync(
-      this.config.afServer,
-      batchRequest
-    );
-    if (batchResponse) {
-      this.progress += 0.1;
-      this.progressPercent = Math.ceil(this.progress * 100);
-    }
+
+    let batchResponse = await this.splitBatchAndExecute(batchRequest, this.config.afServer);
 
     enumerationSets.forEach((enumset, index) => {
       let response = batchResponse[index];
@@ -536,14 +552,15 @@ export class EntradaManualComponent {
       }
 
       this.arvoreLocal.forEach((arvore: Arvore) => {
-        let dateNext = arvore.atributos.list.filter(l => l.mode == 'DataProxima' && l.Value.Value.Name != 'Calc Failed');
-        let datelast = arvore.atributos.list.filter(l => l.mode == 'DataUltima' && l.Value.Value.Name != 'Calc Failed');
+        let dateNext = arvore.atributos.list.filter(l => l.mode == 'DataProxima' && l.Value?.Value?.Name != 'Calc Failed');
+        let datelast = arvore.atributos.list.filter(l => l.mode == 'DataUltima' && l.Value?.Value?.Name != 'Calc Failed');
         if (dateNext.length > 0) {
 
-          dataLeitura = dateNext.find(d => d).Value.Value;
+          dataLeitura = dateNext.find(d => d)?.Value.Value;
 
-          if (datelast.length > 0) {
-            dateLastRead = datelast.find(l => l).Value.Value;
+          dateLastRead = datelast && datelast.length > 0 ? datelast.find(l => l)?.Value.Value : null;
+
+          if (dateLastRead) {
             dateLastRead = dateLastRead.split('T').find(firstOrNull);
             dateLastRead = dateLastRead.split('-').reverse().join("/", dateLastRead, 0, dateLastRead.length)
 
@@ -558,9 +575,15 @@ export class EntradaManualComponent {
           datePlus.setDate(datePlus.getDate() + dataInicio);
           dateMinus.setDate(dateMinus.getDate() - dataFim);
 
-          this.date = new Date(dataLeitura)
-          dataLeitura = dataLeitura.split('T').find(firstOrNull);
-          dataLeitura = dataLeitura.split('-').reverse().join("/", dataLeitura, 0, dataLeitura.length);
+          this.date = new Date(dataLeitura);
+
+          if(dataLeitura) {
+            dataLeitura = dataLeitura.split('T').find(firstOrNull);
+            dataLeitura = dataLeitura.split('-').reverse().join("/", dataLeitura, 0, dataLeitura.length);
+          } else {
+            dataLeitura = 'Sem Data';
+          }
+          
           let path = arvore.Caminho;
           let lastIndex = arvore.Caminho.length - 1;
           this.dataLeitura = dataLeitura;
@@ -801,6 +824,16 @@ export class EntradaManualComponent {
 
   splitRequest(request, maxLen: number = 1000): Array<any> {
     let newRequests = [];
+    request = request ? request : [];
+
+    if(!Array.isArray(request)) {
+      let _request = [];
+
+      for (let key of Object.keys(request)) {
+        _request.push(request[key]);
+      }
+      request = _request;
+    }
 
     do {
       var len = request.length > maxLen ? maxLen : request.length;
@@ -819,35 +852,12 @@ export class EntradaManualComponent {
     return newRequests;
   }
 
-  async executeRequestAsync(request){
+  async getResponse(previusBatch: any, type: string) {
     let server = this.config.afServer;
-    let response = {};
-    
-    let splitedRequest = this.splitRequest(request);
-
-    let responses = await Promise.all(
-        splitedRequest.map(async requestSet => {
-        return await this.api.executeBatchAsync(server, requestSet);
-      })
-    );
-
-    if(response) {
-      var countReponse = 0;
-      responses.forEach(resp => {
-        for (let key of Object.keys(resp)) {
-          response[countReponse] = resp[key];
-          countReponse++;
-        }
-      });
-    }
-    
-    return response;
-  }
-
-  getResponse(previusBatch: any, type: string) {
-    
     let request = [];
+
     for (let key of Object.keys(previusBatch)) {
+      
       let response = previusBatch[key];
 
       if (isResult(response)) {
@@ -856,12 +866,27 @@ export class EntradaManualComponent {
       }
     }
 
-    var response = this.executeRequestAsync(request);
+    var response = await this.splitBatchAndExecute(request, server);
 
-    if (response) {
-      this.progress += 0.2;
-      this.progressPercent = Math.ceil(this.progress * 100);
+    return response;
+  }
+
+  async splitBatchAndExecute(request, server){
+    let response = {};
+    var countReponse = 0;
+    let splitedRequest = this.splitRequest(request);
+
+    var lenSplit = splitedRequest ? splitedRequest.length : 0;
+
+    for(let requestSet of splitedRequest) {
+      let resp = await this.api.executeBatchAsync(server, requestSet);
+      for (let key of Object.keys(resp)) {
+        response[countReponse] = resp[key];
+        countReponse++;
+      }
+      this.updateLoopProgress(lenSplit);
     }
+
     return response;
   }
 
@@ -876,23 +901,28 @@ export class EntradaManualComponent {
     let server = this.config.afServer;
     let attributesData: Array<Attribute> = new Array<Attribute>();
     let attRequest = createBatch(items, 'Attributes');
-    let attResponse = await this.api.executeBatchAsync(server, attRequest);
-    if (attResponse) {
-      this.progress += 0.2;
-      this.progressPercent = Math.ceil(this.progress * 100);
-    }
+
+    var attResponse = await this.splitBatchAndExecute(attRequest, server);
+    this.nextProgress();
+
     let childAttResponse = await this.getResponse(attResponse, 'Attributes');
+    this.nextProgress();
+
     let childValueResponse = await this.getResponse(
       childAttResponse,
       'ChildrenValue'
     );
+    this.nextProgress();
+
     let valueRequest = createBatch(items, 'Value');
-    let valueResponse = await this.api.executeBatchAsync(server, valueRequest);
-    if (valueResponse) {
-      this.progress += 0.2;
-      this.progressPercent = Math.ceil(this.progress * 100);
-    }
-    for (let key in Object.keys(attResponse)) {
+
+    var valueResponse = await this.splitBatchAndExecute(valueRequest, server);
+    this.nextProgress();
+
+    var keysResp = attResponse ? Object.keys(attResponse) : [];
+    var lenResponse = keysResp.length;
+
+    for (let key in keysResp) {
       let newAttribute: Attribute = new Attribute();
       let configList = {};
       let atts = attResponse[key]['Content']['Items'] as Array<PIWebAttribute>;
@@ -939,7 +969,10 @@ export class EntradaManualComponent {
           return 1;
         })
       attributesData.push(newAttribute);
+      this.updateLoopProgress(lenResponse);
     }
+
+    this.nextProgress();
 
     return attributesData;
   }
