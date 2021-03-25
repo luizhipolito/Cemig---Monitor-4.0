@@ -823,38 +823,38 @@ export class EntradaManualComponent {
   }
 
   splitRequest(request, maxLen: number = 1000): Array<any> {
-    let newRequests = [];
-    request = request ? request : [];
+    const objKeysLen = request ? Object.keys(request).length : [];
 
-    if(!Array.isArray(request)) {
-      let _request = [];
-
-      for (let key of Object.keys(request)) {
-        _request.push(request[key]);
-      }
-      request = _request;
+    if(objKeysLen <= maxLen) {
+      return [request];
     }
+
+    let newRequests = [];
+    let startIndex = 0;
+    let endIndex;
 
     do {
-      var len = request.length > maxLen ? maxLen : request.length;
-      var deleteds = request.splice(0, len);
+      endIndex = startIndex + maxLen;
+      endIndex = endIndex > objKeysLen ? objKeysLen : endIndex;
+
       var obj = {};
-      for(var i=0; i < deleteds.length; i++) {
-        obj[i] = deleteds[i];
+      var indexObj = 0;
+      for(let i=startIndex; i < endIndex; i++) {
+        obj[indexObj] = request[i];
+        indexObj++;
       }
       newRequests.push(obj);
-    } while(request.length);
-    
-    if(!newRequests.length) {
-      newRequests.push({});
-    }
+
+      startIndex += maxLen;
+
+    } while(endIndex < objKeysLen);
 
     return newRequests;
   }
 
   async getResponse(previusBatch: any, type: string) {
     let server = this.config.afServer;
-    let request = [];
+    let request = {};
 
     for (let key of Object.keys(previusBatch)) {
       
@@ -901,23 +901,29 @@ export class EntradaManualComponent {
     let server = this.config.afServer;
     let attributesData: Array<Attribute> = new Array<Attribute>();
     let attRequest = createBatch(items, 'Attributes');
+    //debugger;
 
     var attResponse = await this.splitBatchAndExecute(attRequest, server);
+    //debugger;
     this.nextProgress();
 
     let childAttResponse = await this.getResponse(attResponse, 'Attributes');
+    //debugger;
     this.nextProgress();
 
     let childValueResponse = await this.getResponse(
       childAttResponse,
       'ChildrenValue'
     );
+    //debugger;
     this.nextProgress();
 
     let valueRequest = createBatch(items, 'Value');
+    //debugger;
 
     var valueResponse = await this.splitBatchAndExecute(valueRequest, server);
     this.nextProgress();
+    //debugger;
 
     var keysResp = attResponse ? Object.keys(attResponse) : [];
     var lenResponse = keysResp.length;
