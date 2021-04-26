@@ -42,7 +42,7 @@ export class LoginComponent {
   async ionViewWillEnter() {
     this.utils.removeStorgare('Autorizacao');
     this.user = this.utils.getStorage('user');
-    this.pass = this.utils.getStorage('password');
+    //this.pass = this.utils.getStorage('password');
   }
 
   isActiveToggleTextPassword: Boolean = true;
@@ -62,7 +62,7 @@ export class LoginComponent {
     await loading.present()
 
     this.utils.saveStorage('user', f.value.username);
-    this.utils.saveStorage('password', f.value.password);
+    //this.utils.saveStorage('password', f.value.password);
     if (f.valid) {
       this.AuthorizationToken = btoa(f.value.username + ':' + f.value.password);
       this.api.setAuth(this.AuthorizationToken);

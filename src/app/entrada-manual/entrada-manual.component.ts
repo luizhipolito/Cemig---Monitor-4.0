@@ -897,33 +897,47 @@ export class EntradaManualComponent {
     return value;
   }
 
+  filterDescription(attResponse) {
+    if(attResponse) {
+      const descAttr = this.config.AppAttributes;
+      var keys = Object.keys(attResponse);
+      for (let key in keys) {
+        var element = attResponse[key];
+        var attrs: Array<any> = element?.Content?.Items;
+        attrs = attrs && element.Status == 200 ? attrs : [];
+
+        let attrsFiltered = attrs.filter(att => att.Description && att.Description.includes(descAttr));
+        if(attrsFiltered.length) {
+          element.Content.Items = attrsFiltered;
+        }
+      }
+      return attResponse;
+    }
+  }
+
   async loadAttributes(items: Array<PIWebObject>) {
     let server = this.config.afServer;
     let attributesData: Array<Attribute> = new Array<Attribute>();
     let attRequest = createBatch(items, 'Attributes');
-    //debugger;
 
     var attResponse = await this.splitBatchAndExecute(attRequest, server);
-    //debugger;
+    attResponse = this.filterDescription(attResponse);
     this.nextProgress();
 
     let childAttResponse = await this.getResponse(attResponse, 'Attributes');
-    //debugger;
     this.nextProgress();
 
     let childValueResponse = await this.getResponse(
       childAttResponse,
       'ChildrenValue'
     );
-    //debugger;
     this.nextProgress();
 
     let valueRequest = createBatch(items, 'Value');
-    //debugger;
 
     var valueResponse = await this.splitBatchAndExecute(valueRequest, server);
+    valueResponse = this.filterDescription(valueResponse);
     this.nextProgress();
-    //debugger;
 
     var keysResp = attResponse ? Object.keys(attResponse) : [];
     var lenResponse = keysResp.length;

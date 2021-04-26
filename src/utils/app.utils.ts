@@ -147,7 +147,7 @@ export function createBatch(
 
   if (type == 'Value') {
     selectedFieldsParam =
-      '?selectedFields=Items.Name;Items.Value;Items.Path;Items.HasChildren;Items.TraitName';
+      '?selectedFields=Items.Description;Items.Name;Items.Value;Items.Path;Items.HasChildren;Items.TraitName';
   }
   if (type == 'EnumerationSets') {
     selectedFieldsParam = '';

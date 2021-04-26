@@ -3,7 +3,7 @@ ion-content {
   height: 100vh;
 }
 
-.tableGrid{
+.tableGrid {
   border: 1px solid black;
 }
 .allNav {
@@ -25,25 +25,24 @@ ion-content {
   color: #008f45;
 }
 
-ion-progress-bar{
-  right:  210px;
+ion-progress-bar {
+  right: 210px;
   transform: scale(1.5);
 }
 
-.my-buffer-progress{
-  --buffer-background:#696969 !important;
+.my-buffer-progress {
+  --buffer-background: #696969 !important;
 }
 
-.route{
-  min-height: 50px;
+.route {
+  min-height: 60px;
 }
 
-
-.inicioNav{
+.inicioNav {
   border-right: 1px solid #008f45;
   margin-right: 5px;
 }
-.search{
+.search {
   display: flex;
   height: 35px;
   border: 1px solid #ccc;
@@ -51,17 +50,17 @@ ion-progress-bar{
   margin-top: 10px;
   margin-right: 10px;
 }
-.search > ion-input > ion-icon{
+.search > ion-input > ion-icon {
   font-size: 1.4rem;
   margin-left: 14px;
 }
-.search > ion-input{
+.search > ion-input {
   width: 150px;
   // margin-top: 10px;
   margin-left: -10px;
 }
 
-.search > ion-item{
+.search > ion-item {
   position: relative;
   width: 250px;
   height: 30px;
@@ -69,17 +68,16 @@ ion-progress-bar{
   margin-left: -20px;
   margin-right: 10px;
 }
-.search > ion-item > ion-label{
+.search > ion-item > ion-label {
   margin-top: -17px;
 }
-.search > ion-item > ion-datetime{
+.search > ion-item > ion-datetime {
   margin-top: -14px;
 }
-.search > ion-item > ion-icon{
+.search > ion-item > ion-icon {
   margin-top: -20px;
   z-index: 4;
 }
-
 
 /* data box route */
 .boxData {
@@ -88,7 +86,7 @@ ion-progress-bar{
   height: calc(100% - 20px);
   margin: 10px;
   margin-bottom: 10px !important;
-  overflow: auto;  
+  overflow: auto;
 }
 
 .boxShort {
@@ -102,51 +100,48 @@ ion-list {
   font-size: 2.4rem;
   padding: 20px;
   list-style: none;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   color: rgb(95, 95, 95);
 }
 
-.rowHead{
+.rowHead {
   font-size: 28px;
   border: 1px solid rgb(230, 230, 230);
 }
-.rowHead > ion-col{
+.rowHead > ion-col {
   border-right: 1px solid rgb(230, 230, 230);
 }
- ion-list{
+ion-list {
   padding: 0;
   padding-bottom: 0 !important;
 }
 
-.nameNav{
+.nameNav {
   padding: 20px;
 }
 
-.rowList{
+.rowList {
   font-size: 25px;
   font-weight: 100;
   border: 1px solid rgb(230, 230, 230);
 }
-.rowList > ion-col{
+.rowList > ion-col {
   border-right: 1px solid rgb(230, 230, 230);
 }
 
-ion-col{
+ion-col {
   text-align: center;
 }
 
-
-.boxSelect{
+.boxSelect {
   width: 200px !important;
 }
 
-
 .selectClass {
-  --ion-background-color:grey;
+  --ion-background-color: grey;
 }
 
-
-ion-select.myCustomSelect{
+ion-select.myCustomSelect {
   width: 100%;
   max-width: 100%;
 }
@@ -154,7 +149,7 @@ ion-select.myCustomSelect{
 .controlKeyboard {
   width: 28%;
   height: 80%;
- margin-top: 10px;
+  margin-top: 10px;
 }
 
 .controlKeyboard > p {
@@ -162,7 +157,7 @@ ion-select.myCustomSelect{
   font-weight: bold;
   font-size: 1rem;
   text-align: center;
-  color: #008f45
+  color: #008f45;
 }
 
 .keyboard {
@@ -213,7 +208,7 @@ ion-select.myCustomSelect{
   cursor: none;
 }
 
-.white{
+.white {
   background-color: #fff;
   border: 1px solid black;
 }
@@ -228,7 +223,7 @@ ion-select.myCustomSelect{
   border: 1px solid #005c2c !important;
 }
 
-.yellow{
+.yellow {
   background-color: yellow;
   border: 1px solid yellow;
 }
@@ -258,35 +253,34 @@ ion-select.myCustomSelect{
   border: 1px solid black;
 }
 
-.search > ion-searchbar{
+.search > ion-searchbar {
   border-radius: 50px;
 }
 
-.selectInputText{
+.selectInputText {
   width: 50%;
   border: 2px solid rgb(163, 162, 162);
 }
 
 @media screen and(max-width: 825px) {
-  
   .routeSelect {
-    font-size: 0.8rem;
+    font-size: 16px;
   }
 
-  .routeSelect{
+  .routeSelect {
     margin-top: -2px;
   }
 
-  .search{
+  .search {
     height: 35px;
     width: 40%;
     margin-top: 2px;
   }
 
-  .search > ion-input{
+  .search > ion-input {
     max-width: 40%;
     margin-top: 7px;
-    height:  20px !important;
+    height: 20px !important;
   }
 
   .search > ion-input > ion-icon {
@@ -298,13 +292,13 @@ ion-select.myCustomSelect{
     margin-left: -20px !important;
     width: 65% !important;
   }
-  
-  .search > ion-item > ion-icon{
+
+  .search > ion-item > ion-icon {
     font-size: 1.2rem;
     margin-top: -17px;
     z-index: 4;
   }
- 
+
   ion-list {
     font-size: 1.5rem !important;
     padding: 10px;
@@ -315,7 +309,7 @@ ion-select.myCustomSelect{
     font-size: 0.7rem;
     text-align: center;
   }
-  .keyboard{
+  .keyboard {
     margin-top: 5px;
   }
   .calc-button {
@@ -336,10 +330,10 @@ ion-select.myCustomSelect{
     height: calc(100% - 10px);
     margin: 5px;
     margin-bottom: 10px !important;
-    overflow: auto;  
+    overflow: auto;
   }
 
-  ion-list{
+  ion-list {
     font-size: 1.8rem;
     padding: 10px !important;
   }
@@ -349,12 +343,9 @@ ion-select.myCustomSelect{
     font-weight: 600;
     color: #008f45;
   }
-  
-  ion-progress-bar{
-    right:  150px;
+
+  ion-progress-bar {
+    right: 150px;
     transform: scale(1.2);
   }
 }
-
-
-
