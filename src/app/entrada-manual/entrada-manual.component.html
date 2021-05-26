@@ -30,8 +30,7 @@
     <div class="allNav">
       <div class="boxData" [ngClass]="elements == null ? 'boxTotal' : 'boxShort'">
         <div *ngIf="!navigation || navigation.length == 0" class="spinner">
-          <ion-label>{{progressPercent}} %</ion-label>
-          <ion-progress-bar [value]="progress"></ion-progress-bar>
+          <ion-progress-bar *ngIf="!navigation || navigation.length == 0" type="indeterminate"></ion-progress-bar>
         </div>
 
         <div *ngIf="elements != null">
