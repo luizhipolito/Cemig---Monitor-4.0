@@ -8,8 +8,10 @@ import {
 import { throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { Arvore, StorageArvoreService } from './storage-arvore.service';
-import { AppUtils } from 'src/utils/app.utils';
+import { AppUtils, firstSelection } from 'src/utils/app.utils';
 import { Device } from '@ionic-native/device/ngx';
+import { ResponseBatch } from 'src/model/ResponseBatch.model';
+import { Atributo, AtributoModel, Elemento, SubAtributo, Value, ValueObj } from 'src/model/Elemento.model';
 const prefix = 'https:\\\\';
 const sufix = '/piwebapi';
 @Injectable({
@@ -173,5 +175,233 @@ export class ApiService {
   async init() {
     let token = await this.utils.getStorage('Authorization');
     this.setAuth(token);
+  }
+
+  async getElements(url: string = "https://srvbhz24", webId: string = "F1EmOMKMKWWOr0-jFSKKBYExbg0BmAPva86xGDnQBQVrwHzAU1JWQkhaMjRcQ0VNSUcgUFJPRFxDRU1JRyAtIEdFUsOKTkNJQSBERSBTRUdVUkFOw4dBIERFIEJBUlJBR0VOUyBFIE1BTlVURU7Dh8ODTyBDSVZJTFxVU0lOQVM", categoryNameElement: string = "APP Móvel-Inserção", categoryNameAttr: string = "99- APP Móvel", pathSearch: string = "\\\\SRVBHZ24\\CEMIG Prod\\CEMIG - Gerência de Segurança de Barragens e Manutenção Civil\\Usinas"){
+    const data = await this.get(this.getUrlCount(url, webId, categoryNameElement)).toPromise();
+    const count = data?.Items?.length ? data?.Items?.length : 0;
+
+    var intervals = this.splitEachHundred(count);
+
+    console.log(new Date());
+
+    let promises: Array<Promise<ResponseBatch>> = intervals.map(interval => {
+      const body = this.getDataBatch(interval.start, interval.end - interval.start, url, webId, categoryNameElement, categoryNameAttr);
+      return this.http.post<ResponseBatch>(`${url}/piwebapi/batch`, JSON.stringify(body), this.httpOptions).toPromise();
+    })
+
+    var result = await Promise.all(promises);
+    console.log(result);
+    console.log(this.parseResult(result, pathSearch));
+    console.log(new Date());
+  }
+
+  parseResult(result: Array<ResponseBatch>, pathSearch: string): Array<Elemento> {
+    let elements: Array<Elemento> = [];
+    
+    result.forEach(itemResult => {
+      let elementos = itemResult?.Elementos?.Content?.Items;
+      elementos = elementos ? elementos : [];
+      let attributoCount = 0;
+      let subAttributoCount = 0;
+
+      elementos.forEach((el, index) => {
+        let attributos = itemResult?.Atributos?.Content?.Items[index]?.Content?.Items;
+        attributos = attributos ? attributos : [];
+        let attributes: Array<AtributoModel> = [];
+        let firstSelectionAttr = new AtributoModel();
+
+        attributos.forEach(attr => {
+          const path = `${el.Path}|${attr.Name}`;
+          const subAttrResponse = this.getSubAttributes(itemResult, attributoCount, subAttributoCount, path, attr.DefaultUnitsNameAbbreviation);
+          subAttributoCount = subAttrResponse.subAttributoCount;
+
+          let _attr: AtributoModel  = {
+            WebId: attr.WebId,
+            Name: attr.Name,
+            Description: attr.Description,
+            Path: path,
+            Type: attr.Type,
+            TypeQualifier: attr.TypeQualifier,
+            TraitName: null,
+            config: subAttrResponse.subAttributes,
+            mode: this.utils.getModeSubAtributo(subAttrResponse.subAttributes),
+            Value: this.getAttributeValue(itemResult, attributoCount, attr.DefaultUnitsNameAbbreviation),
+            Selected: null,
+            color: null,
+            ValueString: null
+          };
+
+          // here will fill Selected, color and ValueString
+          this.utils.fillAttrProp(_attr);
+
+          attributes.push(_attr);
+
+          if(attr.Name == firstSelection) {
+            firstSelectionAttr = _attr;
+          }
+
+          attributoCount++;
+        });
+
+        const relativePath = el.Path.replace(pathSearch, "");
+
+        let atributo: Atributo = {
+          WebId: el.WebId,
+          RelativePath: relativePath,
+          firstSelection: firstSelectionAttr,
+          list: attributes
+        };
+
+        elements.push({
+          name: el.Name,
+          AplicacaoID: el.WebId,
+          relativePath: relativePath,
+          Caminho: relativePath.split("\\").filter(x => x),
+          atributos: atributo
+        });
+      });
+
+      console.log(attributoCount);
+      console.log(subAttributoCount);
+      console.log("*********");
+    });
+
+    return elements;
+  }
+  getAttributeValue(itemResult: ResponseBatch, attributoCount: number, uom: string): Value  {
+    const itemValue = itemResult?.ValoresAtributos?.Content?.Items[attributoCount];
+    const valueResponse = itemValue?.Content?.Value as any;
+    return this.commonGetValue(valueResponse, itemValue?.Status, uom);
+  }
+
+  commonGetValue(valueResponse, status: number, uom: string): Value{
+    let attrValue = new Value();
+    const isGood = status == 200 || status == 207;
+
+    if(valueResponse && valueResponse.hasOwnProperty("Value")) {
+      let _valueResponse = valueResponse as ValueObj;
+      attrValue = {
+        Timestamp: null,
+        Value: _valueResponse,
+        UnitsAbbreviation: uom,
+        Good: isGood
+      }
+    } else {
+      attrValue = {
+        Timestamp: null,
+        Value: valueResponse,
+        UnitsAbbreviation: uom,
+        Good: isGood
+      }
+    }
+
+    return attrValue;
+  }
+
+  getSubAttributes(itemResult: ResponseBatch, attributoCount: number, subAttributoCount: number, pathParent: string, uom: string): {subAttributes: Array<SubAtributo>, subAttributoCount: number}{
+    let subAttributes = itemResult?.SubAtributos?.Content?.Items[attributoCount]?.Content?.Items;
+    subAttributes = subAttributes ? subAttributes : [];
+    let subAttributos = new Array<SubAtributo>();
+
+    subAttributes.forEach(subAttr => {
+      subAttributos.push({
+        WebId: subAttr.WebId,
+        Name: subAttr.Name,
+        Description: null,
+        Path: `${pathParent}|${subAttr.Name}`,
+        Type: subAttr.Type,
+        TypeQualifier: subAttr.TypeQualifier,
+        TraitName: subAttr.TraitName,
+        Value: this.getSubAttributeValue(itemResult, subAttributoCount, uom)
+      });
+
+      subAttributoCount++;
+    });
+
+
+    return {
+      subAttributes: subAttributos,
+      subAttributoCount
+    };
+  }
+
+  getSubAttributeValue(itemResult: ResponseBatch, subAttributoCount: number, uom: string): Value {
+    const itemValue = itemResult?.ValoresSubAtributos?.Content?.Items[subAttributoCount];
+    const valueResponse = itemValue?.Content?.Value as any;
+    return this.commonGetValue(valueResponse, itemValue.Status, uom);
+  }
+
+  splitEachHundred(qnt: number){
+
+    let intervals = [];
+    let start = 0;
+    let end = 0;
+
+    do {
+      end += 100;
+      end = end < qnt ? end : qnt;
+      intervals.push({
+        start,
+        end
+      });
+
+      start = end;
+    } while(end < qnt);
+
+    return intervals;
+  }
+
+  getUrlCount(url: string, webId: string, categoryName: string){
+    return `${url}/piwebapi/elements/${webId}/elements?searchFullHierarchy=true&selectedFields=Items.Name&maxCount=100000&categoryName=${categoryName}`;
+  }
+
+  getDataBatch(startIndex: number, maxCount: number, url: string, webId: string, categoryNameElement: string, categoryNameAttr: string){
+    return {
+      "Elementos": {
+      "Method": "GET",
+      "Resource": `${url}/piwebapi/elements/${webId}/elements?searchFullHierarchy=true&selectedFields=Items.Name;Items.Path;Items.WebId;Items.Links.Attributes&categoryName=${categoryNameElement}&startIndex=${startIndex}&maxCount=${maxCount}`
+      },
+      "Atributos" : {
+      "Method": "GET",
+      "RequestTemplate": {
+      "Resource": `{0}?selectedFields=Items.Links.Value;Items.Name;Items.Description;Items.Links.Attributes;Items.DefaultUnitsNameAbbreviation;Items.WebId;Items.Type;Items.TypeQualifier;&categoryName=${categoryNameAttr}&maxCount=1000`
+      },
+      "Parameters": ["$.Elementos.Content.Items[*].Links.Attributes"],
+      "ParentIds": [
+      "Elementos"
+      ]
+      },
+      "SubAtributos" : {
+      "Method": "GET",
+      "RequestTemplate": {
+      "Resource": "{0}?selectedFields=Items.TraitName;Items.Links.Value;Items.Name;Items.WebId;Items.Type;Items.TypeQualifier&maxCount=1000"
+      },
+      "Parameters": ["$.Atributos.Content.Items[*].Content.Items[*].Links.Attributes"],
+      "ParentIds": [
+      "Atributos"
+      ]
+      },
+      "ValoresAtributos" : {
+      "Method": "GET",
+      "RequestTemplate": {
+      "Resource": "{0}?selectedFields=Value&maxCount=1000"
+      },
+      "Parameters": ["$.Atributos.Content.Items[*].Content.Items[*].Links.Value"],
+      "ParentIds": [
+      "Atributos"
+      ]
+      },
+      "ValoresSubAtributos" : {
+      "Method": "GET",
+      "RequestTemplate": {
+      "Resource": "{0}?selectedFields=Value&maxCount=1000"
+      },
+      "Parameters": ["$.SubAtributos.Content.Items[*].Content.Items[*].Links.Value"],
+      "ParentIds": [
+      "SubAtributos"
+      ]
+      }
+      };
   }
 }

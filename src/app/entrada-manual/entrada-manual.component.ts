@@ -6,7 +6,7 @@ import {
   createBatch,
   distinct,
   firstOrNull,
-  hasChildren,
+  firstSelection,
   isResult,
 } from 'src/utils/app.utils';
 import { Router } from '@angular/router';
@@ -88,33 +88,33 @@ export class EntradaManualComponent {
     ['', '-', 'Enter'],
   ];
   onButtonPress(symbol) {
-    if (this.propFocous) {
-      if (!this.propFocous.Selected) {
-        this.propFocous.Selected = '';
+    if (this.utils.propFocous) {
+      if (!this.utils.propFocous.Selected) {
+        this.utils.propFocous.Selected = '';
       }
       if (isNumber(symbol)) {
-        this.propFocous.Selected += symbol;
+        this.utils.propFocous.Selected += symbol;
       }
       if (
         symbol === '.' &&
-        !new String(this.propFocous.Selected).includes('.')
+        !new String(this.utils.propFocous.Selected).includes('.')
       ) {
-        this.propFocous.Selected += symbol;
+        this.utils.propFocous.Selected += symbol;
       }
       if (
         symbol === '-' &&
-        !new String(this.propFocous.Selected).includes('-')
+        !new String(this.utils.propFocous.Selected).includes('-')
       ) {
-        this.propFocous.Selected += symbol;
+        this.utils.propFocous.Selected += symbol;
       }
       if (symbol == '<') {
-        this.propFocous.Selected = this.propFocous.Selected.substr(
+        this.utils.propFocous.Selected = this.utils.propFocous.Selected.substr(
           0,
-          this.propFocous.Selected.length - 1
+          this.utils.propFocous.Selected.length - 1
         );
       } if (symbol == 'Enter') {
         let firstIndex = this.elements.list.findIndex((att) =>
-          att.Name == this.propFocous.Name
+          att.Name == this.utils.propFocous.Name
         );
         let lastI = this.focusLast.reverse();
         let last = this.lastFocus;
@@ -125,104 +125,11 @@ export class EntradaManualComponent {
 
         this.changeFocous(firstIndex)
       }
-      this.propFocous.color = this.getColorScalling(this.propFocous);
+      this.utils.propFocous.color = this.utils.getColorScalling(this.utils.propFocous);
     }
   }
 
-  getColorScalling(propFocous: PIWebAttribute): string {
-    let selectedValue = new Number(propFocous.Selected).valueOf();
-    let colorClass = 'black';
-    let valueSK = Number.MAX_VALUE;
-    this.getAlerts(this.propFocous)
-    for (let k of Object.keys(this.templateRangeScalling)) {
-      let sk = this.templateRangeScalling[k];
-      let config = propFocous.config.find((c) => c?.TraitName == k) as PIWebAttribute;
-      if (config && config.Value) {
-        valueSK = new Number(config.Value.Value).valueOf();
-        // if ((selectedValue <= valueSK) || (valueSK > selectedValue)) {
-        //   console.log(sk)
-        //   sk = 'green';
-        //   return sk;
-        // }
-      }
-      if (this.minimo || this.minimo == 0) {
-        if (selectedValue <= this.minimo) {
-          console.log(this.minimo)
-          sk = 'red';
-          return sk;
-        }
-      }
-      if (!this.minimoAtencao && this.minimoAlerta) {
-        if (selectedValue <= this.minimoAlerta) {
-          console.log(this.minimoAlerta)
-          sk = 'red';
-          return sk;
-        }
-      }
-      if (this.minimoAtencao && !this.minimoAlerta) {
-        if (selectedValue <= this.minimoAtencao) {
-          console.log(this.minimoAtencao)
-          sk = 'yellow';
-          return sk;
-        }
-      }
-      if (this.minimoAtencao && this.minimoAlerta) {
-        if (selectedValue > this.minimoAlerta && selectedValue <= this.minimoAtencao) {
-          sk = 'yellow';
-          return sk;
-        }
-      }
-      if (selectedValue > this.minimo && selectedValue <= this.minimoAlerta) {
-        sk = 'red';
-        return sk;
-      }
-      if (this.maximo) {
-        if (selectedValue >= this.maximo) {
-          sk = 'red';
-          return sk;
-        }
-      }
-      if (this.maximoAtencao && this.maximoAlerta) {
-        if (selectedValue >= this.maximoAtencao && selectedValue < this.maximoAlerta) {
-          sk = 'yellow';
-          return sk;
-        }
-      }
 
-      if (this.maximoAlerta) {
-        if (selectedValue >= this.maximoAlerta && selectedValue < this.maximo) {
-          sk = 'red';
-          return sk;
-        }
-      }
-      if (this.maximoAlerta && !this.maximo) {
-        if (selectedValue >= this.maximoAlerta) {
-          sk = 'red';
-          return sk;
-        }
-      }
-      if (this.maximoAtencao && !this.maximoAlerta) {
-        if (selectedValue >= this.maximoAtencao) {
-          sk = 'yellow';
-          return sk;
-        }
-      }
-    }
-    // if (selectedValue >= valueSK && valueSK > 0) {
-    //   return this.templateRangeScalling.Over;
-    // }
-    return colorClass;
-  }
-
-  templateRangeScalling = {
-    LimitMinimum: 'red',
-    'LimitLoLo': 'red',
-    'LimitLo': 'yellow',
-    'LimitHi': 'white',
-    'LimitHiHi': 'yellow',
-    LimitMaximum: 'red',
-    Over: 'red',
-  };
   templateMax = 'LimitMaximum';
   templateMaxAtention = 'LimitHiHi';
 
@@ -252,25 +159,23 @@ export class EntradaManualComponent {
   currentDate = this.utils.formatDateTime(new Date());
   pathNavigation: Navigation = Navigation.Instance();
 
-  propFocous: PIWebAttribute;
+  
   lastFocus: PIWebAttribute[];
   focusLast: string[];
 
-  firstSelection: string = 'Observação';
   textCondition: string = 'Condição'; // "Comparação"
   templateConditionAtt = 'Condição X Atributo';
   templateConditionComp = 'Condição X Comparação';
   templateConditionValue = 'Condição X Valor';
   templateIndex = ' X ';
-  templateType = 'Tipo';
   searchField = '';
 
-  minimo: any;
-  minimoAlerta: any;
-  minimoAtencao: any;
-  maximoAtencao: any;
-  maximoAlerta: any;
-  maximo: any;
+  // minimo: any;
+  // minimoAlerta: any;
+  // minimoAtencao: any;
+  // maximoAtencao: any;
+  // maximoAlerta: any;
+  // maximo: any;
 
   constructor(
     private api: ApiService,
@@ -370,7 +275,7 @@ export class EntradaManualComponent {
   progressPercent = Math.ceil(this.progress * 100);
   init() {
     this.elements = null;
-    this.propFocous = null;
+    this.utils.propFocous = null;
     this.navigation = new Array<Navigation>();
     this.pathNavigation = Navigation.Instance();
   }
@@ -735,7 +640,7 @@ export class EntradaManualComponent {
   }
 
   onSelect($event) {
-    this.propFocous = null;
+    this.utils.propFocous = null;
     const format: string = this.config.FormatoData;
 
     this.elements.list.forEach((att) => {
@@ -800,7 +705,7 @@ export class EntradaManualComponent {
     )
     this.focusLast = this.lastFocus.map(n => n.Name.valueOf())
     if (elem) {
-      this.propFocous = elem;
+      this.utils.propFocous = elem;
     }
   }
 
@@ -963,7 +868,7 @@ export class EntradaManualComponent {
       }
       atts = atts.map((att) => {
         att.config = configList[att.Path] || [];
-        att.mode = this.getMode(att.config as PIWebAttribute[]);
+        att.mode = this.utils.getMode(att.config as PIWebAttribute[]);
 
         return att
       });
@@ -972,7 +877,7 @@ export class EntradaManualComponent {
         'Items'
       ] as Array<PIWebAttribute>;
       let firstSelectionIndex = atts.findIndex(
-        (att) => att.Name == this.firstSelection
+        (att) => att.Name == firstSelection
       );
       newAttribute.WebId = items[key].WebId;
       newAttribute.RelativePath = items[key].relativePath;
@@ -996,20 +901,6 @@ export class EntradaManualComponent {
 
     return attributesData;
   }
-  getMode(config: PIWebAttribute[]): EnumModeAttribute {
-    let type = config.find((c) => c.Name == this.templateType);
-    if (
-      type &&
-      type.Value &&
-      type.Value.Good &&
-      type.Value.Value &&
-      type.Value.Value.Name &&
-      EnumModeAttribute[type.Value.Value.Name]
-    ) {
-      return EnumModeAttribute[type.Value.Value.Name];
-    }
-    return EnumModeAttribute.Leitura;
-  }
 
   stringInput: string;
   setPropFocous(element: PIWebAttribute) {
@@ -1020,7 +911,7 @@ export class EntradaManualComponent {
         element.mode === EnumModeAttribute['Leitura/Escrita (Constante)'])
     ) {
 
-      this.propFocous = element;
+      this.utils.propFocous = element;
     }
   }
 
@@ -1047,11 +938,11 @@ export class EntradaManualComponent {
       }
       if (att.mode == EnumModeAttribute['Leitura/Escrita']) {
         att.Selected = attValueString;
-        att.color = this.getColorScalling(att);
+        att.color = this.utils.getColorScalling(att);
       }
       if (att.mode == EnumModeAttribute['Leitura/Escrita (Constante)']) {
         att.Selected = attValueString;
-        att.color = this.getColorScalling(att);
+        att.color = this.utils.getColorScalling(att);
       }
 
 
@@ -1061,49 +952,6 @@ export class EntradaManualComponent {
     }
     att.ValueString = attValueString;
     return att;
-  }
-
-
-
-
-  getAlerts(propFocous: PIWebAttribute) {
-    this.maximo = null;
-    this.maximoAlerta = null;
-    this.maximoAtencao = null;
-    this.minimo = null;
-    this.minimoAlerta = null;
-    this.minimoAtencao = null;
-    for (let k of Object.keys(this.templateRangeScalling)) {
-      if (propFocous) {
-        let config = propFocous.config.find((c) => c?.TraitName == k) as PIWebAttribute;
-        if (config && config.Name && !config.Value.Value.Name) {
-          if (config.TraitName === 'LimitMinimum') {
-            this.minimo = config.Value.Value;
-          }
-
-          if (config.TraitName === 'LimitLoLo') {
-            this.minimoAlerta = config.Value.Value;
-          }
-
-          if (config.TraitName === 'LimitLo') {
-            this.minimoAtencao = config.Value.Value;
-          }
-
-          if (config.TraitName === 'LimitHi') {
-            this.maximoAtencao = config.Value.Value;
-          }
-
-          if (config.TraitName === 'LimitHiHi') {
-            this.maximoAlerta = config.Value.Value;
-          }
-
-          if (config.TraitName === 'LimitMaximum') {
-            this.maximo = config.Value.Value;
-          }
-        }
-
-      }
-    }
   }
 
   async saveElement() {
@@ -1158,79 +1006,79 @@ export class EntradaManualComponent {
         return;
       }
 
-      this.getAlerts(validationModes[i])
+      this.utils.getAlerts(validationModes[i])
 
       let leitura = validationModes[i].Name;
 
 
-      if (this.maximo || this.minimo || this.minimoAlerta || this.minimoAtencao || this.maximoAlerta || this.maximoAtencao) {
-        if (this.minimo || this.minimo == 0) {
-          if (valueAlert <= this.minimo) {
+      if (this.utils.maximo || this.utils.minimo || this.utils.minimoAlerta || this.utils.minimoAtencao || this.utils.maximoAlerta || this.utils.maximoAtencao) {
+        if (this.utils.minimo || this.utils.minimo == 0) {
+          if (valueAlert <= this.utils.minimo) {
             await this.showAlert(`Atenção! A leitura ${leitura} esta fora dos limites especificados para o equipamento.`)
             return;
           }
         }
 
-        if (this.maximo) {
-          if (valueAlert >= this.maximo) {
+        if (this.utils.maximo) {
+          if (valueAlert >= this.utils.maximo) {
             await this.showAlert(`Atenção! A leitura ${leitura} esta fora dos limites especificados para o equipamento.`)
             return;
           }
         }
 
-        if (!this.minimoAtencao && this.minimoAlerta) {
-          if (valueAlert <= this.minimoAlerta) {
+        if (!this.utils.minimoAtencao && this.utils.minimoAlerta) {
+          if (valueAlert <= this.utils.minimoAlerta) {
             let res = await this.showConfirm(`A leitura  ${leitura} esta abaixo do limite de alerta. Deseja salvar?`);
             if (!res) return;
           }
         }
 
-        if (this.minimoAtencao && !this.minimoAlerta) {
-          if (valueAlert <= this.minimoAtencao) {
+        if (this.utils.minimoAtencao && !this.utils.minimoAlerta) {
+          if (valueAlert <= this.utils.minimoAtencao) {
             let res = await this.showConfirm(`A leitura ${leitura} esta abaixo do limite de atenção. Deseja salvar?`)
             if (!res) return;
           }
         }
 
-        if (this.minimoAtencao && this.minimoAlerta) {
-          if (valueAlert > this.minimoAlerta && valueAlert <= this.minimoAtencao) {
+        if (this.utils.minimoAtencao && this.utils.minimoAlerta) {
+          if (valueAlert > this.utils.minimoAlerta && valueAlert <= this.utils.minimoAtencao) {
             let res = await this.showConfirm(`A leitura ${leitura} esta abaixo do limite de atenção. Deseja salvar?`)
             if (!res) return;
           }
         }
-        if (valueAlert > this.minimo && valueAlert <= this.minimoAlerta) {
+        if (valueAlert > this.utils.minimo && valueAlert <= this.utils.minimoAlerta) {
           let res = await this.showConfirm(`A leitura  ${leitura} esta abaixo do limite de alerta. Deseja salvar?`);
           if (!res) return;
         }
-        if (this.maximoAtencao && this.maximoAlerta) {
-          if (valueAlert >= this.maximoAtencao && valueAlert < this.maximoAlerta) {
+        if (this.utils.maximoAtencao && this.utils.maximoAlerta) {
+          if (valueAlert >= this.utils.maximoAtencao && valueAlert < this.utils.maximoAlerta) {
             let res = await this.showConfirm(`A leitura ${leitura} esta acima do limite de atenção. Deseja salvar?`)
             if (!res) return;
           }
         }
-        if (this.maximoAtencao && this.maximoAlerta) {
-          if (valueAlert >= this.maximoAtencao && valueAlert < this.maximoAlerta) {
+        if (this.utils.maximoAtencao && this.utils.maximoAlerta) {
+          if (valueAlert >= this.utils.maximoAtencao && valueAlert < this.utils.maximoAlerta) {
             console.log('atencao')
             let res = await this.showConfirm(`A leitura ${leitura} esta acima do limite de atenção. Deseja salvar?`)
             if (!res) return;
           }
         }
 
-        if (this.maximoAlerta) {
-          if (valueAlert >= this.maximoAlerta && valueAlert < this.maximo) {
+        if (this.utils.maximoAlerta) {
+          if (valueAlert >= this.utils.maximoAlerta && valueAlert < this.utils.maximo) {
             let res = await this.showConfirm(`A leitura ${leitura} esta acima do limite de alerta. Deseja salvar?`);
             if (!res) return;
           }
         }
-        if (this.maximoAlerta && !this.maximo) {
-          if (valueAlert >= this.maximoAlerta) {
+        if (this.utils.maximoAlerta && !this.utils.maximo) {
+          if (valueAlert >= this.utils.maximoAlerta) {
             let res = await this.showConfirm(`A leitura ${leitura} esta acima do limite de alerta. Deseja salvar?`);
             if (!res) return;
           }
         }
 
-        if (this.maximoAtencao && !this.maximoAlerta) {
-          if (valueAlert >= this.maximoAtencao) {
+        if (this.utils.maximoAtencao && !this.utils.maximoAlerta) {
+          if (valueAlert >= this.utils.maximoAtencao) {
             let res = await this.showConfirm(`A leitura ${leitura} esta acima do limite de atenção. Deseja salvar?`)
             if (!res) return;
           }
