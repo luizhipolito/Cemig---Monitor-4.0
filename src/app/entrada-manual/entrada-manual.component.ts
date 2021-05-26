@@ -315,32 +315,18 @@ export class EntradaManualComponent {
 
   async syncNavigationData() {
     let rootData = await this.api.get(this.config.getBaseUrl()).toPromise();
-    let rootUrl = this.utils.getValue(
-      rootData,
-      this.config.ElementoRaiz,
-      this.config.endPoint.database
-    );
-    let insertParams = this.api.getCatagoryParams(this.config.Insercao);
-    this.nextProgress();
 
-    let navigationData = await this.api
-      .get(rootUrl, insertParams)
-      .pipe(map(this.generateRelativePath))
-      .toPromise();
-    this.nextProgress();
+    var url = this.config.configUrl;
+    var webId = rootData.WebId;
+    var categoryNameElement = this.config.Insercao;
+    var categoryNameAttr = this.config.CategoriaAtributo;
+    var pathSearch = rootData.Path;
 
-    let attributes = await this.loadAttributes(navigationData);
-    let navigationTree = navigationData.map((nav) => {
-      let tree = new Arvore();
-      tree.atributos = attributes.find((att) => att.WebId == nav.WebId)
-      tree.AplicacaoID = nav.WebId;
-      tree.relativePath = nav.relativePath;
-      tree.Caminho = tree.relativePath.split('\\').filter((c) => Boolean(c));
-      return tree;
-    });
+    let navigationTree = await this.api.getElements(url, webId, categoryNameElement, categoryNameAttr, pathSearch);
+
     await this.storageService.store(
       this.storageService.navigation,
-      navigationTree
+      navigationTree as any
     );
     this.api.hideLoader();
     await this.loadDataFromStorage();
@@ -818,88 +804,6 @@ export class EntradaManualComponent {
       }
       return attResponse;
     }
-  }
-
-  async loadAttributes(items: Array<PIWebObject>) {
-    let server = this.config.afServer;
-    let attributesData: Array<Attribute> = new Array<Attribute>();
-    let attRequest = createBatch(items, 'Attributes');
-
-    var attResponse = await this.splitBatchAndExecute(attRequest, server);
-    attResponse = this.filterDescription(attResponse);
-    this.nextProgress();
-
-    let childAttResponse = await this.getResponse(attResponse, 'Attributes');
-    this.nextProgress();
-
-    let childValueResponse = await this.getResponse(
-      childAttResponse,
-      'ChildrenValue'
-    );
-    this.nextProgress();
-
-    let valueRequest = createBatch(items, 'Value');
-
-    var valueResponse = await this.splitBatchAndExecute(valueRequest, server);
-    valueResponse = this.filterDescription(valueResponse);
-    this.nextProgress();
-
-    var keysResp = attResponse ? Object.keys(attResponse) : [];
-    var lenResponse = keysResp.length;
-
-    for (let key in keysResp) {
-      let newAttribute: Attribute = new Attribute();
-      let configList = {};
-      let atts = attResponse[key]['Content']['Items'] as Array<PIWebAttribute>;
-      for (let attKey in atts) {
-        let children = this.read(childAttResponse)['Content'][
-          'Items'
-        ] as Array<PIWebAttribute>;
-        for (let keyChild in children) {
-          let child = children[keyChild];
-          child.Value = this.read(childValueResponse)['Content'];
-          let parentPath = child.Path;
-          parentPath = parentPath.split('|').slice(0, -1).join('|');
-          if (!(parentPath in configList)) {
-            configList[parentPath] = [];
-          }
-          configList[parentPath].push(child);
-        }
-      }
-      atts = atts.map((att) => {
-        att.config = configList[att.Path] || [];
-        att.mode = this.utils.getMode(att.config as PIWebAttribute[]);
-
-        return att
-      });
-
-      let valuesItems = valueResponse[key]['Content'][
-        'Items'
-      ] as Array<PIWebAttribute>;
-      let firstSelectionIndex = atts.findIndex(
-        (att) => att.Name == firstSelection
-      );
-      newAttribute.WebId = items[key].WebId;
-      newAttribute.RelativePath = items[key].relativePath;
-      newAttribute.firstSelection = atts[firstSelectionIndex];
-      atts.splice(firstSelectionIndex, 1);
-      newAttribute.list = atts
-        .filter((att) => att.Description.includes(this.config.AppAttributes))
-        .map((att) => this.getAttValue(att, valuesItems))
-        .sort(function (a: PIWebAttribute, b: PIWebAttribute) {
-          let indexA = a.config.find(i => i.Name == 'Indexe') as PIWebAttribute;
-          let indexB = b.config.find(i => i.Name == 'Indexe') as PIWebAttribute;
-          if (indexA && indexB && indexA.Value && indexB.Value)
-            return indexA.Value.Value < indexB.Value.Value ? -1 : 1;
-          return 1;
-        })
-      attributesData.push(newAttribute);
-      this.updateLoopProgress(lenResponse);
-    }
-
-    this.nextProgress();
-
-    return attributesData;
   }
 
   stringInput: string;

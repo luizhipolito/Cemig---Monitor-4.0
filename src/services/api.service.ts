@@ -177,23 +177,19 @@ export class ApiService {
     this.setAuth(token);
   }
 
-  async getElements(url: string = "https://srvbhz24", webId: string = "F1EmOMKMKWWOr0-jFSKKBYExbg0BmAPva86xGDnQBQVrwHzAU1JWQkhaMjRcQ0VNSUcgUFJPRFxDRU1JRyAtIEdFUsOKTkNJQSBERSBTRUdVUkFOw4dBIERFIEJBUlJBR0VOUyBFIE1BTlVURU7Dh8ODTyBDSVZJTFxVU0lOQVM", categoryNameElement: string = "APP Móvel-Inserção", categoryNameAttr: string = "99- APP Móvel", pathSearch: string = "\\\\SRVBHZ24\\CEMIG Prod\\CEMIG - Gerência de Segurança de Barragens e Manutenção Civil\\Usinas"){
+  async getElements(url, webId, categoryNameElement, categoryNameAttr, pathSearch){
     const data = await this.get(this.getUrlCount(url, webId, categoryNameElement)).toPromise();
     const count = data?.Items?.length ? data?.Items?.length : 0;
 
     var intervals = this.splitEachHundred(count);
 
-    console.log(new Date());
-
     let promises: Array<Promise<ResponseBatch>> = intervals.map(interval => {
       const body = this.getDataBatch(interval.start, interval.end - interval.start, url, webId, categoryNameElement, categoryNameAttr);
-      return this.http.post<ResponseBatch>(`${url}/piwebapi/batch`, JSON.stringify(body), this.httpOptions).toPromise();
+      return this.http.post<ResponseBatch>(`${url}/batch`, JSON.stringify(body), this.httpOptions).toPromise();
     })
 
     var result = await Promise.all(promises);
-    console.log(result);
-    console.log(this.parseResult(result, pathSearch));
-    console.log(new Date());
+    return this.parseResult(result, pathSearch);
   }
 
   parseResult(result: Array<ResponseBatch>, pathSearch: string): Array<Elemento> {
@@ -362,14 +358,14 @@ export class ApiService {
   }
 
   getUrlCount(url: string, webId: string, categoryName: string){
-    return `${url}/piwebapi/elements/${webId}/elements?searchFullHierarchy=true&selectedFields=Items.Name&maxCount=100000&categoryName=${categoryName}`;
+    return `${url}/elements/${webId}/elements?searchFullHierarchy=true&selectedFields=Items.Name&maxCount=100000&categoryName=${categoryName}`;
   }
 
   getDataBatch(startIndex: number, maxCount: number, url: string, webId: string, categoryNameElement: string, categoryNameAttr: string){
     return {
       "Elementos": {
       "Method": "GET",
-      "Resource": `${url}/piwebapi/elements/${webId}/elements?searchFullHierarchy=true&selectedFields=Items.Name;Items.Path;Items.WebId;Items.Links.Attributes&categoryName=${categoryNameElement}&startIndex=${startIndex}&maxCount=${maxCount}`
+      "Resource": `${url}/elements/${webId}/elements?searchFullHierarchy=true&selectedFields=Items.Name;Items.Path;Items.WebId;Items.Links.Attributes&categoryName=${categoryNameElement}&startIndex=${startIndex}&maxCount=${maxCount}`
       },
       "Atributos" : {
       "Method": "GET",

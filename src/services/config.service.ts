@@ -8,6 +8,7 @@ export class ConfigService {
   isToLoadFromPI: boolean = false;
   config: string;
   Insercao: string;
+  CategoriaAtributo: string;
   Navegacao: string;
   Escrita: string;
   ElementoRaiz: string;
@@ -41,6 +42,7 @@ export class ConfigService {
 
   attributes = {
     Insercao: 'Categoria Elemento Inserção',
+    CategoriaAtributo: 'Categoria Atributo',
     Escrita: 'Descrição Atributo Escrita',
     ElementoRaiz: 'Elemento Raiz',
     SenhaOff: 'Senha Offline',
