@@ -244,6 +244,15 @@ export class ApiService {
           attributoCount++;
         });
 
+        attributes.sort((a, b) => {
+          let indexA = a.config.find(i => i.Name == 'Indexe');
+          let indexB = b.config.find(i => i.Name == 'Indexe');
+
+          if (indexA && indexB && indexA.Value && indexB.Value)
+            return indexA.Value.Value < indexB.Value.Value ? -1 : 1;
+          return 1;
+        });
+
         const relativePath = el.Path.replace(pathSearch, "");
 
         let atributo: Atributo = {
