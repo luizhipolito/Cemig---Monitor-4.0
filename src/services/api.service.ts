@@ -266,10 +266,6 @@ export class ApiService {
           atributos: atributo
         });
       });
-
-      console.log(attributoCount);
-      console.log(subAttributoCount);
-      console.log("*********");
     });
 
     return elements;
