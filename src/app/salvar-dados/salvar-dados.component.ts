@@ -125,8 +125,18 @@ export class SalvarDadosComponent {
 
           if (noUpdate) {
             let error = noUpdate.Content['Errors'];
+            let errorMessage = noUpdate?.Content?.Message;
+
+            error = error ? error.toString() : "";
+            errorMessage = errorMessage ? errorMessage.toString() : "";
+
+            let msg = error && errorMessage ? `${error} - ${errorMessage}`
+              : (error ? error : (errorMessage ? errorMessage : ""));
+
+            msg = this.parseMsg(msg);
+
             this.dismissAlert();
-            this.showAlert(`Não foi possivel enviar os dados!<br>Erro:${error}`)
+            this.showAlert(`Não foi possivel enviar os dados!<br>Erro:${msg}`)
             return;
           }
         }
@@ -145,6 +155,15 @@ export class SalvarDadosComponent {
       }
     }
   }
+
+  parseMsg(msg: string) {
+    if(msg && msg.toLocaleLowerCase().includes("no write access")) {
+      return "Usuário sem permissão de escrita.";
+    }
+
+    return msg;
+  }
+
   async updateStorage(dataToWriteOnPI: Arvore[]) {
     await this.storageService.store(
       this.storageService.writtenValues,
