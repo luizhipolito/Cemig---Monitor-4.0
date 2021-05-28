@@ -367,11 +367,15 @@ export function createBatch(
     };
 
     if (method == 'PUT') {
-      if (item.mode == 'Escrita' || item.mode == 'LeituraEscrita') {
-        batchItem[index]['Method'] = 'POST';
-      } else {
-        batchItem[index]['Method'] = 'PUT';
-      }
+      // var teste = "";
+      // if (item.mode == 'Escrita' || item.mode == 'LeituraEscrita') {
+      //   batchItem[index]['Method'] = 'POST';
+      // } else {
+      //   batchItem[index]['Method'] = 'PUT';
+      // }
+
+      batchItem[index]['Method'] = 'POST';
+
       let value =
         item['Selected'] && item['Selected']['Value']
           ? item['Selected']['Value']
@@ -380,12 +384,19 @@ export function createBatch(
       //   value = new Number(value).valueOf();
       // }
       if (value == null) {
+        // console.log("null");
+        // console.log(item);
         value = {
           Name: "No Data",
           Value: 248,
           IsSystem: true
         }
+      } else {
+        // console.log("not null");
+        // console.log(item);
       }
+      // console.log(item.mode + " " + teste);
+      // console.log("*********");
       batchItem[index]['Content'] = JSON.stringify({
         Timestamp: date,
         Value: value,
