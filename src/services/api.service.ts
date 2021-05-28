@@ -11,7 +11,7 @@ import { Arvore, StorageArvoreService } from './storage-arvore.service';
 import { AppUtils, firstSelection } from 'src/utils/app.utils';
 import { Device } from '@ionic-native/device/ngx';
 import { ResponseBatch } from 'src/model/ResponseBatch.model';
-import { Atributo, AtributoModel, Elemento, SubAtributo, Value, ValueObj } from 'src/model/Elemento.model';
+import { Atributo, AtributoModel, Elemento, Link, SubAtributo, Value, ValueObj } from 'src/model/Elemento.model';
 const prefix = 'https:\\\\';
 const sufix = '/piwebapi';
 @Injectable({
@@ -189,10 +189,10 @@ export class ApiService {
     })
 
     var result = await Promise.all(promises);
-    return this.parseResult(result, pathSearch);
+    return this.parseResult(result, pathSearch, url);
   }
 
-  parseResult(result: Array<ResponseBatch>, pathSearch: string): Array<Elemento> {
+  parseResult(result: Array<ResponseBatch>, pathSearch: string, url: string): Array<Elemento> {
     let elements: Array<Elemento> = [];
     
     result.forEach(itemResult => {
@@ -225,7 +225,8 @@ export class ApiService {
             Value: this.getAttributeValue(itemResult, attributoCount, attr.DefaultUnitsNameAbbreviation),
             Selected: null,
             color: null,
-            ValueString: null
+            ValueString: null,
+            Links: this.getLinks(url, attr.WebId)
           };
 
           // here will fill Selected, color and ValueString
@@ -274,6 +275,12 @@ export class ApiService {
     const itemValue = itemResult?.ValoresAtributos?.Content?.Items[attributoCount];
     const valueResponse = itemValue?.Content?.Value as any;
     return this.commonGetValue(valueResponse, itemValue?.Status, uom);
+  }
+
+  getLinks(url: string, webId: string): Link {
+    return {
+      Value: `${url}/streams/${webId}/value`
+    }
   }
 
   commonGetValue(valueResponse, status: number, uom: string): Value{

@@ -27,6 +27,11 @@ export class AtributoModel {
     Selected: any;
     color: string;
     ValueString: string;
+    Links: Link;
+}
+
+export class Link {
+    Value: string;
 }
 
 export class SubAtributo{
