@@ -189,7 +189,9 @@ export class ApiService {
     })
 
     var result = await Promise.all(promises);
-    return this.parseResult(result, pathSearch, url);
+    var resultParse = this.parseResult(result, pathSearch, url)
+    //console.log(resultParse);
+    return resultParse;
   }
 
   parseResult(result: Array<ResponseBatch>, pathSearch: string, url: string): Array<Elemento> {
@@ -232,10 +234,10 @@ export class ApiService {
           // here will fill Selected, color and ValueString
           this.utils.fillAttrProp(_attr);
 
-          attributes.push(_attr);
-
           if(attr.Name == firstSelection) {
             firstSelectionAttr = _attr;
+          } else {
+            attributes.push(_attr);
           }
 
           attributoCount++;
