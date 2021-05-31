@@ -3,6 +3,12 @@ ion-content {
   height: 100vh;
 }
 
+.selecionado {
+  border-width: 2px;
+  border-color: red;
+  border-style: solid;
+}
+
 .tableGrid {
   border: 1px solid black;
 }

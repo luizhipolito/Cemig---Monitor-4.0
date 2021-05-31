@@ -276,6 +276,7 @@ export class EntradaManualComponent {
   init() {
     this.elements = null;
     this.utils.propFocous = null;
+    this.resetElementsAndSetSelecionado(null, []);
     this.navigation = new Array<Navigation>();
     this.pathNavigation = Navigation.Instance();
   }
@@ -627,6 +628,7 @@ export class EntradaManualComponent {
 
   onSelect($event) {
     this.utils.propFocous = null;
+    this.resetElementsAndSetSelecionado(null, this.elements.list);
     const format: string = this.config.FormatoData;
 
     this.elements.list.forEach((att) => {
@@ -692,6 +694,7 @@ export class EntradaManualComponent {
     this.focusLast = this.lastFocus.map(n => n.Name.valueOf())
     if (elem) {
       this.utils.propFocous = elem;
+      this.resetElementsAndSetSelecionado(elem, this.elements.list);
     }
   }
 
@@ -814,8 +817,19 @@ export class EntradaManualComponent {
         element.mode === EnumModeAttribute['Escrita (Constante)'] ||
         element.mode === EnumModeAttribute['Leitura/Escrita (Constante)'])
     ) {
-
+      
       this.utils.propFocous = element;
+      this.resetElementsAndSetSelecionado(element, this.elements.list);
+    }
+  }
+
+  resetElementsAndSetSelecionado(element: PIWebAttribute, elements: Array<PIWebAttribute>){
+    elements.forEach(el => {
+      el['selecionado']  = false;
+    });
+
+    if(element) {
+      element['selecionado'] = true;
     }
   }
 
