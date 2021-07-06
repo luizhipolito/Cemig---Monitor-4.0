@@ -163,6 +163,7 @@ export class Arvore {
   value: Array<PIWebObject>;
   atributos: Attribute;
   date: string;
+  dataDate?: string;
   configValue: string;
   isConnectionError: boolean;
   errorMessage: string;

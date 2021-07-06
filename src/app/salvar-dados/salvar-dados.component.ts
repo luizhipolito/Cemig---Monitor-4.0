@@ -10,6 +10,7 @@ import { ApiService } from 'src/services/api.service';
 import { ConfigService } from 'src/services/config.service';
 import { EntradaManualComponent } from '../entrada-manual/entrada-manual.component';
 import { PIWebObject } from 'src/model/PIWebObject.model';
+import { formatDate } from '@angular/common';
 
 @Component({
   selector: 'app-salvar-dados',
@@ -117,6 +118,7 @@ export class SalvarDadosComponent {
           treeLogs.relativePath = data.relativePath;
           treeLogs.value = valuesList
           treeLogs.isToSave = false;
+          treeLogs.dataDate = this.getDateFromDate(data.date);
 
           this.storageService.insertOrUpdate(
             this.storageService.writtenLogs,
@@ -154,6 +156,27 @@ export class SalvarDadosComponent {
         if (!res) return;
       }
     }
+  }
+
+  getDateFromDate(dateStr: string): string {
+    let dateArr = dateStr?.split("-");
+
+    if(!dateArr || dateArr.length < 3) {
+      return null;
+    }
+
+    const dateAttrInt = dateArr.map(d => parseInt(d));
+
+    const date = new Date();
+    date.setFullYear(dateAttrInt[0]);
+    date.setMonth(dateAttrInt[1] - 1);
+    date.setDate(dateAttrInt[2]);
+    date.setHours(0);
+    date.setMinutes(0);
+    date.setSeconds(0);
+    date.setMilliseconds(0);
+
+    return formatDate(date, "dd/MM/yyyy", "en");
   }
 
   parseMsg(msg: string) {
@@ -213,7 +236,8 @@ export class SalvarDadosComponent {
           treeLogsDeleted.isEdit = false;
           treeLogsDeleted.date = currentDateLogs;
           treeLogsDeleted.value = values;
-          console.log(treeLogsDeleted)
+          treeLogsDeleted.dataDate = this.getDateFromDate(data.date);
+
           await this.storageService.insertOrUpdate(
             this.storageService.writtenLogs,
             treeLogsDeleted

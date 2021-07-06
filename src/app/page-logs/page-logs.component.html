@@ -26,7 +26,8 @@
         <div *ngIf="data.isToSave == false">
           <h6>Dados Enviados</h6>
           <ion-item>Usuario: {{data.user}}</ion-item>
-          <ion-item lines="none">Data: {{data.date}} | Instrumento: {{getRelativePath(data.relativePath)}}</ion-item>
+          <ion-item>Data: {{data.date}} | Instrumento: {{getRelativePath(data.relativePath)}}</ion-item>
+          <ion-item lines="none">Data Leitura: {{data.dataDate}}</ion-item>
           <div>
             <div *ngFor="let value of data.value">
               <ion-list>{{value.Name}} : Status {{value.status.Status}}</ion-list>
@@ -37,7 +38,8 @@
         <div *ngIf="data.isEdit === false">
           <h6>Dados Excluidos</h6>
           <ion-item>Usuario: {{data.user}}</ion-item>
-          <ion-item lines="none">Data: {{data.date}} | Instrumento: {{getRelativePath(data.relativePath)}}</ion-item>
+          <ion-item>Data: {{data.date}} | Instrumento: {{getRelativePath(data.relativePath)}}</ion-item>
+          <ion-item lines="none">Data Leitura: {{data.dataDate}}</ion-item>
           <div>
             <div *ngFor="let value of data.value">
               <ion-list>{{value.Name}} : {{value.Selected && value.Selected.Name
@@ -51,7 +53,8 @@
         <div *ngIf="data.isSystem === false">
           <h6>Dados Postados</h6>
           <ion-item>Usuario: {{data.user}}</ion-item>
-          <ion-item lines="none">Data: {{data.date}} | Instrumento: {{getRelativePath(data.relativePath)}}</ion-item>
+          <ion-item>Data: {{data.date}} | Instrumento: {{getRelativePath(data.relativePath)}}</ion-item>
+          <ion-item lines="none">Data Leitura: {{data.dataDate}}</ion-item>
           <div>
             <div *ngFor="let value of data.value">
               <ion-list>{{value.Name}} : {{value.Selected && value.Selected.Name

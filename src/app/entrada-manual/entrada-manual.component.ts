@@ -903,6 +903,8 @@ export class EntradaManualComponent {
     treeLogsPost.date = currentDateLogs;
     treeLogsPost.value = valuesLogs;
 
+    treeLogsPost.dataDate = formatDate(new Date(this.currentDate), "dd/MM/yyyy", "en");
+
     this.storageService.insertOrUpdate(
       this.storageService.writtenLogs,
       treeLogsPost
