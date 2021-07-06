@@ -46,8 +46,8 @@ ion-icon {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
-  height: 8%;
-  max-height: 9%;
+  height: min-content;
+  max-height: fit-content;
 }
 
 .routeSelect {
