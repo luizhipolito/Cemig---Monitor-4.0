@@ -53,7 +53,22 @@ export class PageLogsComponent {
     await this.socialSharing.share(null, 'Logs CEMIG', fileDir + 'logs.txt');
   }
 
+  getMessage(obj): string {
+    if(!obj?.Status) return null;
 
+    if(obj.Status >= 200 && obj.Status < 300) {
+      return "Sucesso";
+    } else {
+      let messages: Array<string> = [];
+      let errors = obj.Content?.Errors ? obj.Content.Errors as Array<string> : [];
+
+      errors.forEach(err => {
+        messages.push(err);
+      });
+
+      return messages.length ? messages.join("; ") : `Status ${obj.Status}`;
+    }
+  }
 
   async ionViewWillEnter() {
     await this.loadLogValues();

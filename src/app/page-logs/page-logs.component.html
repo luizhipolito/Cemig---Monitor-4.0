@@ -30,7 +30,7 @@
           <ion-item lines="none">Data Leitura: {{data.dataDate}}</ion-item>
           <div>
             <div *ngFor="let value of data.value">
-              <ion-list>{{value.Name}} : Status {{value.status.Status}}</ion-list>
+              <ion-list>{{value.Name}} : {{getMessage(value.status)}}</ion-list>
             </div>
           </div>
           <br>

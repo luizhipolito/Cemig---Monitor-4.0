@@ -145,7 +145,7 @@ export class ApiService {
     } else {
       // Erro ocorreu no lado do servidor
       errorMessage =
-        `Código do erro: ${error.status}, ` + `menssagem: ${error.message}`;
+        `Código do erro: ${error.status}, ` + `mensagem: ${error.message}`;
     }
     document.getElementById('loader').style.display = 'none';
     alert(errorMessage);
