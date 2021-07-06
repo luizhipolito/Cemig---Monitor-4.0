@@ -16,4 +16,5 @@ export class PIWebLink {
     Template: string;
     Value: string;
     Values: string;
+    TraitName: string;
 }

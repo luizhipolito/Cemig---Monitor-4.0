@@ -8,6 +8,7 @@ export class ConfigService {
   isToLoadFromPI: boolean = false;
   config: string;
   Insercao: string;
+  CategoriaAtributo: string;
   Navegacao: string;
   Escrita: string;
   ElementoRaiz: string;
@@ -23,6 +24,11 @@ export class ConfigService {
   AppAttributes: string;
   configUrl: string;
   configPath: string;
+  NomeAppMenu: string;
+  NomeAppInicio: string;
+  DataInicioBusca: Number;
+  DataFimBusca: Number;
+  FormatoData: string;
 
   endPoint = {
     asset: 'Databases',
@@ -36,6 +42,7 @@ export class ConfigService {
 
   attributes = {
     Insercao: 'Categoria Elemento Inserção',
+    CategoriaAtributo: 'Categoria Atributo',
     Escrita: 'Descrição Atributo Escrita',
     ElementoRaiz: 'Elemento Raiz',
     SenhaOff: 'Senha Offline',
@@ -45,6 +52,11 @@ export class ConfigService {
     descricaoEnumerationSets: 'Descrição Enumeration Sets',
     DataBase: 'Database',
     AppAttributes: 'Descrição Atributo',
+    NomeAppMenu: 'Nome APP Menu',
+    NomeAppInicio: 'Nome APP Inicio',
+    DataFimBusca: 'Data Fim da Busca',
+    DataInicioBusca: 'Data Início da Busca',
+    FormatoData: 'Formato data',
   };
 
   constructor(public storageService: StorageArvoreService) { }
@@ -53,9 +65,11 @@ export class ConfigService {
     let config = await this.storageService.getByKey(
       this.storageService.configValues
     );
-    config.forEach((conf) => {
-      this[conf.Nome] = conf.configValue;
-    });
+    if (config) {
+      config.forEach((conf) => {
+        this[conf.Nome] = conf.configValue;
+      });
+    }
   }
 
   getBaseUrl() {
@@ -76,7 +90,7 @@ export class ConfigService {
     let attributes = Object.keys(this);
     let configTree: Array<Arvore> = new Array<Arvore>();
     attributes.forEach((att) => {
-      if (typeof this[att] == 'string') {
+      if (typeof this[att] == 'string' || typeof this[att] == 'number') {
         let tree = new Arvore();
         tree.Nome = att;
         tree.configValue = this[att];

@@ -6,6 +6,7 @@ import { Attribute } from 'src/model/Attribute.model';
 import { PIWebValue } from 'src/model/PIWebValue.model';
 import { EnumerationValue } from 'src/model/EnumerationValue.model';
 import { PIWebObject } from 'src/model/PIWebObject.model';
+import { PIWebAttribute } from 'src/model/PIWebAttribute.model';
 
 @Injectable({
   providedIn: 'root',
@@ -15,6 +16,8 @@ export class StorageArvoreService {
   enumerationSets: string = 'enumerationSets';
   configValues: string = 'config';
   writtenValues: string = 'writtenValues';
+  writtenValuesForList: string = 'writtenList';
+  writtenLogs: string = 'writtenLogs';
   constructor(private storage: Storage) { }
 
   public insert(arvore: Arvore) {
@@ -26,13 +29,22 @@ export class StorageArvoreService {
     return this.storage.set(key, arvore);
   }
 
+
   public saveConfig(key, value: string) {
     this.storage.set(key, value);
+  }
+
+  public removeWrittenList() {
+    this.storage.remove(this.writtenValuesForList);
   }
 
   public removeAll() {
     this.storage.remove(this.navigation);
     this.storage.remove(this.enumerationSets);
+  }
+
+  async removeEdit() {
+    await this.storage.remove('Edit');
   }
 
 
@@ -54,9 +66,11 @@ export class StorageArvoreService {
         let children: Array<Arvore> = new Array<Arvore>();
         treelist.forEach((tree: Arvore) => {
           let validPath = true;
-          pathList.forEach((path, index) => {
-            validPath = validPath && tree.Caminho[index] == path;
-          });
+          if (pathList) {
+            pathList.forEach((path, index) => {
+              validPath = validPath && tree.Caminho[index] == path;
+            });
+          }
           if (validPath) {
             children.push(tree);
           }
@@ -98,13 +112,14 @@ export class StorageArvoreService {
     }
   }
 
+
+
   public async insertOrUpdate(key: string, value: Arvore) {
     let oldTree = await this.getByKey(key);
     if (!oldTree) {
       return this.store(key, [value]);
     }
-
-    if (key == this.writtenValues) {
+    if (key == this.writtenValues || key == this.writtenValuesForList || key == this.writtenLogs) {
       let updateTree = oldTree.find(
         (f) => f.date == value.date && f.AplicacaoID == value.AplicacaoID
       );
@@ -115,7 +130,6 @@ export class StorageArvoreService {
       } else {
         oldTree.push(value);
       }
-
       return this.store(key, oldTree);
     }
   }
@@ -149,9 +163,23 @@ export class Arvore {
   value: Array<PIWebObject>;
   atributos: Attribute;
   date: string;
+  dataDate?: string;
   configValue: string;
+  isConnectionError: boolean;
+  errorMessage: string;
   isToSave: boolean;
-  isSystem: boolean
+  isSystem: boolean;
+  isEdit: boolean;
+  firstSelection: PIWebAttribute;
+  status: string;
+  user: string;
+  deviceId: string;
+  deviceModel: string;
+  device: string;
+  deviceVersion: string;
+  devicePlatform: string;
+  Type: string;
+  TraitName: any;
 }
 
 export class ArvoreList {

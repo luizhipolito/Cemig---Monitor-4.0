@@ -6,6 +6,15 @@
     overflow: auto;
 }
 
+.boxLogs{
+    font-size: 15px;
+    border-bottom: 4px dotted rgb(110, 110, 110);
+}
+
+
+ion-list{
+    margin-left: 10px;
+}
 
 .btn{
     display: flex;
@@ -15,32 +24,7 @@
     // margin-right: 20px;
 }
 
-.checkConfirm{
-    display: flex;
-    margin: 5px;
-}
-
-.checkbox{
-    margin-right: 20px;
-    margin-left: 3px;
-    font-size: 1.3rem;
-    margin-top: 12px;
-}
-
-.btns > ion-button{
-    width: 100px;
-    margin-right: 5px;
-}
-
 .iconBack{
     font-size: 1.6rem;
     margin: 10px;
   }
-
-  .btnEdit{
-      float: right;
-      margin: 2%;
-  }
-
-
-

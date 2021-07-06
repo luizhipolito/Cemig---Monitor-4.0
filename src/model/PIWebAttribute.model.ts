@@ -5,6 +5,7 @@ export class PIWebAttribute extends PIWebObject {
   Type: string;
   TypeQualifier: string;
   DefaultUnitsName: string;
+  DefaultUnitsNameAbbreviation: string;
   DataReferencePlugIn: string;
   ConfigString: string;
   IsConfigurationItem: boolean;
@@ -16,6 +17,7 @@ export class PIWebAttribute extends PIWebObject {
   TraitName: string;
   Value?: PIWebValue;
   ValueString: string;
+  ValueStringView: string;
   Selected: any;
   config: Array<PIWebObject>;
   visible: boolean;
@@ -25,6 +27,10 @@ export class PIWebAttribute extends PIWebObject {
 
 export enum EnumModeAttribute {
   'Leitura/Escrita' = 'LeituraEscrita',
+  'Escrita (Constante)' = 'EscritaConstante',
+  'Leitura/Escrita (Constante)' = 'LeituraEsConst',
   Leitura = 'Leitura',
   Escrita = 'Escrita',
+  'Data Próxima' = 'DataProxima',
+  'Data Última' = 'DataUltima',
 }

@@ -23,11 +23,14 @@ export class DataConfigComponent implements OnInit {
   public serverUrl;
   public configPath;
 
+
   async ionViewWillEnter() {
     await this.config.init();
     this.serverUrl = this.config.configUrl;
     this.configPath = this.config.configPath;
   }
+
+
 
   onBack() {
     this.router.navigate(['/home']);
@@ -37,6 +40,7 @@ export class DataConfigComponent implements OnInit {
     if (f.valid) {
       // let server = 'https://34.233.235.92/piwebapi';
       // let config = '\\\\EC2AMAZ-T1N5EJ5\\Testes\\APP Entrada Manual';
+
       let server = f.value.server;
       let config = f.value.configuracoes;
 

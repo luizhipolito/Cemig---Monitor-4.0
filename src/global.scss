@@ -8,8 +8,8 @@
  * For more information on global stylesheets, visit the documentation:
  * https://ionicframework.com/docs/layout/global-stylesheets
  */
-*{
-    margin: 0;
+* {
+  margin: 0;
 }
 /* Core CSS required for Ionic components to work properly */
 @import "~@ionic/angular/css/core.css";
@@ -18,7 +18,7 @@
 @import "~@ionic/angular/css/normalize.css";
 @import "~@ionic/angular/css/structure.css";
 @import "~@ionic/angular/css/typography.css";
-@import '~@ionic/angular/css/display.css';
+@import "~@ionic/angular/css/display.css";
 
 /* Optional CSS utils that can be commented out */
 @import "~@ionic/angular/css/padding.css";
@@ -26,7 +26,6 @@
 @import "~@ionic/angular/css/text-alignment.css";
 @import "~@ionic/angular/css/text-transformation.css";
 @import "~@ionic/angular/css/flex-utils.css";
-
 
 ion-icon {
   color: #008f45;
@@ -42,59 +41,54 @@ ion-icon {
   margin-left: 46%;
 }
 
-  /* routes and search */
+/* routes and search */
 .route {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    height: 8%;
-    max-height: 9%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  height: min-content;
+  max-height: fit-content;
+}
+
+.routeSelect {
+  font-size: 20px;
+  margin: 10px;
+  color: #008f45;
+}
+
+.search > ion-icon {
+  font-size: 1.5rem;
+  margin-right: 20px;
+  margin-top: 10px;
+}
+
+@media screen and(max-width: 800px) {
+  .logoCemig > img {
+    width: 180px !important;
   }
-  
-  .routeSelect {
+  .nomeCentro {
     font-size: 1.2rem;
-    margin: 10px;
-    color: #008f45;
   }
-  
-  .search > ion-icon {
+  ion-list {
+    font-size: 1.2rem;
+    padding: 10px;
+  }
+}
+
+@media screen and(max-width: 500px) {
+  .nomeCentro {
+    margin-left: 20px;
+    font-size: 1rem;
+  }
+  .logoCemig > img {
+    width: 150px !important;
+  }
+  ion-list {
     font-size: 1.5rem;
-    margin-right: 20px;
-    margin-top: 10px;
   }
 
-  @media screen and(max-width: 800px) {
-    .logoCemig > img{
-      width: 180px !important;
-    }
-    .nomeCentro{
-      font-size: 1.2rem;
-    }
-    ion-list{
-      font-size: 1.2rem;
-      padding: 10px;
-    }
-    
+  ion-icon {
+    font-size: 40px;
+    margin-top: 10px;
   }
-  
-  @media screen and(max-width: 500px) {
-    .nomeCentro {
-      margin-left: 20px;
-      font-size: 1rem;
-    }
-    .logoCemig > img {
-      width: 150px !important;
-    }
-    ion-list {
-      font-size: 1.5rem;
-    }
-    
-    ion-icon {
-      font-size: 40px;
-      margin-top: 10px;
-    }
-  
-    
-    
-  }
-  
+}

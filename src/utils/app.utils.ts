@@ -1,18 +1,39 @@
 import { Injectable } from '@angular/core';
 
 import { Attribute } from 'src/model/Attribute.model';
+import { AtributoModel, SubAtributo, ValueObj } from 'src/model/Elemento.model';
 import {
   EnumModeAttribute,
   PIWebAttribute,
 } from 'src/model/PIWebAttribute.model';
 import { PIWebObject } from 'src/model/PIWebObject.model';
-import { isNumber } from 'util';
+
+export const templateType: string = 'Tipo';
+export const firstSelection: string = 'Observação';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AppUtils {
   constructor() { }
+
+  propFocous: PIWebAttribute;
+  minimo: any;
+  minimoAlerta: any;
+  minimoAtencao: any;
+  maximoAtencao: any;
+  maximoAlerta: any;
+  maximo: any;
+
+  templateRangeScalling = {
+    LimitMinimum: 'red',
+    'LimitLoLo': 'red',
+    'LimitLo': 'yellow',
+    'LimitHi': 'white',
+    'LimitHiHi': 'yellow',
+    LimitMaximum: 'red',
+    Over: 'red',
+  };
 
   public isCollapsed: boolean = false;
 
@@ -24,6 +45,28 @@ export class AppUtils {
     let value = localStorage.getItem(key);
     return JSON.parse(value || null);
   }
+
+  getRandom() {
+    var dt = new Date().getTime();
+    var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+      var r = (dt + Math.random() * 16) % 16 | 0;
+      dt = Math.floor(dt / 16);
+      return (c == 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+    });
+    return uuid;
+  }
+
+  formatDateTimeHours = (d: Date) => {
+    var dateStr =
+      ('00' + d.getDate()).slice(-2) +
+      '/' +
+      ('00' + (d.getMonth() + 1)).slice(-2) +
+      '/' +
+      d.getFullYear() +
+      ' Horário: ' + d.getHours() + ':' + ('00' + (d.getMinutes() + 1)).slice(-2);
+
+    return dateStr;
+  };
 
   formatDateTime = (d: Date) => {
     var dateStr =
@@ -79,23 +122,198 @@ export class AppUtils {
     let writtenValues = new Array<PIWebAttribute>();
 
     writtenValues.push(elements.firstSelection);
-
     writtenValues = writtenValues.concat(
       elements.list.filter(
         (el) =>
           // el.visible
           // &&
           (el.mode == EnumModeAttribute.Escrita ||
-            el.mode == EnumModeAttribute['Leitura/Escrita'])
+            el.mode == EnumModeAttribute['Leitura/Escrita'] ||
+            el.mode == EnumModeAttribute['Leitura'] ||
+            el.mode == EnumModeAttribute['Leitura/Escrita (Constante)']) ||
+          (el.mode == EnumModeAttribute['Escrita (Constante)'] && el.Selected)
       )
     );
 
     return writtenValues;
   }
-}
 
-export function hasChildren(piwebObj: PIWebObject) {
-  return piwebObj.HasChildren;
+  getMode(config: PIWebAttribute[]): EnumModeAttribute {
+    let type = config.find((c) => c.Name == templateType);
+    if (
+      type &&
+      type.Value &&
+      type.Value.Good &&
+      type.Value.Value &&
+      type.Value.Value.Name &&
+      EnumModeAttribute[type.Value.Value.Name]
+    ) {
+      return EnumModeAttribute[type.Value.Value.Name];
+    }
+    return EnumModeAttribute.Leitura;
+  }
+  
+  getModeSubAtributo(config: Array<SubAtributo>): EnumModeAttribute {
+    let type = config.find((c) => c.Name == templateType);
+    const name = (type?.Value?.Value as ValueObj)?.Name;
+    return name && EnumModeAttribute[type.Value.Value.Name] ? EnumModeAttribute[type.Value.Value.Name] : EnumModeAttribute.Leitura;
+  }
+  
+  fillAttrProp(att: AtributoModel){
+    let attValue = att.Value;
+    let attValueString = '';
+    att.Value = attValue;
+    if (attValue && attValue.Value) {
+      let hasNoData = attValue.Value.Name
+      if (attValue.Value.Value) {
+        attValueString = attValue.Value.Value;
+      } else {
+        attValueString = new String(attValue.Value).toString();
+      }
+      if (hasNoData == 'No Data' || hasNoData == 'Pt Created') {
+        attValueString = ''
+      }
+      if (att.mode == EnumModeAttribute['Leitura/Escrita']) {
+        att.Selected = attValueString;
+        att.color = this.getColorScalling(att as any);
+      }
+      if (att.mode == EnumModeAttribute['Leitura/Escrita (Constante)']) {
+        att.Selected = attValueString;
+        att.color = this.getColorScalling(att as any);
+      }
+  
+  
+      if (attValue.UnitsAbbreviation && (attValueString || attValueString == '0')) {
+        attValueString = attValueString + ' ' + attValue.UnitsAbbreviation;
+      }
+    }
+    att.ValueString = attValueString;
+  }
+
+  getColorScalling(propFocous: PIWebAttribute): string {
+    let selectedValue = new Number(propFocous.Selected).valueOf();
+    let colorClass = 'black';
+    let valueSK = Number.MAX_VALUE;
+    this.getAlerts(this.propFocous)
+    for (let k of Object.keys(this.templateRangeScalling)) {
+      let sk = this.templateRangeScalling[k];
+      let config = propFocous.config.find((c) => c?.TraitName == k) as PIWebAttribute;
+      if (config && config.Value) {
+        valueSK = new Number(config.Value.Value).valueOf();
+        // if ((selectedValue <= valueSK) || (valueSK > selectedValue)) {
+        //   console.log(sk)
+        //   sk = 'green';
+        //   return sk;
+        // }
+      }
+      if (this.minimo || this.minimo == 0) {
+        if (selectedValue <= this.minimo) {
+          console.log(this.minimo)
+          sk = 'red';
+          return sk;
+        }
+      }
+      if (!this.minimoAtencao && this.minimoAlerta) {
+        if (selectedValue <= this.minimoAlerta) {
+          console.log(this.minimoAlerta)
+          sk = 'red';
+          return sk;
+        }
+      }
+      if (this.minimoAtencao && !this.minimoAlerta) {
+        if (selectedValue <= this.minimoAtencao) {
+          console.log(this.minimoAtencao)
+          sk = 'yellow';
+          return sk;
+        }
+      }
+      if (this.minimoAtencao && this.minimoAlerta) {
+        if (selectedValue > this.minimoAlerta && selectedValue <= this.minimoAtencao) {
+          sk = 'yellow';
+          return sk;
+        }
+      }
+      if (selectedValue > this.minimo && selectedValue <= this.minimoAlerta) {
+        sk = 'red';
+        return sk;
+      }
+      if (this.maximo) {
+        if (selectedValue >= this.maximo) {
+          sk = 'red';
+          return sk;
+        }
+      }
+      if (this.maximoAtencao && this.maximoAlerta) {
+        if (selectedValue >= this.maximoAtencao && selectedValue < this.maximoAlerta) {
+          sk = 'yellow';
+          return sk;
+        }
+      }
+
+      if (this.maximoAlerta) {
+        if (selectedValue >= this.maximoAlerta && selectedValue < this.maximo) {
+          sk = 'red';
+          return sk;
+        }
+      }
+      if (this.maximoAlerta && !this.maximo) {
+        if (selectedValue >= this.maximoAlerta) {
+          sk = 'red';
+          return sk;
+        }
+      }
+      if (this.maximoAtencao && !this.maximoAlerta) {
+        if (selectedValue >= this.maximoAtencao) {
+          sk = 'yellow';
+          return sk;
+        }
+      }
+    }
+    // if (selectedValue >= valueSK && valueSK > 0) {
+    //   return this.templateRangeScalling.Over;
+    // }
+    return colorClass;
+  }
+
+  getAlerts(propFocous: PIWebAttribute) {
+    this.maximo = null;
+    this.maximoAlerta = null;
+    this.maximoAtencao = null;
+    this.minimo = null;
+    this.minimoAlerta = null;
+    this.minimoAtencao = null;
+    for (let k of Object.keys(this.templateRangeScalling)) {
+      if (propFocous) {
+        let config = propFocous.config.find((c) => c?.TraitName == k) as PIWebAttribute;
+        if (config && config.Name && !config.Value.Value.Name) {
+          if (config.TraitName === 'LimitMinimum') {
+            this.minimo = config.Value.Value;
+          }
+
+          if (config.TraitName === 'LimitLoLo') {
+            this.minimoAlerta = config.Value.Value;
+          }
+
+          if (config.TraitName === 'LimitLo') {
+            this.minimoAtencao = config.Value.Value;
+          }
+
+          if (config.TraitName === 'LimitHi') {
+            this.maximoAtencao = config.Value.Value;
+          }
+
+          if (config.TraitName === 'LimitHiHi') {
+            this.maximoAlerta = config.Value.Value;
+          }
+
+          if (config.TraitName === 'LimitMaximum') {
+            this.maximo = config.Value.Value;
+          }
+        }
+
+      }
+    }
+  }
 }
 
 export function isResult(r: any) {
@@ -114,17 +332,17 @@ export function firstOrNull() {
 export function createBatch(
   items: Array<PIWebObject>,
   type: string,
-  date?: string
+  date?: string,
 ) {
   let batchItem = {};
   let method = type == 'update' ? 'PUT' : 'GET';
 
   let selectedFieldsParam =
-    '?selectedFields=Items.WebId;Items.Description;Items.Name;Items.Path;Items.Type;Items.TypeQualifier;Items.HasChildren;Items.Links.Attributes;Items.Links.Value';
+    '?selectedFields=Items.WebId;Items.Description;Items.Name;Items.Path;Items.Type;Items.TypeQualifier;Items.HasChildren;Items.Links.Attributes;Items.Links.Value;Items.TraitName';
 
   if (type == 'Value') {
     selectedFieldsParam =
-      '?selectedFields=Items.Name;Items.Value;Items.Path;Items.HasChildren';
+      '?selectedFields=Items.Description;Items.Name;Items.Value;Items.Path;Items.HasChildren;Items.TraitName';
   }
   if (type == 'EnumerationSets') {
     selectedFieldsParam = '';
@@ -140,6 +358,7 @@ export function createBatch(
     type = 'Value';
   }
 
+
   items.forEach((item, index) => {
     let url = `${item.Links[type]}${selectedFieldsParam}`;
     batchItem[index] = {
@@ -148,22 +367,40 @@ export function createBatch(
     };
 
     if (method == 'PUT') {
+      // var teste = "";
+      // if (item.mode == 'Escrita' || item.mode == 'LeituraEscrita') {
+      //   batchItem[index]['Method'] = 'POST';
+      // } else {
+      //   batchItem[index]['Method'] = 'PUT';
+      // }
+
       batchItem[index]['Method'] = 'POST';
+
       let value =
         item['Selected'] && item['Selected']['Value']
           ? item['Selected']['Value']
           : item['Selected'];
-
-      if (!isNaN(value)) {
-        value = new Number(value).valueOf();
-
+      // if (!isNaN(value)) {
+      //   value = new Number(value).valueOf();
+      // }
+      if (value == null) {
+        // console.log("null");
+        // console.log(item);
+        value = {
+          Name: "No Data",
+          Value: 248,
+          IsSystem: true
+        }
+      } else {
+        // console.log("not null");
+        // console.log(item);
       }
-
+      // console.log(item.mode + " " + teste);
+      // console.log("*********");
       batchItem[index]['Content'] = JSON.stringify({
         Timestamp: date,
         Value: value,
       });
-
     }
   });
   return batchItem;

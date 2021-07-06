@@ -3,7 +3,15 @@ ion-content {
   height: 100vh;
 }
 
+.selecionado {
+  border-width: 2px;
+  border-color: red;
+  border-style: solid;
+}
 
+.tableGrid {
+  border: 1px solid black;
+}
 .allNav {
   width: 100%;
   height: 100%;
@@ -17,28 +25,64 @@ ion-content {
   margin-left: 5px;
 }
 
-.spinner {
-  margin-top: 10%;
-  margin-left: 46%;
-}
-ion-spinner {
-  align-items: center;
-  transform: scale(3);
+.spinner > ion-label {
+  font-size: 1.6rem;
+  font-weight: 600;
+  color: #008f45;
 }
 
-.route{
-  min-height: 50px;
+ion-progress-bar {
+  right: 210px;
+  transform: scale(1.5);
 }
-.search > ion-input > ion-icon{
-  font-size: 1.6rem;
-  margin-left: 8px;
+
+.my-buffer-progress {
+  --buffer-background: #696969 !important;
 }
-.search > ion-input{
-  box-shadow: 0px 1px 17px 1px rgba(177, 177, 177, 0.75);
-  // border: 1px solid #ccc;
+
+.route {
+  min-height: 60px;
+}
+
+.inicioNav {
+  border-right: 1px solid #008f45;
+  margin-right: 5px;
+}
+.search {
+  display: flex;
+  height: 35px;
+  border: 1px solid #ccc;
   border-radius: 20px;
   margin-top: 10px;
+  margin-right: 10px;
+}
+.search > ion-input > ion-icon {
+  font-size: 1.4rem;
+  margin-left: 14px;
+}
+.search > ion-input {
+  width: 150px;
+  // margin-top: 10px;
   margin-left: -10px;
+}
+
+.search > ion-item {
+  position: relative;
+  width: 250px;
+  height: 30px;
+  border: none;
+  margin-left: -20px;
+  margin-right: 10px;
+}
+.search > ion-item > ion-label {
+  margin-top: -17px;
+}
+.search > ion-item > ion-datetime {
+  margin-top: -14px;
+}
+.search > ion-item > ion-icon {
+  margin-top: -20px;
+  z-index: 4;
 }
 
 /* data box route */
@@ -47,7 +91,8 @@ ion-spinner {
   width: calc(100% - 20px);
   height: calc(100% - 20px);
   margin: 10px;
-  overflow: auto;  
+  margin-bottom: 10px !important;
+  overflow: auto;
 }
 
 .boxShort {
@@ -61,24 +106,48 @@ ion-list {
   font-size: 2.4rem;
   padding: 20px;
   list-style: none;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   color: rgb(95, 95, 95);
 }
 
+.rowHead {
+  font-size: 28px;
+  border: 1px solid rgb(230, 230, 230);
+}
+.rowHead > ion-col {
+  border-right: 1px solid rgb(230, 230, 230);
+}
+ion-list {
+  padding: 0;
+  padding-bottom: 0 !important;
+}
 
+.nameNav {
+  padding: 20px;
+}
 
+.rowList {
+  font-size: 25px;
+  font-weight: 100;
+  border: 1px solid rgb(230, 230, 230);
+}
+.rowList > ion-col {
+  border-right: 1px solid rgb(230, 230, 230);
+}
 
-.boxSelect{
+ion-col {
+  text-align: center;
+}
+
+.boxSelect {
   width: 200px !important;
 }
 
-
 .selectClass {
-  --ion-background-color:grey;
+  --ion-background-color: grey;
 }
 
-
-ion-select.myCustomSelect{
+ion-select.myCustomSelect {
   width: 100%;
   max-width: 100%;
 }
@@ -86,7 +155,7 @@ ion-select.myCustomSelect{
 .controlKeyboard {
   width: 28%;
   height: 80%;
- margin-top: 10px;
+  margin-top: 10px;
 }
 
 .controlKeyboard > p {
@@ -94,7 +163,7 @@ ion-select.myCustomSelect{
   font-weight: bold;
   font-size: 1rem;
   text-align: center;
-  color: #008f45
+  color: #008f45;
 }
 
 .keyboard {
@@ -114,12 +183,12 @@ ion-select.myCustomSelect{
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-top: 10px;
+  margin-top: 2px;
 }
 .btns > ion-button {
   width: 50%;
   height: 40px;
-  margin: 3px;
+  margin: 2px;
   background: #008f45 !important;
   font-size: 1rem;
   border-radius: 10px;
@@ -145,7 +214,7 @@ ion-select.myCustomSelect{
   cursor: none;
 }
 
-.white{
+.white {
   background-color: #fff;
   border: 1px solid black;
 }
@@ -160,7 +229,7 @@ ion-select.myCustomSelect{
   border: 1px solid #005c2c !important;
 }
 
-.yellow{
+.yellow {
   background-color: yellow;
   border: 1px solid yellow;
 }
@@ -190,31 +259,52 @@ ion-select.myCustomSelect{
   border: 1px solid black;
 }
 
-.search > ion-searchbar{
+.search > ion-searchbar {
   border-radius: 50px;
 }
 
-@media screen and(max-width: 750px) {
-  
+.selectInputText {
+  width: 50%;
+  border: 2px solid rgb(163, 162, 162);
+}
 
-  .route {
-    height: 4%;
-  }
+@media screen and(max-width: 825px) {
   .routeSelect {
-    font-size: 0.8rem;
+    font-size: 16px;
   }
 
-  .search > ion-input{
-    width: 70%;
-    height:  30px !important;
-    margin-left: 60px;
+  .routeSelect {
+    margin-top: -2px;
   }
+
+  .search {
+    height: 35px;
+    width: 40%;
+    margin-top: 2px;
+  }
+
+  .search > ion-input {
+    max-width: 40%;
+    margin-top: 7px;
+    height: 20px !important;
+  }
+
   .search > ion-input > ion-icon {
-    font-size: 20px;
+    font-size: 1rem !important;
   }
 
- 
- 
+  .search > ion-item {
+    margin-top: 0;
+    margin-left: -20px !important;
+    width: 65% !important;
+  }
+
+  .search > ion-item > ion-icon {
+    font-size: 1.2rem;
+    margin-top: -17px;
+    z-index: 4;
+  }
+
   ion-list {
     font-size: 1.5rem !important;
     padding: 10px;
@@ -225,7 +315,7 @@ ion-select.myCustomSelect{
     font-size: 0.7rem;
     text-align: center;
   }
-  .keyboard{
+  .keyboard {
     margin-top: 5px;
   }
   .calc-button {
@@ -239,7 +329,29 @@ ion-select.myCustomSelect{
     height: 25px;
     font-size: 0.7rem;
   }
+
+  .boxData {
+    border: 2px solid black;
+    width: calc(100% - 10px);
+    height: calc(100% - 10px);
+    margin: 5px;
+    margin-bottom: 10px !important;
+    overflow: auto;
+  }
+
+  ion-list {
+    font-size: 1.8rem;
+    padding: 10px !important;
+  }
+
+  .spinner > ion-label {
+    font-size: 1.6rem;
+    font-weight: 600;
+    color: #008f45;
+  }
+
+  ion-progress-bar {
+    right: 150px;
+    transform: scale(1.2);
+  }
 }
-
-
-

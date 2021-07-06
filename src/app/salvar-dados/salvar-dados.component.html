@@ -10,14 +10,20 @@
           </ion-item-divider>
 
           <ion-item> Data: {{ element.date }}</ion-item>
-
-          <ion-item *ngFor="let value of element.value">
-            {{ value.Name }}:
-            {{
+          <div class="btnEdit">
+            <ion-button (click)="onEdit(element)">Editar</ion-button>
+          </div>
+          <div *ngFor="let value of element.value">
+            <ion-item *ngIf="value.mode != 'Leitura'">
+              {{ value.Name }}:
+              {{
               value.Selected && value.Selected.Name
                 ? value.Selected.Name
                 : value.Selected
-            }}</ion-item>
+            }}
+            </ion-item>
+          </div>
+
         </ion-list>
       </div>
     </div>
