@@ -44,6 +44,7 @@ import { SalvarDadosComponent } from '../salvar-dados/salvar-dados.component';
 import { stringify } from 'querystring';
 import { NgForm } from '@angular/forms';
 import { formatDate } from '@angular/common';
+import { Elemento } from 'src/model/Elemento.model';
 
 const typeEnumeration = 'EnumerationValue';
 // let currentModal = null;
@@ -67,6 +68,20 @@ class Navigation {
     n.date = date;
     n.dateLast = dateLast;
     return n;
+  }
+}
+
+export class Node {
+  name: string;
+  children?: Array<Node>;
+  index?: number;
+  date: Date;
+  dateLast: Date;
+  parent?: Node;
+
+  constructor(name: string){
+    this.name = name;
+    this.children = new Array<Node>();
   }
 }
 
@@ -149,15 +164,20 @@ export class EntradaManualComponent {
 
   Elemento = {};
   selectedViews = 'elemento';
-  date: any;
+  date: Date;
   elements: Attribute;
   enumerationTree: Array<Arvore>;
   arvoreLocal: Array<Arvore>;
-  navigation: Array<Navigation>;
+
+  
 
   dateLast: any;
   currentDate = this.utils.formatDateTime(new Date());
-  pathNavigation: Navigation = Navigation.Instance();
+
+  navigation: Array<Node>;
+  nextReads: Array<Node> = [];
+  originalTree: Array<Node>;
+  pathNavigation: Array<Node>
 
   
   lastFocus: PIWebAttribute[];
@@ -198,7 +218,7 @@ export class EntradaManualComponent {
       editData['isEdit'] = true;
       if (editData['isEdit'] == true) {
         if (editData != null) {
-          this.dataLeitura = null;
+          this.dataLeitura = false;
           let pathEdit = editData['relativePath'];
           let path = pathEdit.split(`\\`).filter(p => Boolean(p))
           let name = path[path.length - 1];
@@ -206,13 +226,13 @@ export class EntradaManualComponent {
 
           this.navigation = new Array<{ path: Array<string>; name: string, date: Date, dateLast: Date }>();
           this.navigation.push({
-            path: path,
             name: undefined,
             date: undefined,
             dateLast: undefined
           });
-          this.pathNavigation.path = path;
-          this.pathNavigation.name = name;
+
+          this.buildPathFromNode(editData['node']);
+
           let first = editData['value'].filter(o => o.Name == 'Observação').find(s => s.Selected)
 
           this.elements = new Attribute;
@@ -239,7 +259,7 @@ export class EntradaManualComponent {
     this.init();
     await this.api.init();
     await this.config.init();
-    this.dataLeitura = null;
+    this.dataLeitura = false;
 
     if (isToSyncDataFromPI) {
       await this.syncDataFromPI();
@@ -277,8 +297,8 @@ export class EntradaManualComponent {
     this.elements = null;
     this.utils.propFocous = null;
     this.resetElementsAndSetSelecionado(null, []);
-    this.navigation = new Array<Navigation>();
-    this.pathNavigation = Navigation.Instance();
+    this.navigation = new Array<Node>();
+    this.pathNavigation =  new Array<Node>();
   }
 
   async syncDataFromPI() {
@@ -312,6 +332,40 @@ export class EntradaManualComponent {
 
     this.utils.saveStorage('senhaOff', this.config.SenhaOff);
     await this.config.saveStorage();
+  }
+
+  insertChildren = (nodes: Array<Node>, parent: Node, caminho: Array<string>, index: number): Node => {
+
+    if(!caminho.length) {
+      parent.index = index;
+      return parent;
+    }
+
+    const name = caminho[0];
+
+    let node = nodes.find(n => n.name == name);
+
+    if(!node) {
+      node = new Node(name);
+      node.parent = parent;
+      nodes.push(node);
+    }
+    
+    return this.insertChildren(node.children, node, caminho.slice(1, caminho.length), index);
+  };
+
+  buildPathFromNode(node: Node) {
+
+    let n: Node = node;
+
+    let path: Array<Node> = [];
+    
+    while(n) {
+      path.push(n);
+      n = n.parent;
+    }
+
+    this.pathNavigation = path.reverse();
   }
 
   async syncNavigationData() {
@@ -415,37 +469,49 @@ export class EntradaManualComponent {
     });
   };
 
-  clickMainNavigation() {
-    this.loadNavigationDataFromStorage();
-    this.pathNavigation.path = [];
+  async clickMainNavigation() {
+
+    this.elements = null;
+
+    this.pathNavigation = new Array<Node>();
+    let dataRead = await this.storageService.getByKey(
+      this.storageService.writtenValuesForList
+    );
+    let dataReadPath = [];
+
+    if (dataRead != null) {
+      dataReadPath = dataRead.map(p => p.relativePath.split('\\').pop());
+    } else {
+      dataReadPath = [];
+    }
+
+    let nextReads = this.nextReads.filter(nr => dataReadPath.indexOf(nr.name) == -1);
+
+    if(nextReads.length) {
+      this.dataLeitura = true;
+      this.navigation = nextReads;
+    } else {
+      this.onClickId(null);
+    }
   }
 
-  dataRead: Array<Arvore>;
-  dataReadPath: any;
   async loadNavigationDataFromStorage() {
-    let pathRead: any;
     let dataLeitura: any;
     this.elements = null;
+    this.nextReads = [];
     this.arvoreLocal = await this.storageService.getByKey(
       this.storageService.navigation
     );
 
     let dateLastRead: any;
 
-    this.navigation = new Array<Navigation>();
+    this.navigation = new Array<Node>();
     if (this.arvoreLocal) {
-      this.dataRead = await this.storageService.getByKey(
-        this.storageService.writtenValuesForList
-      );
-      if (this.dataRead != null) {
-        this.dataReadPath = this.dataRead.map(p => p.relativePath.split('\\').pop());
-      } else {
-        this.dataReadPath = [];
-      }
+      let nodes = [];
 
-      this.arvoreLocal.forEach((arvore: Arvore) => {
-        let dateNext = arvore.atributos.list.filter(l => l.mode == 'DataProxima' && l.Value?.Value?.Name != 'Calc Failed');
-        let datelast = arvore.atributos.list.filter(l => l.mode == 'DataUltima' && l.Value?.Value?.Name != 'Calc Failed');
+      this.arvoreLocal.forEach((arvore: Arvore, index: number) => {
+        let dateNext = arvore.atributos.list.filter(l => l.mode == 'DataProxima' && l.Value?.Value?.Name != 'Calc Failed' && l.Value?.Value?.Name != 'Pt Created');
+        let datelast = arvore.atributos.list.filter(l => l.mode == 'DataUltima' && l.Value?.Value?.Name != 'Calc Failed' && l.Value?.Value?.Name != 'Pt Created');
         if (dateNext.length > 0) {
 
           dataLeitura = dateNext.find(d => d)?.Value.Value;
@@ -475,22 +541,25 @@ export class EntradaManualComponent {
           } else {
             dataLeitura = 'Sem Data';
           }
-          
+
           let path = arvore.Caminho;
           let lastIndex = arvore.Caminho.length - 1;
-          this.dataLeitura = dataLeitura;
+
+          let element = this.insertChildren(nodes, null, arvore.Caminho, index);
+          arvore.node = element;
+
           if ((this.date > dateMinus && this.date < datePlus)) {
-            this.navigation.push(Navigation.Create(arvore.Caminho, path[lastIndex], dataLeitura, dateLastRead));
+            element.date = dataLeitura;
+            element.dateLast = dateLastRead;
+            this.nextReads.push(element);
           }
         }
       });
+
+      this.originalTree = nodes;
     }
-    if (this.navigation.length == 0) {
-      if (this.pathNavigation.date) {
-        this.showAlert('Não existem dados para leitura por data!');
-      }
-      this.onClickId(this.pathNavigation)
-    }
+
+    this.clickMainNavigation();
   }
 
   async loadDataFromStorage() {
@@ -561,22 +630,31 @@ export class EntradaManualComponent {
     // console.log(this.elements);
   }
 
-  onClickId = (e) => {
-    this.dataLeitura = null;
-    this.pathNavigation = e;
-    this.storageService.getFilhos(e.path).then((result) => {
-      let pathLength = e.path.length;
-      this.navigation = new Array<{ path: Array<string>; name: string; date: Date; dateLast: Date }>();
-      let pathResult = result.find(p => p).relativePath.slice().split('\\').pop();
-      let pathTrue = this.pathNavigation.path;
-      let pathTrues = pathTrue.slice().pop();
-      if (pathTrues == pathResult) {
-        let item = result.find(firstOrNull);
+  onClickId = (node: Node) => {
+
+    this.dataLeitura = false;
+    let filhos: Array<Node> = [];
+    this.pathNavigation = [];
+    this.navigation = [];
+    this.elements = null;
+
+    if(!node) {
+      filhos = this.originalTree;
+    } else {
+      filhos = node.children;
+
+      this.buildPathFromNode(node);
+    }
+
+    if(!filhos || filhos.length == 0) {
+      //this.storageService.getByKey(this.storageService.navigation).then(result => {
+        
+        let item = this.arvoreLocal[node.index];//result[node.index];
         this.navigation.push({
-          path: e.path,
           name: item.Nome,
           date: undefined,
-          dateLast: undefined
+          dateLast: undefined,
+          index: node.index
         });
         this.elements = item.atributos;
         if (this.elements.firstSelection && this.elements.firstSelection.Type) {
@@ -590,22 +668,10 @@ export class EntradaManualComponent {
             elem.valuesSets = selectOptions;
           }
         });
-      } else {
-        this.elements = null;
-        result.forEach((arvore) => {
-          let caminho = arvore.Caminho[pathLength];
-          if (!this.navigation.find((n) => n.name == caminho)) {
-            let path = e.path.concat([caminho]);
-            this.navigation.push({
-              path: path,
-              name: caminho,
-              date: undefined,
-              dateLast: undefined
-            });
-          }
-        });
-      }
-    });
+      //});
+    } else {
+      this.navigation = filhos;
+    }
   };
 
   formatDateAttr(att, format: string){
@@ -890,6 +956,7 @@ export class EntradaManualComponent {
 
     tree.date = dateStr;
     tree.value = values;
+    tree.node = this.arvoreLocal[this.navigation[0].index].node;
 
     let currentDateLogs = this.utils.formatDateTimeHours(new Date());
     let treeLogsPost = new Arvore();
@@ -1029,15 +1096,9 @@ export class EntradaManualComponent {
 
     if (this.arvoreLocal) {
       if (this.arvoreLocal.length == 0) {
-        console.log(this.pathNavigation.path)
-        let pathLength = this.pathNavigation.path.pop();
-        this.onClickId({
-          path: this.pathNavigation.path,
-          name: undefined,
-        });
+        this.onClickId(null);
       } else {
-        this.loadNavigationDataFromStorage();
-        this.pathNavigation.path = [];
+        this.clickMainNavigation();
       }
     }
     await this.showAlert('Salvo com sucesso!');
@@ -1100,133 +1161,7 @@ export class EntradaManualComponent {
     return [];
   }
 
-  dataLeitura: any;
+  dataLeitura: boolean;
   selectedDate: Date;
 
-  filterByDate(navigation: Array<Navigation>, date: any): Array<Navigation> {
-    this.elements = null;
-    this.navigation = new Array<Navigation>();
-    this.arvoreLocal.forEach((arvore: Arvore) => {
-      if (date != null) {
-        let proximaDataLeitura = arvore.atributos.list.filter(p => p.mode == 'DataProxima' && p.Value.Value.Name != 'Calc Failed');
-        let datelast = arvore.atributos.list.filter(l => l.mode == 'DataUltima' && l.Value.Value.Name != 'Calc Failed');
-        if (datelast.length > 0) {
-          this.dateLastRead = datelast.find(l => l).Value.Value;
-          this.dateLastRead = this.dateLastRead.split('T').find(firstOrNull);
-          this.dateLastRead = this.dateLastRead.split('-').reverse().join("/", this.dateLastRead, 0, this.dateLastRead.length)
-        } else {
-          this.dateLastRead = 'Sem Data';
-        }
-        if (proximaDataLeitura.length > 0) {
-          this.dataLeitura = proximaDataLeitura.find(d => d).Value.Value;
-          this.dataLeitura = this.dataLeitura.split('T').find(firstOrNull);
-          this.dataLeitura = this.dataLeitura.split('-').reverse().join("/", this.dataLeitura, 0, this.dataLeitura.length);
-          if ((proximaDataLeitura.find(v => v).ValueString < date)) {
-            let indexLastPath = arvore.Caminho.length - 1;
-            this.navigation.push(
-              Navigation.Create(arvore.Caminho, arvore.Caminho[indexLastPath], this.dataLeitura, this.dateLastRead)
-            )
-          }
-        }
-      }
-    })
-    if (this.navigation.length == 0) {
-      this.pathNavigation.path = [];
-      this.onClickId(this.pathNavigation);
-      this.showAlert('Não existem leituras para esta data!')
-    }
-    return;
-  }
-
-  filterByDateAndString(navigation: Array<Navigation>, name: string): Array<Navigation> {
-    this.navigation = new Array<Navigation>();
-    navigation.forEach((arvore: Navigation) => {
-      if (arvore && arvore.path && arvore.path.length > 0) {
-        console.log(arvore)
-        arvore.path.forEach((path, index) => {
-          if (
-            path.toLocaleLowerCase().includes(name) &&
-            !this.navigation.some((n) => n.name == arvore.name)
-          ) {
-            this.navigation.push(
-              Navigation.Create(arvore.path, arvore.name, arvore.date, arvore.dateLast)
-            );
-          }
-        });
-      }
-    });
-    if (this.navigation.length == 0) {
-      // this.dataLeitura = null;
-      // this.date = null;
-      // console.log('0000')
-    }
-    return;
-  }
-
-  filterByString(navigation: Array<Arvore>, name: string): Array<Navigation> {
-    this.dataLeitura = null;
-    this.navigation = new Array<Navigation>();
-    navigation.forEach((arvore: Arvore) => {
-      if (arvore && arvore.Caminho && arvore.Caminho.length > 0) {
-        arvore.Caminho.forEach((path, index) => {
-          if (
-            path.toLocaleLowerCase().includes(name) &&
-            !this.navigation.some((n) => n.name == path)
-          ) {
-            this.navigation.push(
-              Navigation.Create(arvore.Caminho.slice(0, index + 1), path, undefined, undefined)
-            );
-          }
-        });
-        console.log(this.navigation)
-      }
-    });
-    return;
-  }
-
-  dateSelect: any;
-
-  async searchDate($event: Event) {
-    this.dateSelect = $event.target['value'];
-    // this.pathNavigation.path = null;
-    // this.dataLeitura = null;
-    await this.filterByDate(this.navigation, this.dateSelect);
-  }
-
-  async search($event: Event) {
-    let dataNavigation: Array<Navigation>
-    let searchItem = $event.target['value'];
-    if (searchItem) {
-      this.elements = null;
-      searchItem = new String(searchItem).toLowerCase();
-      // if (this.date && searchItem) {
-      //   if (!dataNavigation) {
-      //     dataNavigation = this.navigation;
-      //   }
-      //   if (this.dateLast != this.date) {
-      //     dataNavigation = this.navigation;
-      //   }
-      //   this.dateLast = this.date;
-      //   this.filterByDateAndString(dataNavigation, searchItem);
-      // } else {
-      //   this.date = null;
-      //   this.filterByString(this.arvoreLocal, searchItem)
-      // }
-      // if (this.navigation.length == 0) {
-      //   console.log('Arvore Vazia')
-      // }
-      if (this.dateSelect && searchItem) {
-        if (!dataNavigation) {
-          dataNavigation = this.navigation;
-        }
-        this.filterByDateAndString(dataNavigation, searchItem);
-      } if (!this.dateSelect && searchItem) {
-
-        this.filterByString(this.arvoreLocal, searchItem)
-      }
-    } else {
-      this.elements = null;
-      await this.loadNavigationDataFromStorage();
-    }
-  }
 }

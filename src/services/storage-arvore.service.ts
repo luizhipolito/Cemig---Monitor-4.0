@@ -7,6 +7,7 @@ import { PIWebValue } from 'src/model/PIWebValue.model';
 import { EnumerationValue } from 'src/model/EnumerationValue.model';
 import { PIWebObject } from 'src/model/PIWebObject.model';
 import { PIWebAttribute } from 'src/model/PIWebAttribute.model';
+import { Node } from 'src/app/entrada-manual/entrada-manual.component';
 
 @Injectable({
   providedIn: 'root',
@@ -180,6 +181,7 @@ export class Arvore {
   devicePlatform: string;
   Type: string;
   TraitName: any;
+  node: Node;
 }
 
 export class ArvoreList {

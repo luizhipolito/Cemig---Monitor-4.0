@@ -2,11 +2,11 @@
   <div class="route">
     <div class="routeSelect" *ngIf="navigation || pathNavigation">
       <span class="inicioNav" (click)="clickMainNavigation()">Início </span>
-      <span (click)="onClickId({ path: [] })"> Navegar</span>
-      <span *ngFor="let nav of pathNavigation.path; let i = index" (click)="
-          onClickId({ name: nav, path: pathNavigation.path.slice(0, i + 1) })
+      <span (click)="onClickId(null)"> Navegar</span>
+      <span *ngFor="let nav of pathNavigation" (click)="
+          onClickId(nav)
         ">
-        &#9654; {{ nav }}
+        &#9654; {{ nav.name }}
       </span>
     </div>
 
@@ -89,7 +89,7 @@
             </ion-item>
           </ion-list>
         </div>
-        <ion-list *ngIf="dataLeitura != null">
+        <ion-list *ngIf="dataLeitura">
           <ion-row class="rowHead">
             <ion-col>Instrumento</ion-col>
             <ion-col>Próxima Leitura</ion-col>
@@ -97,7 +97,7 @@
           </ion-row>
 
           <div *ngFor="let app of navigation">
-            <div *ngIf="dataReadPath.indexOf(app.name) == -1">
+            <div>
               <ion-row class="rowList">
                 <ion-col (click)="onClickId(app)">{{ app.name }}</ion-col>
                 <ion-col (click)="onClickId(app)">{{app.date}}</ion-col>
