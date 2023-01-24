@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { ApiService } from 'src/services/api.service';
 import {
   AppUtils,
@@ -42,9 +42,10 @@ import { PIWebValue } from 'src/model/PIWebValue.model';
 import { PIWebLink } from 'src/model/PIWebLink.model';
 import { SalvarDadosComponent } from '../salvar-dados/salvar-dados.component';
 import { stringify } from 'querystring';
-import { NgForm } from '@angular/forms';
+import { FormBuilder, FormGroup, NgForm } from '@angular/forms';
 import { formatDate } from '@angular/common';
 import { Elemento } from 'src/model/Elemento.model';
+import { Subscription } from 'rxjs';
 
 const typeEnumeration = 'EnumerationValue';
 // let currentModal = null;
@@ -77,7 +78,9 @@ export class Node {
   index?: number;
   date: Date;
   dateLast: Date;
+  dateRead?: Date;
   parent?: Node;
+  pathStr?: string;
 
   constructor(name: string){
     this.name = name;
@@ -90,7 +93,7 @@ export class Node {
   templateUrl: './entrada-manual.component.html',
   styleUrls: ['./entrada-manual.component.scss'],
 })
-export class EntradaManualComponent {
+export class EntradaManualComponent implements OnInit, OnDestroy {
   @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
   @ViewChild(MatSort, { static: true }) sort: MatSort;
 
@@ -189,6 +192,12 @@ export class EntradaManualComponent {
   templateConditionValue = 'Condição X Valor';
   templateIndex = ' X ';
   searchField = '';
+  dataLeitura: boolean;
+  onlyReset: boolean;
+  selectedDateFormated: Date;
+  formSearch: FormGroup = this.formBuilder.group(this.getResetForm());
+  showSearch: boolean = false;
+  subs: Array<Subscription> = [];
 
   // minimo: any;
   // minimoAlerta: any;
@@ -198,6 +207,7 @@ export class EntradaManualComponent {
   // maximo: any;
 
   constructor(
+    private formBuilder: FormBuilder,
     private api: ApiService,
     public utils: AppUtils,
     private router: Router,
@@ -210,7 +220,9 @@ export class EntradaManualComponent {
   ) { }
 
 
-
+  ngOnInit() {
+    this.changesSearch();
+  }
 
   async edit() {
     let editData = await this.storageService.getByKey('Edit')
@@ -224,7 +236,7 @@ export class EntradaManualComponent {
           let name = path[path.length - 1];
 
 
-          this.navigation = new Array<{ path: Array<string>; name: string, date: Date, dateLast: Date }>();
+          this.navigation = new Array<Node>();
           this.navigation.push({
             name: undefined,
             date: undefined,
@@ -348,6 +360,8 @@ export class EntradaManualComponent {
     if(!node) {
       node = new Node(name);
       node.parent = parent;
+      let pathArr = this.getPathFromNode(node);
+      node.pathStr = pathArr.slice(0, pathArr.length - 1).map(n => n.name).join(" > ")
       nodes.push(node);
     }
     
@@ -355,7 +369,10 @@ export class EntradaManualComponent {
   };
 
   buildPathFromNode(node: Node) {
+    this.pathNavigation = this.getPathFromNode(node);
+  }
 
+  getPathFromNode(node: Node){
     let n: Node = node;
 
     let path: Array<Node> = [];
@@ -365,7 +382,7 @@ export class EntradaManualComponent {
       n = n.parent;
     }
 
-    this.pathNavigation = path.reverse();
+    return path.reverse();
   }
 
   async syncNavigationData() {
@@ -470,7 +487,7 @@ export class EntradaManualComponent {
   };
 
   async clickMainNavigation() {
-
+    this.resetSearch();
     this.elements = null;
 
     this.pathNavigation = new Array<Node>();
@@ -533,7 +550,8 @@ export class EntradaManualComponent {
           datePlus.setDate(datePlus.getDate() + dataInicio);
           dateMinus.setDate(dateMinus.getDate() - dataFim);
 
-          this.date = new Date(dataLeitura);
+          const dateRead = new Date(dataLeitura);
+          this.date = new Date(dateRead);
 
           if(dataLeitura) {
             dataLeitura = dataLeitura.split('T').find(firstOrNull);
@@ -551,6 +569,7 @@ export class EntradaManualComponent {
           if ((this.date > dateMinus && this.date < datePlus)) {
             element.date = dataLeitura;
             element.dateLast = dateLastRead;
+            element.dateRead = dateRead;
             this.nextReads.push(element);
           }
         }
@@ -631,8 +650,8 @@ export class EntradaManualComponent {
   }
 
   onClickId = (node: Node) => {
-
     this.dataLeitura = false;
+    this.resetSearch();
     let filhos: Array<Node> = [];
     this.pathNavigation = [];
     this.navigation = [];
@@ -1161,7 +1180,90 @@ export class EntradaManualComponent {
     return [];
   }
 
-  dataLeitura: boolean;
-  selectedDate: Date;
+  getResetForm(){
+    return {
+      date: null,
+      text: null
+    };
+  }
+  
+  changesSearch(){
+    this.subs.push(
+      this.formSearch.valueChanges.subscribe(() => {
+        this.selectedDateFormated = this.formSearch?.value?.date ?  this.getDate(new Date(this.formSearch?.value?.date)) : null;
+        this.search();
+      })
+    );
+  }
+
+  resetSearch(){
+    this.showSearch = false;
+    this.onlyReset = true;
+    this.selectedDateFormated = null;
+    this.formSearch.setValue(this.getResetForm());
+  }
+
+  getDate(date: Date): Date {
+    date.setMilliseconds(0);
+    date.setSeconds(0);
+    date.setMinutes(0);
+    date.setHours(0);
+    date.setDate(date.getDate() + 1);
+
+    return date;
+  }
+
+  checkDate(node : Node): boolean {
+    return node.dateRead < this.selectedDateFormated;
+  }
+
+  checkText(node : Node): boolean {
+    return node.name.toLowerCase().includes(this.formSearch.value.text.toLowerCase());
+  }
+
+  searchTree(nodes: Array<Node>): Array<Node> {
+
+    if(!nodes) {
+      return [];
+    }
+
+    let nodesSearch: Array<Node> = [];
+
+    nodes.forEach(n => {
+      const findDate = this.selectedDateFormated;
+      const findText = !!this.formSearch.value.text;
+
+      if((!findDate || (!n.children?.length && this.checkDate(n))) && (!findText || this.checkText(n))) {
+        nodesSearch.push(n);
+      }
+
+      const children = this.searchTree(n.children);
+      children.forEach(c => nodesSearch.push(c));
+    });
+
+    return nodesSearch;
+  }
+
+  search(){
+
+    if(this.onlyReset) {
+      this.onlyReset = false;
+      return;
+    }
+
+    if(!this.selectedDateFormated && !this.formSearch.value.text) {
+      this.clickMainNavigation();
+    } else {
+      this.dataLeitura = false;
+      this.elements = null;
+      this.pathNavigation = [];
+      this.showSearch = true;
+      this.navigation = this.searchTree(this.originalTree);
+    }
+  }
+
+  ngOnDestroy() {
+    this.subs.forEach(s => s.unsubscribe());
+  }
 
 }

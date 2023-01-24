@@ -10,14 +10,14 @@
       </span>
     </div>
 
-    <div class="search">
-      <ion-input placeholder="Filtro" (ionChange)="search($event)">
+    <div [formGroup]="formSearch" class="search">
+      <ion-input formControlName="text" placeholder="Filtro">
         <ion-icon name="search-outline"></ion-icon>
       </ion-input>
       <ion-item>
         <ion-label>Leituras até:</ion-label>
-        <ion-datetime displayFormat="DD/MM/YYYY" value="data" max="2030" display-timezone="utc"
-          [(ngModel)]="selectedDate" (ionChange)="searchDate($event)" cancelText="Cancelar" doneText="Confirmar">
+        <ion-datetime  formControlName="date" displayFormat="DD/MM/YYYY" value="data" max="2030" display-timezone="utc"
+          cancelText="Cancelar" doneText="Confirmar">
         </ion-datetime>
         <ion-icon class="iconCalendar" name="calendar-outline"></ion-icon>
       </ion-item>
@@ -109,7 +109,8 @@
 
         <div *ngIf="!dataLeitura">
           <ion-list class="nameNav" *ngFor="let app of navigation" (click)="onClickId(app)">
-            {{app.name}}
+            <div>{{app.name}}</div>
+            <div *ngIf="showSearch" class="cls-path">{{app.pathStr}}</div>
           </ion-list>
         </div>
 
