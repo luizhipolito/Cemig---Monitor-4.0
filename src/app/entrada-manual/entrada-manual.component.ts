@@ -197,6 +197,7 @@ export class EntradaManualComponent implements OnInit, OnDestroy {
   selectedDateFormated: Date;
   formSearch: FormGroup = this.formBuilder.group(this.getResetForm());
   showSearch: boolean = false;
+  showProgressBar: boolean = true;
   subs: Array<Subscription> = [];
 
   // minimo: any;
@@ -282,6 +283,7 @@ export class EntradaManualComponent implements OnInit, OnDestroy {
     }
     await this.edit();
     this.date = null;
+    this.showProgressBar = false;
   }
 
   arrayProgress = [0, 0.05, 0.1, 0.2, 0.35, 0.55, 0.6, 0.9, 0.95, 1];

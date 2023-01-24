@@ -29,8 +29,11 @@
   <ion-content>
     <div class="allNav">
       <div class="boxData" [ngClass]="elements == null ? 'boxTotal' : 'boxShort'">
-        <div *ngIf="!navigation || navigation.length == 0" class="spinner">
-          <ion-progress-bar *ngIf="!navigation || navigation.length == 0" type="indeterminate"></ion-progress-bar>
+        <div *ngIf="showProgressBar" class="spinner">
+          <ion-progress-bar type="indeterminate"></ion-progress-bar>
+        </div>
+        <div class="horizontal-center no-data-cls " *ngIf="!showProgressBar && (!navigation || navigation.length == 0)">
+          SEM DADOS
         </div>
 
         <div *ngIf="elements != null">
