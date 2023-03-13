@@ -2,22 +2,22 @@
   <div class="route">
     <div class="routeSelect" *ngIf="navigation || pathNavigation">
       <span class="inicioNav" (click)="clickMainNavigation()">Início </span>
-      <span (click)="onClickId({ path: [] })"> Navegar</span>
-      <span *ngFor="let nav of pathNavigation.path; let i = index" (click)="
-          onClickId({ name: nav, path: pathNavigation.path.slice(0, i + 1) })
+      <span (click)="onClickId(null)"> Navegar</span>
+      <span *ngFor="let nav of pathNavigation" (click)="
+          onClickId(nav)
         ">
-        &#9654; {{ nav }}
+        &#9654; {{ nav.name }}
       </span>
     </div>
 
-    <div class="search">
-      <ion-input placeholder="Filtro" (ionChange)="search($event)">
+    <div [formGroup]="formSearch" class="search">
+      <ion-input formControlName="text" placeholder="Filtro">
         <ion-icon name="search-outline"></ion-icon>
       </ion-input>
       <ion-item>
         <ion-label>Leituras até:</ion-label>
-        <ion-datetime displayFormat="DD/MM/YYYY" value="data" max="2030" display-timezone="utc"
-          [(ngModel)]="selectedDate" (ionChange)="searchDate($event)" cancelText="Cancelar" doneText="Confirmar">
+        <ion-datetime  formControlName="date" displayFormat="DD/MM/YYYY" value="data" max="2030" display-timezone="utc"
+          cancelText="Cancelar" doneText="Confirmar">
         </ion-datetime>
         <ion-icon class="iconCalendar" name="calendar-outline"></ion-icon>
       </ion-item>
@@ -29,8 +29,11 @@
   <ion-content>
     <div class="allNav">
       <div class="boxData" [ngClass]="elements == null ? 'boxTotal' : 'boxShort'">
-        <div *ngIf="!navigation || navigation.length == 0" class="spinner">
-          <ion-progress-bar *ngIf="!navigation || navigation.length == 0" type="indeterminate"></ion-progress-bar>
+        <div *ngIf="showProgressBar" class="spinner">
+          <ion-progress-bar type="indeterminate"></ion-progress-bar>
+        </div>
+        <div class="horizontal-center no-data-cls " *ngIf="!showProgressBar && (!navigation || navigation.length == 0)">
+          SEM DADOS
         </div>
 
         <div *ngIf="elements != null">
@@ -89,7 +92,7 @@
             </ion-item>
           </ion-list>
         </div>
-        <ion-list *ngIf="dataLeitura != null">
+        <ion-list *ngIf="dataLeitura">
           <ion-row class="rowHead">
             <ion-col>Instrumento</ion-col>
             <ion-col>Próxima Leitura</ion-col>
@@ -97,7 +100,7 @@
           </ion-row>
 
           <div *ngFor="let app of navigation">
-            <div *ngIf="dataReadPath.indexOf(app.name) == -1">
+            <div>
               <ion-row class="rowList">
                 <ion-col (click)="onClickId(app)">{{ app.name }}</ion-col>
                 <ion-col (click)="onClickId(app)">{{app.date}}</ion-col>
@@ -109,7 +112,8 @@
 
         <div *ngIf="!dataLeitura">
           <ion-list class="nameNav" *ngFor="let app of navigation" (click)="onClickId(app)">
-            {{app.name}}
+            <div>{{app.name}}</div>
+            <div *ngIf="showSearch" class="cls-path">{{app.pathStr}}</div>
           </ion-list>
         </div>
 
