@@ -2,7 +2,7 @@
   <div class="route">
     <div class="routeSelect" *ngIf="navigation || pathNavigation">
       <span class="inicioNav" (click)="clickMainNavigation()">Início </span>
-      <span (click)="onClickId(null)"> Navegar</span>
+      <span (click)="typeTreeSelected = treeShow.TREE;onClickId(null);"> Navegar</span>
       <span *ngFor="let nav of pathNavigation" (click)="
           onClickId(nav)
         ">
@@ -36,7 +36,7 @@
           SEM DADOS
         </div>
 
-        <div *ngIf="elements != null">
+        <div *ngIf="typeShowSelected == typeShow.ELEMENTS">
           <ion-list w-50>
             <ion-item>
               <ion-label>Data da Leitura:</ion-label>
@@ -92,33 +92,44 @@
             </ion-item>
           </ion-list>
         </div>
-        <ion-list *ngIf="dataLeitura">
-          <ion-row class="rowHead">
-            <ion-col>Instrumento</ion-col>
-            <ion-col>Próxima Leitura</ion-col>
-            <ion-col>Última Leitura</ion-col>
-          </ion-row>
-
-          <div *ngFor="let app of navigation">
-            <div>
-              <ion-row class="rowList">
-                <ion-col (click)="onClickId(app)">{{ app.name }}</ion-col>
-                <ion-col (click)="onClickId(app)">{{app.date}}</ion-col>
-                <ion-col (click)="onClickId(app)">{{app.dateLast}}</ion-col>
-              </ion-row>
+        <div *ngIf="typeShowSelected == typeShow.TREE">
+          <div *ngIf="typeTreeSelected == treeShow.READ">
+            <div *ngIf="!(navigation[0]?.children?.length)">
+              <ion-list>      
+                <div *ngFor="let app of navigation">
+                  <div>
+                    <ion-row (click)="onClickId(app)" class="rowList">
+                      <ion-col>{{ app.name }}</ion-col>
+                      <ion-col [ngClass]="{'text-done': !app.hasToRead , 'text-pending': app.hasToRead }">{{ app.hasToRead ? 'Leitura Pendente' : 'Leitura preenchida' }}</ion-col>
+                    </ion-row>
+                  </div>
+                </div>
+              </ion-list>
+            </div>
+            <div class="flex-row" *ngIf="navigation[0]?.children?.length">
+              <div class="w-33 p-a-8" *ngFor="let app of navigation">
+                  <ion-card class="h-100" (click)="onClickId(app)">
+                    <ion-card-header class="h-60 horizontal-center vertical-center text-center white-fonte header-blue">
+                      <ion-card-title>{{ app.name }}</ion-card-title>
+                    </ion-card-header>
+                    <ion-card-content [ngClass]="{'p-v-16': true, 'h-40': true, 'text-center': true, 'horizontal-center': true, 'vertical-center': true, 'white-fonte': true, 'pending-cls': app.hasToRead, 'done-cls': !app.hasToRead}">
+                      {{ app.hasToRead ? 'LEITURAS PENDENTES' : 'TODAS AS LEITURAS PREENCHIDAS' }}
+                    </ion-card-content>
+                  </ion-card>
+              </div>
             </div>
           </div>
-        </ion-list>
 
-        <div *ngIf="!dataLeitura">
-          <ion-list class="nameNav" *ngFor="let app of navigation" (click)="onClickId(app)">
-            <div>{{app.name}}</div>
-            <div *ngIf="showSearch" class="cls-path">{{app.pathStr}}</div>
-          </ion-list>
+          <div *ngIf="typeTreeSelected == treeShow.TREE">
+            <ion-list class="nameNav" *ngFor="let app of navigation" (click)="onClickId(app)">
+              <div>{{app.name}}</div>
+              <div *ngIf="showSearch" class="cls-path">{{app.pathStr}}</div>
+            </ion-list>
+          </div>
         </div>
 
       </div>
-      <div *ngIf="elements != null" class="controlKeyboard">
+      <div *ngIf="typeShowSelected == typeShow.ELEMENTS" class="controlKeyboard">
         <p>{{ propFocous && propFocous.Name ? propFocous.Name : '' }}</p>
         <div class="keyboard">
           <div *ngFor="let numGroup of numberGroups">

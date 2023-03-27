@@ -76,16 +76,28 @@ export class Node {
   name: string;
   children?: Array<Node>;
   index?: number;
+  relativePath?: string;
   date: Date;
   dateLast: Date;
   dateRead?: Date;
   parent?: Node;
   pathStr?: string;
+  hasToRead?: boolean;
 
   constructor(name: string){
     this.name = name;
     this.children = new Array<Node>();
   }
+}
+
+export enum TypeShow {
+  TREE,
+  ELEMENTS
+}
+
+export enum TreeShow {
+  TREE,
+  READ
 }
 
 @Component({
@@ -182,6 +194,11 @@ export class EntradaManualComponent implements OnInit, OnDestroy {
   originalTree: Array<Node>;
   pathNavigation: Array<Node>
 
+  typeShowSelected: TypeShow = TypeShow.TREE;
+  typeShow = TypeShow;
+
+  typeTreeSelected: TreeShow = TreeShow.TREE;
+  treeShow = TreeShow;
   
   lastFocus: PIWebAttribute[];
   focusLast: string[];
@@ -192,7 +209,6 @@ export class EntradaManualComponent implements OnInit, OnDestroy {
   templateConditionValue = 'Condição X Valor';
   templateIndex = ' X ';
   searchField = '';
-  dataLeitura: boolean;
   onlyReset: boolean;
   selectedDateFormated: Date;
   formSearch: FormGroup = this.formBuilder.group(this.getResetForm());
@@ -231,7 +247,6 @@ export class EntradaManualComponent implements OnInit, OnDestroy {
       editData['isEdit'] = true;
       if (editData['isEdit'] == true) {
         if (editData != null) {
-          this.dataLeitura = false;
           let pathEdit = editData['relativePath'];
           let path = pathEdit.split(`\\`).filter(p => Boolean(p))
           let name = path[path.length - 1];
@@ -272,7 +287,6 @@ export class EntradaManualComponent implements OnInit, OnDestroy {
     this.init();
     await this.api.init();
     await this.config.init();
-    this.dataLeitura = false;
 
     if (isToSyncDataFromPI) {
       await this.syncDataFromPI();
@@ -348,10 +362,11 @@ export class EntradaManualComponent implements OnInit, OnDestroy {
     await this.config.saveStorage();
   }
 
-  insertChildren = (nodes: Array<Node>, parent: Node, caminho: Array<string>, index: number): Node => {
+  insertChildren = (nodes: Array<Node>, parent: Node, caminho: Array<string>, path: string, index: number, isRead: boolean = false): Node => {
 
     if(!caminho.length) {
       parent.index = index;
+      parent.relativePath = path;
       return parent;
     }
 
@@ -363,11 +378,12 @@ export class EntradaManualComponent implements OnInit, OnDestroy {
       node = new Node(name);
       node.parent = parent;
       let pathArr = this.getPathFromNode(node);
+      //node.hasToRead = isRead;
       node.pathStr = pathArr.slice(0, pathArr.length - 1).map(n => n.name).join(" > ")
       nodes.push(node);
     }
     
-    return this.insertChildren(node.children, node, caminho.slice(1, caminho.length), index);
+    return this.insertChildren(node.children, node, caminho.slice(1, caminho.length), path, index, isRead);
   };
 
   buildPathFromNode(node: Node) {
@@ -489,29 +505,56 @@ export class EntradaManualComponent implements OnInit, OnDestroy {
   };
 
   async clickMainNavigation() {
+    this.typeShowSelected = TypeShow.TREE;
     this.resetSearch();
     this.elements = null;
 
+    await this.updateNextRead();
+
+    if(this.nextReads.length) {
+      this.typeTreeSelected = TreeShow.READ;
+      this.navigation = this.nextReads;
+    } else {
+      this.typeTreeSelected = TreeShow.TREE;
+      this.onClickId(null);
+    }
+  }
+
+  async updateNextRead(){
     this.pathNavigation = new Array<Node>();
     let dataRead = await this.storageService.getByKey(
       this.storageService.writtenValuesForList
     );
-    let dataReadPath = [];
 
-    if (dataRead != null) {
-      dataReadPath = dataRead.map(p => p.relativePath.split('\\').pop());
-    } else {
-      dataReadPath = [];
-    }
+    dataRead = dataRead ? dataRead : [];
 
-    let nextReads = this.nextReads.filter(nr => dataReadPath.indexOf(nr.name) == -1);
+    const updateChildren = (nodes: Array<Node>, parent: Node): boolean => {
 
-    if(nextReads.length) {
-      this.dataLeitura = true;
-      this.navigation = nextReads;
-    } else {
-      this.onClickId(null);
-    }
+      if(!nodes?.length) {
+        return !dataRead.some(dr => dr.relativePath == parent.relativePath);
+      }
+
+      nodes.forEach(n => {
+        n.hasToRead = updateChildren(n.children, n);
+      });
+
+      return nodes.some(n => n.hasToRead);
+    };
+
+    updateChildren(this.nextReads, null);
+  }
+
+  getToday(): Date {
+    let date = new Date();
+    this.setBeginDay(date);
+    return date;
+  }
+
+  setBeginDay(date: Date){
+    date.setMilliseconds(0);
+    date.setSeconds(0);
+    date.setMinutes(0);
+    date.setHours(0);
   }
 
   async loadNavigationDataFromStorage() {
@@ -523,14 +566,19 @@ export class EntradaManualComponent implements OnInit, OnDestroy {
     );
 
     let dateLastRead: any;
+    const today = this.getToday();
 
     this.navigation = new Array<Node>();
     if (this.arvoreLocal) {
       let nodes = [];
+      let nodesRead = [];
 
       this.arvoreLocal.forEach((arvore: Arvore, index: number) => {
         let dateNext = arvore.atributos.list.filter(l => l.mode == 'DataProxima' && l.Value?.Value?.Name != 'Calc Failed' && l.Value?.Value?.Name != 'Pt Created');
         let datelast = arvore.atributos.list.filter(l => l.mode == 'DataUltima' && l.Value?.Value?.Name != 'Calc Failed' && l.Value?.Value?.Name != 'Pt Created');
+
+        let intervaloInsercao = (dateNext[0]?.config?.find(c => c.Name == 'Intervalo de Inserção') as any)?.Value?.Value;
+
         if (dateNext.length > 0) {
 
           dataLeitura = dateNext.find(d => d)?.Value.Value;
@@ -544,15 +592,15 @@ export class EntradaManualComponent implements OnInit, OnDestroy {
           } else {
             dateLastRead = 'Sem Data';
           }
-
-          let datePlus = new Date(this.currentDate);
-          let dateMinus = new Date(this.currentDate);
-          let dataInicio: any = this.config.DataFimBusca;
-          let dataFim: any = this.config.DataFimBusca;
-          datePlus.setDate(datePlus.getDate() + dataInicio);
-          dateMinus.setDate(dateMinus.getDate() - dataFim);
+          
+          let datePlus = new Date(today);
+          datePlus.setDate(datePlus.getDate() + intervaloInsercao);
+          let dateMinus = new Date(today);
+          dateMinus.setDate(dateMinus.getDate() - intervaloInsercao);
 
           const dateRead = new Date(dataLeitura);
+          this.setBeginDay(dateRead);
+
           this.date = new Date(dateRead);
 
           if(dataLeitura) {
@@ -562,22 +610,22 @@ export class EntradaManualComponent implements OnInit, OnDestroy {
             dataLeitura = 'Sem Data';
           }
 
-          let path = arvore.Caminho;
-          let lastIndex = arvore.Caminho.length - 1;
-
-          let element = this.insertChildren(nodes, null, arvore.Caminho, index);
+          let element = this.insertChildren(nodes, null, arvore.Caminho, arvore.relativePath, index);
           arvore.node = element;
 
-          if ((this.date > dateMinus && this.date < datePlus)) {
+          if ((this.date >= dateMinus && this.date < datePlus)) {
             element.date = dataLeitura;
             element.dateLast = dateLastRead;
             element.dateRead = dateRead;
             this.nextReads.push(element);
+
+            this.insertChildren(nodesRead, null, arvore.Caminho, arvore.relativePath, index, true);
           }
         }
       });
 
       this.originalTree = nodes;
+      this.nextReads = nodesRead;
     }
 
     this.clickMainNavigation();
@@ -652,7 +700,7 @@ export class EntradaManualComponent implements OnInit, OnDestroy {
   }
 
   onClickId = (node: Node) => {
-    this.dataLeitura = false;
+    this.typeShowSelected = TypeShow.TREE;
     this.resetSearch();
     let filhos: Array<Node> = [];
     this.pathNavigation = [];
@@ -668,28 +716,27 @@ export class EntradaManualComponent implements OnInit, OnDestroy {
     }
 
     if(!filhos || filhos.length == 0) {
-      //this.storageService.getByKey(this.storageService.navigation).then(result => {
-        
-        let item = this.arvoreLocal[node.index];//result[node.index];
-        this.navigation.push({
-          name: item.Nome,
-          date: undefined,
-          dateLast: undefined,
-          index: node.index
-        });
-        this.elements = item.atributos;
-        if (this.elements.firstSelection && this.elements.firstSelection.Type) {
-          this.elements.firstSelection.valuesSets = this.getOptions(
-            this.elements.firstSelection.TypeQualifier
-          );
+      this.typeShowSelected = TypeShow.ELEMENTS;
+
+      let item = this.arvoreLocal[node.index];//result[node.index];
+      this.navigation.push({
+        name: item.Nome,
+        date: undefined,
+        dateLast: undefined,
+        index: node.index
+      });
+      this.elements = item.atributos;
+      if (this.elements.firstSelection && this.elements.firstSelection.Type) {
+        this.elements.firstSelection.valuesSets = this.getOptions(
+          this.elements.firstSelection.TypeQualifier
+        );
+      }
+      this.elements.list.forEach((elem) => {
+        if (elem.Type == typeEnumeration) {
+          let selectOptions = this.getOptions(elem.TypeQualifier)
+          elem.valuesSets = selectOptions;
         }
-        this.elements.list.forEach((elem) => {
-          if (elem.Type == typeEnumeration) {
-            let selectOptions = this.getOptions(elem.TypeQualifier)
-            elem.valuesSets = selectOptions;
-          }
-        });
-      //});
+      });
     } else {
       this.navigation = filhos;
     }
@@ -1256,7 +1303,8 @@ export class EntradaManualComponent implements OnInit, OnDestroy {
     if(!this.selectedDateFormated && !this.formSearch.value.text) {
       this.clickMainNavigation();
     } else {
-      this.dataLeitura = false;
+      this.typeShowSelected = TypeShow.TREE;
+      this.typeTreeSelected = TreeShow.TREE;
       this.elements = null;
       this.pathNavigation = [];
       this.showSearch = true;
