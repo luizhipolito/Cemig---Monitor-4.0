@@ -579,49 +579,50 @@ export class EntradaManualComponent implements OnInit, OnDestroy {
 
         let intervaloInsercao = (dateNext[0]?.config?.find(c => c.Name == 'Intervalo de Inserção') as any)?.Value?.Value;
 
-        if (dateNext.length > 0) {
+        dataLeitura = dateNext.find(d => d)?.Value?.Value;
 
-          dataLeitura = dateNext.find(d => d)?.Value.Value;
-
-          dateLastRead = datelast && datelast.length > 0 ? datelast.find(l => l)?.Value.Value : null;
-
-          if (dateLastRead) {
-            dateLastRead = dateLastRead.split('T').find(firstOrNull);
-            dateLastRead = dateLastRead.split('-').reverse().join("/", dateLastRead, 0, dateLastRead.length)
-
-          } else {
-            dateLastRead = 'Sem Data';
-          }
-          
-          let datePlus = new Date(today);
-          datePlus.setDate(datePlus.getDate() + intervaloInsercao);
-          let dateMinus = new Date(today);
-          dateMinus.setDate(dateMinus.getDate() - intervaloInsercao);
-
-          const dateRead = new Date(dataLeitura);
-          this.setBeginDay(dateRead);
-
-          this.date = new Date(dateRead);
-
-          if(dataLeitura) {
-            dataLeitura = dataLeitura.split('T').find(firstOrNull);
-            dataLeitura = dataLeitura.split('-').reverse().join("/", dataLeitura, 0, dataLeitura.length);
-          } else {
-            dataLeitura = 'Sem Data';
-          }
-
-          let element = this.insertChildren(nodes, null, arvore.Caminho, arvore.relativePath, index);
-          arvore.node = element;
-
-          if ((this.date >= dateMinus && this.date < datePlus)) {
-            element.date = dataLeitura;
-            element.dateLast = dateLastRead;
-            element.dateRead = dateRead;
-            this.nextReads.push(element);
-
-            this.insertChildren(nodesRead, null, arvore.Caminho, arvore.relativePath, index, true);
-          }
+        const dateRead = dataLeitura ? new Date(dataLeitura) : null;
+        if(dataLeitura) {
+          dataLeitura = dataLeitura.split('T').find(firstOrNull);
+          dataLeitura = dataLeitura.split('-').reverse().join("/", dataLeitura, 0, dataLeitura.length);
+        } else {
+          dataLeitura = 'Sem Data';
         }
+
+        if(dateRead) {
+          this.setBeginDay(dateRead);
+        }
+
+        this.date = dateRead ? new Date(dateRead) : null;
+
+        dateLastRead = datelast && datelast.length > 0 ? datelast.find(l => l)?.Value.Value : null;
+
+        if (dateLastRead) {
+          dateLastRead = dateLastRead.split('T').find(firstOrNull);
+          dateLastRead = dateLastRead.split('-').reverse().join("/", dateLastRead, 0, dateLastRead.length)
+
+        } else {
+          dateLastRead = 'Sem Data';
+        }
+        
+        let datePlus = new Date(today);
+        datePlus.setDate(datePlus.getDate() + intervaloInsercao);
+        let dateMinus = new Date(today);
+        dateMinus.setDate(dateMinus.getDate() - intervaloInsercao);
+
+
+        let element = this.insertChildren(nodes, null, arvore.Caminho, arvore.relativePath, index);
+        arvore.node = element;
+
+        if (dateRead && this.date >= dateMinus && this.date < datePlus) {
+          element.date = dataLeitura;
+          element.dateLast = dateLastRead;
+          element.dateRead = dateRead;
+          this.nextReads.push(element);
+
+          this.insertChildren(nodesRead, null, arvore.Caminho, arvore.relativePath, index, true);
+        }
+
       });
 
       this.originalTree = nodes;
