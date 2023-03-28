@@ -247,6 +247,7 @@ export class EntradaManualComponent implements OnInit, OnDestroy {
       editData['isEdit'] = true;
       if (editData['isEdit'] == true) {
         if (editData != null) {
+          this.typeShowSelected = TypeShow.ELEMENTS;
           let pathEdit = editData['relativePath'];
           let path = pathEdit.split(`\\`).filter(p => Boolean(p))
           let name = path[path.length - 1];
@@ -256,7 +257,8 @@ export class EntradaManualComponent implements OnInit, OnDestroy {
           this.navigation.push({
             name: undefined,
             date: undefined,
-            dateLast: undefined
+            dateLast: undefined,
+            index: editData['node']?.index
           });
 
           this.buildPathFromNode(editData['node']);
@@ -271,6 +273,7 @@ export class EntradaManualComponent implements OnInit, OnDestroy {
           this.elements.WebId = editData['AplicacaoID'];
           this.elements.list = editData['value'].filter(o => o.Name != 'Observação');
           this.changeFocous(0)
+          await this.storageService.removeEdit();
         }
       }
     }
@@ -541,7 +544,9 @@ export class EntradaManualComponent implements OnInit, OnDestroy {
       return nodes.some(n => n.hasToRead);
     };
 
-    updateChildren(this.nextReads, null);
+    if(this.nextReads?.length) {
+      updateChildren(this.nextReads, null);
+    }
   }
 
   getToday(): Date {
