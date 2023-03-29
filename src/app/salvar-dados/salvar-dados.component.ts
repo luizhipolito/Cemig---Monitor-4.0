@@ -65,6 +65,64 @@ export class SalvarDadosComponent {
     return path;
   }
 
+  async sendLog(date: Date, dateSync: Date, values: Array<PIWebObject>, dateRead: string, user: string, response: Array<any>){
+    let dateTimestamp = new Date();
+    const separator = "#IHM_CEMIG#";
+
+    let config = await this.storageService.getConfig(
+      this.storageService.configValues
+    ) as Array<any>;
+
+    let webId = await this.storageService.getConfig(
+      this.storageService.databaseWebId
+    );
+
+    const url = config.find(c => c.Nome == 'configUrl').configValue;
+    const body = this.getBodyBatchAttrUsinas(url, webId);
+    let usinasEl = await this.api.post(`${url}/batch`, body).toPromise();
+
+    const webIdAttr = usinasEl.Atributos.Content.Items[0].Content.Items[0].WebId;
+
+    let objBodyLog = {};
+
+    response.forEach((resp, index) => {
+      if(resp.Status >= 200 && resp.Status < 300) {
+        const item = values[index];
+        const value =
+        item['Selected'] && item['Selected']['Name']
+          ? item['Selected']['Name']
+          : item['Selected'];
+
+        if(value) {
+          const instrumentAttrArr = item.Path.split("\\");
+          let instrumentAttr = instrumentAttrArr[instrumentAttrArr.length - 1];
+          const instrumentAttrSplArr = instrumentAttr.split('|');
+          let instrument = instrumentAttrSplArr[0];
+          let attr = instrumentAttrSplArr[1];
+
+          let indexUsinas = instrumentAttrArr.indexOf('Usinas');
+          let dateReadArr = dateRead.split('-').reverse();
+          let dateReadParsed = dateReadArr.join('/');
+
+          let contentObj = {
+            Timestamp: dateTimestamp.toISOString(),
+            Value: `${date.toISOString()}${separator}${dateSync.toISOString()}${separator}${item.Path}${separator}${instrumentAttrArr[indexUsinas + 1]}${separator}${instrument}${separator}${attr}${separator}${dateReadParsed}${separator}${value}${separator}${user}`
+          };
+
+          objBodyLog[index] = {
+            Method: "POST",
+            Resource: `${url}/streams/${webIdAttr}/value`,
+            Content: JSON.stringify(contentObj)
+          };
+
+          dateTimestamp.setMilliseconds(dateTimestamp.getMilliseconds()  + 1);
+        }
+      }
+    });
+
+    this.api.post(`${url}/batch`, objBodyLog).toPromise();
+  }
+
   responses: any[];
   async saveOnPI() {
     if (this.confirm == false) {
@@ -75,6 +133,7 @@ export class SalvarDadosComponent {
         this.showAlert('Não existem dados selecionados!')
       } else {
         let token = this.utils.getStorage('Authorization');
+        let _user = this.utils.getStorage('user');
         if (!token) {
           let res = await this.showConfirmToken();
           if (!res) return;
@@ -90,11 +149,15 @@ export class SalvarDadosComponent {
           }
           let batch = createBatch(values, 'update', data.date);
 
+          let dateSync = new Date();
           let batchResponse = await this.api
             .executeBatch(this.config.afServer, batch)
             .toPromise();
           this.responses = Object.keys(batchResponse).map((k) => batchResponse[k]);
-          let noUpdate = this.responses.find(c => c.Status >= 400 && (c.Status != 402 && c.Status != 409 && c.Status != 500))
+          let noUpdate = this.responses.find(c => c.Status >= 400 && (c.Status != 402 && c.Status != 409 && c.Status != 500));
+          if(!noUpdate) {
+            await this.sendLog(data.inputTimestamp, dateSync, values, data.date, _user, this.responses);
+          }
 
 
           let valuesList;
@@ -374,7 +437,26 @@ export class SalvarDadosComponent {
     return choice;
   }
 
-
+  getBodyBatchAttrUsinas(url: string, databaseWebId: string){
+    return {
+      "Elemento": {
+          "Method": "GET",
+          "Resource": `${url}/elements/search?databaseWebId=${databaseWebId}&query=Name:=Usinas`
+      },
+      "Atributos": {
+          "Method": "GET",
+          "RequestTemplate": {
+               "Resource": "{0}"
+           },
+          "Parameters": [
+              "$.Elemento.Content.Items[0].Links.Attributes"
+          ],
+          "ParentIds": [
+              "Elemento"
+          ]
+      }
+    };
+  }
 }
 
 export class ArvoreLogs {

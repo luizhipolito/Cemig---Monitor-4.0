@@ -339,10 +339,16 @@ export class EntradaManualComponent implements OnInit, OnDestroy {
     this.config.isToLoadFromPI = false;
   }
 
+  savedatabaseWebId(configHome){
+    const pathSplit = (configHome.Links.Database as string).split("/");
+    this.storageService.saveConfig(this.storageService.databaseWebId, pathSplit[pathSplit.length - 1]);
+  }
+
   async syncConfigFromPI() {
     let configHome = await this.api
       .get(this.config.getBaseConfigUrl())
       .toPromise();
+    this.savedatabaseWebId(configHome);
     let configUrlValues = this.utils.getValue(
       configHome,
       this.config.config,
