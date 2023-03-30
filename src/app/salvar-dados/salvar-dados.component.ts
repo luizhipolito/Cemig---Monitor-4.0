@@ -81,7 +81,7 @@ export class SalvarDadosComponent {
     const body = this.getBodyBatchAttrUsinas(url, webId);
     let usinasEl = await this.api.post(`${url}/batch`, body).toPromise();
 
-    const webIdAttr = usinasEl.Atributos.Content.Items[0].Content.Items[0].WebId;
+    const webIdAttr = (usinasEl.Atributos.Content.Items[0].Content.Items as Array<any>).find(attr => attr.Name == 'Log').WebId;
 
     let objBodyLog = {};
 
