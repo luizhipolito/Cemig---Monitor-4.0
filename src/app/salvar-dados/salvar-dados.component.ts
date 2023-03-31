@@ -12,6 +12,8 @@ import { EntradaManualComponent } from '../entrada-manual/entrada-manual.compone
 import { PIWebObject } from 'src/model/PIWebObject.model';
 import { formatDate } from '@angular/common';
 
+export const separator = "#IHM_CEMIG#";
+
 @Component({
   selector: 'app-salvar-dados',
   templateUrl: './salvar-dados.component.html',
@@ -67,7 +69,6 @@ export class SalvarDadosComponent {
 
   async sendLog(date: Date, dateSync: Date, values: Array<PIWebObject>, dateRead: string, user: string, response: Array<any>){
     let dateTimestamp = new Date();
-    const separator = "#IHM_CEMIG#";
 
     let config = await this.storageService.getConfig(
       this.storageService.configValues

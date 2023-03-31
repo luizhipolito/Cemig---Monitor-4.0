@@ -1,0 +1,46 @@
+<ion-app>
+  <ion-content>
+    
+    <div class="boxData">
+      <div *ngIf="showProgressBar">
+        <ion-progress-bar type="indeterminate"></ion-progress-bar>
+      </div>
+      <div class="flex">
+        <ion-item class="w-25">
+          Data Inicial:
+          <ion-datetime [max]="endDateForm.value ? endDateForm.value : undefined" [formControl]="startDateForm" class="p-t-14 p-l-4" displayFormat="DD/MM/YYYY" value="data" max="2030" display-timezone="utc"
+            cancelText="Cancelar" doneText="Confirmar">
+          </ion-datetime>
+        </ion-item>
+        <ion-item class="w-25">
+          Data Final:
+          <ion-datetime [min]="startDateForm.value ? startDateForm.value : undefined" [formControl]="endDateForm" class="p-t-14 p-l-4" displayFormat="DD/MM/YYYY" value="data" max="2030" display-timezone="utc"
+            cancelText="Cancelar" doneText="Confirmar">
+          </ion-datetime>
+        </ion-item>
+        <ion-item class="w-25">
+          Usina:
+          <ion-select [formControl]="usinaForm" class="p-t-12 p-l-4" interface="action-sheet">
+            <ion-select-option *ngFor="let usina of usinas"
+              class="boxSelect">
+              {{ usina }}</ion-select-option>
+            </ion-select>
+        </ion-item>
+        <ion-item>
+          Operador:
+          <ion-input [formControl]="operadorForm" class="p-l-4">
+          </ion-input>
+        </ion-item>
+      </div>
+      <div class="p-t-32 horizontal-center">
+        <ion-button class="m-r-16" color="light" (click)="cleanFilters()">LIMPAR FILTROS</ion-button>
+        <ion-button (click)="searchlogs()">EXPORTAR LOGS DE LEITURA</ion-button>
+      </div>
+    </div>
+    <div class="btn">
+      <div class="btn_back">
+        <ion-icon class="iconBack" (click)="onBack()" name="arrow-back-outline"></ion-icon>
+      </div>
+    </div>
+  </ion-content>
+</ion-app>
