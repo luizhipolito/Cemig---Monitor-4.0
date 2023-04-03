@@ -282,6 +282,7 @@ export class EntradaManualComponent implements OnInit, OnDestroy {
   public user;
 
   async ionViewWillEnter() {
+    this.showProgressBar = true;
     this.currentIndexProgress = 0;
     this.progress = 0;
     this.progressPercent = 0;
