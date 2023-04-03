@@ -35,13 +35,14 @@ export class LogsLeituraComponent implements OnInit, OnDestroy {
   showProgressBar: boolean = false;
   subs: Array<Subscription> = [];
   usinas: Array<string> = [];
+  url: string;
+  urlUsinaElement: string;
+  databaseWebId: string;
 
   startDateForm = new FormControl();
   endDateForm = new FormControl();
   usinaForm = new FormControl();
   operadorForm = new FormControl();
-  stringLog = "2023-03-30T01:28:34.654Z#IHM_CEMIG#2023-03-30T01:28:47.661Z#IHM_CEMIG#\\\\SRVBHZ24\\CEMIG Prod\\CEMIG - Gerência de Segurança de Barragens e Manutenção Civil\\Usinas\\Piau\\Análise de Vazão\\Barragem de Terra\\PIBTFD001|Volume Específico de Coleta#IHM_CEMIG#Piau#IHM_CEMIG#PIBTFD001#IHM_CEMIG#Volume Específico de Coleta#IHM_CEMIG#29/03/2023#IHM_CEMIG#3#IHM_CEMIG#bruno.maia";
-  stringLog2 = "2023-03-30T01:28:34.654Z#IHM_CEMIG#2023-03-30T01:28:47.661Z#IHM_CEMIG#\\\\SRVBHZ24\\CEMIG Prod\\CEMIG - Gerência de Segurança de Barragens e Manutenção Civil\\Usinas\\Piau\\Análise de Vazão\\Barragem de Terra\\PIBTFD001|Volume Específico de Coleta#IHM_CEMIG#Baguari#IHM_CEMIG#PIBTFD001#IHM_CEMIG#Volume Específico de Coleta#IHM_CEMIG#27/03/2023#IHM_CEMIG#3#IHM_CEMIG#bruno.maia";
 
   constructor(private api: ApiService,
               private storageService: StorageArvoreService,
@@ -76,14 +77,16 @@ export class LogsLeituraComponent implements OnInit, OnDestroy {
 
     Promise.all(promises).then(results => {
       let config = results[0] as Array<any>;
-      let webId = results[1];
 
-      const url = config.find(c => c.Nome == 'configUrl').configValue;
-      const body = this.getBodyBatchAttrUsinas(url, webId);
+      this.url = config.find(c => c.Nome == 'configUrl').configValue;
+      this.databaseWebId = results[1];
+
+      const body = this.getBodyBatchAttrUsinas(this.url, this.databaseWebId);
       this.subs.push(
-        this.api.post(`${url}/batch`, body).subscribe(data => {
+        this.api.post(`${this.url}/batch`, body).subscribe(data => {
           this.showProgressBar = false;
           this.usinas = data.Elementos.Content.Items[0].Content.Items.map(usina => usina.Name);
+          this.urlUsinaElement = data.Elemento.Content.Items[0].Links.Self;
         })
       );
     });
@@ -97,47 +100,57 @@ export class LogsLeituraComponent implements OnInit, OnDestroy {
   }
 
   searchlogs(){
-    
-    /**TODO: PEGAR LOGS DO ATRIBUTO LOG DE USINAS*/
-
+    this.showProgressBar = true;
     let startDate = this.startDateForm.value ? this.getBeginDay(this.startDateForm.value) : null;
     let endDate = this.endDateForm.value ? this.getEndDay(this.endDateForm.value) : null;
     let usina = this.usinaForm.value ? this.usinaForm.value.trim() : null;
     let operador = this.operadorForm.value ? this.operadorForm.value.trim().toLowerCase() : null;
 
-    let logsStr = [this.stringLog, this.stringLog2];
+    const logsBody = this.getBodyBatchLogs();
 
-    const logs = this.createLogArrayObj(logsStr);
-    const logsFilter: Array<Log> = [];
+    this.subs.push(this.api.post(`${this.url}/batch`, logsBody).subscribe(data => {
+        this.showProgressBar = false;
+        if(data) {
+          const indexLog = (data.Atributos.Content.Items as Array<any>).findIndex(i => i.Name == 'Log');
+          const logs = this.createLogArrayObj(data.RecordedValues.Content.Items[indexLog].Content.Items.map(log => log.Value));
+          const logsFilter: Array<Log> = [];
 
-    logs.forEach(log => {
+          logs.forEach(log => {
 
-      let startDateMatch = startDate ? log.dateRead >= startDate : true;
-      let endDateMatch = endDate ? log.dateRead < endDate : true;
-      let usinaMatch = usina ? log.usina == usina : true;
-      let operadorMatch = operador ? log.operador.includes(operador) : true;
+            let startDateMatch = startDate ? log.dateRead >= startDate : true;
+            let endDateMatch = endDate ? log.dateRead < endDate : true;
+            let usinaMatch = usina ? log.usina == usina : true;
+            let operadorMatch = operador ? log.operador.includes(operador) : true;
 
 
-      if(startDateMatch && endDateMatch && usinaMatch && operadorMatch) {
-        logsFilter.push(log);
-      }
-    });
+            if(startDateMatch && endDateMatch && usinaMatch && operadorMatch) {
+              logsFilter.push(log);
+            }
+          });
 
-    const now = new Date();
+          const now = new Date();
 
-    cordova.plugins.pdf.htmlToPDF({
-      data: this.buildHtml(now, this.startDateForm.value, this.endDateForm.value, usina, operador, logsFilter),
-      documentSize: "A4",
-      landscape: "landscape",
-      type: "base64"
-    },
-    (data) => {
-      var fileDir = this.file.externalApplicationStorageDirectory;
-      var filename = "LogsLeitura.pdf";
-      this.file.writeFile(fileDir, filename, this.b64toBlob(data, 'application/pdf'), { replace: true });
-      this.socialSharing.share(null, `Logs de Leituras CEMIG ${formatDate(now, 'dd/MM/yyyy', 'en-US')}`, `${fileDir}${filename}`);
-    },
-    () => alert('Erro ao gerar arquivo'));
+          cordova.plugins.pdf.htmlToPDF({
+            data: this.buildHtml(now, this.startDateForm.value, this.endDateForm.value, usina, operador, logsFilter),
+            documentSize: "A4",
+            landscape: "landscape",
+            type: "base64"
+          },
+          (data) => {
+              
+              let fileDir = this.file.externalApplicationStorageDirectory;
+              let filename = "LogsLeitura.pdf";
+              this.file.writeFile(fileDir, filename, this.b64toBlob(data, 'application/pdf'), { replace: true });
+              this.socialSharing.share(null, `Logs de Leituras CEMIG ${formatDate(now, 'dd/MM/yyyy', 'en-US')}`, `${fileDir}${filename}`);
+            },
+            () => {
+              alert('Erro ao gerar arquivo');
+              this.showProgressBar = false;
+            }
+          );
+        }
+      })
+    );
   }
 
   buildHtml(now: Date, startDate: Date, endDate: Date, usina: string, operador: string, logs: Array<Log>): string {
@@ -226,7 +239,7 @@ export class LogsLeituraComponent implements OnInit, OnDestroy {
     return {
       "Elemento": {
           "Method": "GET",
-          "Resource": `${url}/elements/search?databaseWebId=${databaseWebId}&query=Name:=Usinas`
+          "Resource": `${url}/elements/search?databaseWebId=${databaseWebId}&query=Name:=Usinas&selectedFields=Items.Links.Elements;Items.Links.Self`
       },
       "Elementos": {
         "Method": "GET",
@@ -239,6 +252,27 @@ export class LogsLeituraComponent implements OnInit, OnDestroy {
         "ParentIds": [
             "Elemento"
         ]
+      }
+    };
+  }
+
+  getBodyBatchLogs(){
+    return {
+      "Atributos": {
+          "Method": "GET",
+          "Resource": `${this.urlUsinaElement}/attributes?selectedFields=Items.Links.RecordedData;Items.Name`
+      },
+      "RecordedValues": {
+          "Method": "GET",
+          "RequestTemplate": {
+              "Resource": "{0}?selectedFields=Items.Value&maxCount=150000"
+          },
+          "Parameters": [
+              "$.Atributos.Content.Items[*].Links.RecordedData"
+          ],
+          "ParentIds": [
+              "Atributos"
+          ]
       }
     };
   }
@@ -308,7 +342,7 @@ export class LogsLeituraComponent implements OnInit, OnDestroy {
                   }
                   td,
                   th {
-                    border: 1px solid #dddddd;
+                    border: 1px solid #a4a4a4;
                     text-align: left;
                     padding: 8px;
                   }
