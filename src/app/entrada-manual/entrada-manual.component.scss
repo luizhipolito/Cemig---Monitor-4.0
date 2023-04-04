@@ -308,6 +308,20 @@ ion-select.myCustomSelect {
   justify-content: center;
 }
 
+.horizontal-end {
+  display: flex;
+  justify-content: end;
+}
+
+.p-r-16 {
+  padding-right: 16px;
+}
+
+.p-v-16 {
+  padding-top: 16px;
+  padding-bottom: 16px;
+}
+
 .vertical-center {
   display: flex;
   align-items: center;

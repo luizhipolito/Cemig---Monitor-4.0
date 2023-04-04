@@ -95,13 +95,16 @@
           </div>
           <div *ngIf="typeShowSelected == typeShow.TREE">
             <div *ngIf="typeTreeSelected == treeShow.READ">
+              <div class="p-v-16 p-r-16 horizontal-end">
+                <ion-button (click)="exportLeituras()">EXPORTAR LEITURAS</ion-button>
+              </div>
               <div *ngIf="!(navigation[0]?.children?.length)">
                 <ion-list>      
                   <div *ngFor="let app of navigation">
                     <div>
                       <ion-row (click)="onClickId(app)" class="rowList">
                         <ion-col>{{ app.name }}</ion-col>
-                        <ion-col [ngClass]="{'text-done': !app.hasToRead , 'text-pending': app.hasToRead }">{{ app.hasToRead ? 'Leitura Pendente' : 'Leitura preenchida' }}</ion-col>
+                        <ion-col [ngClass]="{'text-done': !app.hasToRead , 'text-pending': app.hasToRead }">{{ app.hasToRead ? 'Leitura Pendente' : 'Leitura Preenchida' }}</ion-col>
                       </ion-row>
                     </div>
                   </div>

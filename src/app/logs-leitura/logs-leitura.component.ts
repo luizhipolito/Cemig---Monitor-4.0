@@ -5,7 +5,7 @@ import { AlertController, NavController } from '@ionic/angular';
 import { Subscription } from 'rxjs';
 import { ApiService } from 'src/services/api.service';
 import { StorageArvoreService } from 'src/services/storage-arvore.service';
-import { AppUtils } from 'src/utils/app.utils';
+import { AppUtils, b64toBlob } from 'src/utils/app.utils';
 import { separator } from '../salvar-dados/salvar-dados.component';
 import { SocialSharing } from '@ionic-native/social-sharing/ngx';
 import { File } from '@ionic-native/file/ngx';
@@ -157,7 +157,7 @@ export class LogsLeituraComponent implements OnInit, OnDestroy {
               
               let fileDir = this.file.externalApplicationStorageDirectory;
               let filename = "LogsLeitura.pdf";
-              this.file.writeFile(fileDir, filename, this.b64toBlob(data, 'application/pdf'), { replace: true });
+              this.file.writeFile(fileDir, filename, b64toBlob(data, 'application/pdf'), { replace: true });
               this.socialSharing.share(null, `Logs de Leituras CEMIG ${formatDate(now, 'dd/MM/yyyy', 'en-US')}`, `${fileDir}${filename}`);
             },
             () => {
@@ -323,26 +323,6 @@ export class LogsLeituraComponent implements OnInit, OnDestroy {
       choice = data.data as boolean;
     });
     return choice;
-  }
-
-  b64toBlob(b64Data, contentType='', sliceSize=512) {
-    const byteCharacters = atob(b64Data);
-    const byteArrays = [];
-  
-    for (let offset = 0; offset < byteCharacters.length; offset += sliceSize) {
-      const slice = byteCharacters.slice(offset, offset + sliceSize);
-  
-      const byteNumbers = new Array(slice.length);
-      for (let i = 0; i < slice.length; i++) {
-        byteNumbers[i] = slice.charCodeAt(i);
-      }
-  
-      const byteArray = new Uint8Array(byteNumbers);
-      byteArrays.push(byteArray);
-    }
-  
-    const blob = new Blob(byteArrays, {type: contentType});
-    return blob;
   }
 
   ngOnDestroy() {

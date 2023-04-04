@@ -2,6 +2,7 @@ import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { ApiService } from 'src/services/api.service';
 import {
   AppUtils,
+  b64toBlob,
   compoundBatches,
   createBatch,
   distinct,
@@ -46,6 +47,10 @@ import { FormBuilder, FormGroup, NgForm } from '@angular/forms';
 import { formatDate } from '@angular/common';
 import { Elemento } from 'src/model/Elemento.model';
 import { Subscription } from 'rxjs';
+import { SocialSharing } from '@ionic-native/social-sharing/ngx';
+import { File } from '@ionic-native/file/ngx';
+
+declare var cordova:any;
 
 const typeEnumeration = 'EnumerationValue';
 // let currentModal = null;
@@ -234,6 +239,8 @@ export class EntradaManualComponent implements OnInit, OnDestroy {
     public config: ConfigService,
     public modalController: ModalController,
     public alertController: AlertController,
+    private file: File,
+    private socialSharing: SocialSharing
   ) { }
 
 
@@ -388,13 +395,76 @@ export class EntradaManualComponent implements OnInit, OnDestroy {
       node = new Node(name);
       node.parent = parent;
       let pathArr = this.getPathFromNode(node);
-      //node.hasToRead = isRead;
       node.pathStr = pathArr.slice(0, pathArr.length - 1).map(n => n.name).join(" > ")
       nodes.push(node);
     }
     
     return this.insertChildren(node.children, node, caminho.slice(1, caminho.length), path, index, isRead);
   };
+
+  exportLeituras(){
+
+    let reads = this.getChildrenReads(this.navigation);
+    const path = this.navigation[0].parent ? this.getPathFromNode(this.navigation[0].parent).map(n => n.name).join(' > ') : 'Usinas';
+    const now = new Date();
+
+    cordova.plugins.pdf.htmlToPDF({
+      data: this.buildHtml(now, path, reads),
+      documentSize: "A4",
+      landscape: "portrait",
+      type: "base64"
+    },
+    (data) => {
+        
+        let fileDir = this.file.externalApplicationStorageDirectory;
+        let filename = "Leituras.pdf";
+        this.file.writeFile(fileDir, filename, b64toBlob(data, 'application/pdf'), { replace: true });
+        this.socialSharing.share(null, `Leituras CEMIG ${formatDate(now, 'dd/MM/yyyy', 'en-US')}`, `${fileDir}${filename}`);
+      },
+      () => {
+        alert('Erro ao gerar arquivo');
+        this.showProgressBar = false;
+      }
+    );
+  }
+
+  buildHtml(now: Date, path: string, nodes: Array<Node>): string {
+
+    let rowData = nodes.map(node => {
+      const nodeTree = this.arvoreLocal[node.index];
+      return `<tr>
+                <td>${node.pathStr}</td>
+                <td>${node.name}</td>
+                <td class="f-bold ${node.hasToRead ? 'f-red' : 'f-green'}">${node.hasToRead ? 'Leitura Pendente' : 'Leitura Preenchida'}</td>
+                <td>${nodeTree.node.dateLast}</td>
+                <td>${formatDate(new Date(nodeTree.node.dateRead), 'dd/MM/yyyy', 'en-US')}</td>
+              </tr>`;
+    }).join("");
+
+    return this.htmlPDF
+      .replace("#EXPORT_DATE#", formatDate(now, "dd/MM/yyyy", "en-US"))
+      .replace("#CAMINHO#", path)
+      .replace("#ROW_DATA#", rowData);
+  }
+
+  getChildrenReads(nodes: Array<Node>): Array<Node>{
+
+    if(!nodes.length) {
+      return [];
+    }
+
+    let reads = [];
+
+    nodes.forEach(node => {
+      if(node.children?.length) {
+        reads = reads.concat(this.getChildrenReads(node.children));
+      } else {
+        reads.push(node);
+      }
+    });
+
+    return reads;
+  }
 
   buildPathFromNode(node: Node) {
     this.pathNavigation = this.getPathFromNode(node);
@@ -630,7 +700,6 @@ export class EntradaManualComponent implements OnInit, OnDestroy {
           element.date = dataLeitura;
           element.dateLast = dateLastRead;
           element.dateRead = dateRead;
-          this.nextReads.push(element);
 
           this.insertChildren(nodesRead, null, arvore.Caminho, arvore.relativePath, index, true);
         }
@@ -864,7 +933,7 @@ export class EntradaManualComponent implements OnInit, OnDestroy {
   }
 
   splitRequest(request, maxLen: number = 1000): Array<any> {
-    const objKeysLen = request ? Object.keys(request).length : [];
+    const objKeysLen = request ? Object.keys(request).length : 0;
 
     if(objKeysLen <= maxLen) {
       return [request];
@@ -1329,4 +1398,57 @@ export class EntradaManualComponent implements OnInit, OnDestroy {
     this.subs.forEach(s => s.unsubscribe());
   }
 
+  htmlPDF = `<html>
+              <head>
+                <style>
+                  table {
+                    font-family: arial, sans-serif;
+                    border-collapse: collapse;
+                    width: 100%;
+                  }
+                  td,
+                  th {
+                    border: 1px solid #a4a4a4;
+                    text-align: left;
+                    padding: 8px;
+                  }
+                  tr:nth-child(even) {
+                    background-color: #dddddd;
+                  }
+                  .filter-cls {
+                    padding-left: 4px;
+                    font-weight: normal;
+                  }
+                  .flex {
+                    display: flex;
+                  }
+                  .f-bold {
+                    font-weight: bold;
+                  }
+                  .f-green {
+                    color: rgb(112, 173, 71);
+                  }
+                  .f-red {
+                    color: rgb(255, 0, 0);;
+                  }
+                </style>
+              </head>
+              <body>
+                <h1>Leituras #EXPORT_DATE#</h1>
+                <h2 class="flex">
+                  Caminho:
+                  <div class="filter-cls">#CAMINHO#</div>
+                </h2>
+                <table>
+                  <tr>
+                    <th>Caminho Instrumento</th>
+                    <th>Instrumento</th>
+                    <th>Status</th>
+                    <th>Data Última Leitura</th>
+                    <th>Data Próxima Leitura</th>
+                  </tr>
+                  #ROW_DATA#
+                </table>
+              </body>
+            </html>`;
 }
