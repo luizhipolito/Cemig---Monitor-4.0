@@ -103,7 +103,7 @@
                   <div *ngFor="let app of navigation">
                     <div>
                       <ion-row (click)="onClickId(app)" class="rowList">
-                        <ion-col>{{ app.name }}</ion-col>
+                        <ion-col class="font-bold">{{ app.name }}</ion-col>
                         <ion-col [ngClass]="{'text-done': !app.hasToRead , 'text-pending': app.hasToRead }">{{ app.hasToRead ? 'Leitura Pendente' : 'Leitura Preenchida' }}</ion-col>
                       </ion-row>
                     </div>
@@ -114,9 +114,9 @@
                 <div class="w-33 p-a-8" *ngFor="let app of navigation">
                     <ion-card class="h-100" (click)="onClickId(app)">
                       <ion-card-header class="h-60 horizontal-center vertical-center text-center white-fonte header-blue">
-                        <ion-card-title>{{ app.name }}</ion-card-title>
+                        <ion-card-title class="white-fonte">{{ app.name }}</ion-card-title>
                       </ion-card-header>
-                      <ion-card-content [ngClass]="{'p-v-16': true, 'h-40': true, 'text-center': true, 'horizontal-center': true, 'vertical-center': true, 'white-fonte': true, 'pending-cls': app.hasToRead, 'done-cls': !app.hasToRead}">
+                      <ion-card-content [ngClass]="{'font-bold': true, 'p-v-16': true, 'h-40': true, 'text-center': true, 'horizontal-center': true, 'vertical-center': true, 'white-fonte': true, 'pending-cls': app.hasToRead, 'done-cls': !app.hasToRead}">
                         {{ app.hasToRead ? 'LEITURAS PENDENTES' : 'TODAS AS LEITURAS PREENCHIDAS' }}
                       </ion-card-content>
                     </ion-card>

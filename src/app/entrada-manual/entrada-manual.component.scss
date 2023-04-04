@@ -148,10 +148,10 @@ ion-list {
 
 .rowHead {
   font-size: 28px;
-  border: 1px solid rgb(230, 230, 230);
+  border: 1px solid rgb(155, 155, 155);
 }
 .rowHead > ion-col {
-  border-right: 1px solid rgb(230, 230, 230);
+  border-right: 1px solid rgb(155, 155, 155);
 }
 ion-list {
   padding: 0;
@@ -165,10 +165,10 @@ ion-list {
 .rowList {
   font-size: 25px;
   font-weight: 100;
-  border: 1px solid rgb(230, 230, 230);
+  border: 1px solid rgb(155, 155, 155);
 }
 .rowList > ion-col {
-  border-right: 1px solid rgb(230, 230, 230);
+  border-right: 1px solid rgb(155, 155, 155);
 }
 
 ion-col {
@@ -370,6 +370,10 @@ ion-select.myCustomSelect {
 
 .white-fonte{
   color: white;
+}
+
+.font-bold {
+  font-weight: bold;
 }
 
 .header-blue {
