@@ -54,14 +54,31 @@ export class LogsLeituraComponent implements OnInit, OnDestroy {
               private router: Router) { }
 
   async ngOnInit() {
-    let token = this.utils.getStorage('Authorization');
-    if (!token) {
-      let res = await this.showConfirmToken();
-      if (!res) return;
-      this.router.navigate(['/login'])
-      return;
-    }
-    this.loadUsinas();
+    this.checkTokenOk().then(value => {
+      if(value) {
+        this.loadUsinas();
+      }
+    })
+  }
+
+
+  checkTokenOk(): Promise<boolean>{
+    return new Promise(resolve => {
+      let token = this.utils.getStorage('Authorization');
+      if (token == null) {
+        this.showConfirmToken().then(result => {
+          if(!result) {
+            this.onBack();
+            resolve(false);
+          } else {
+            this.router.navigate(['/login'])
+            resolve(false);
+          }
+        });
+      } else {
+        resolve(true);
+      }
+    });
   }
 
   loadUsinas(){
