@@ -77,6 +77,45 @@ class Navigation {
   }
 }
 
+export class LoadProgress {
+
+  constructor() {
+    this.totalInstrument = '?';
+    this.currentInstrument = 0;
+    this.configInicial = LoadStatus.WAITING;
+    this.instruments = LoadStatus.WAITING;
+    this.tree = LoadStatus.WAITING;
+    this.setTextInstrument();
+  }
+
+  private setTextInstrument() {
+    this.textInstrumento = `(${this.currentInstrument}/${this.totalInstrument})`;
+  }
+
+  setCurrent(current: number){
+    this.currentInstrument = current;
+    this.setTextInstrument();
+  }
+
+  setTotal(total: number) {
+    this.totalInstrument = total;
+    this.setTextInstrument()
+  }
+
+  private totalInstrument: number|string;
+  private currentInstrument: number;
+  configInicial: LoadStatus;
+  instruments: LoadStatus;
+  tree: LoadStatus;
+  textInstrumento: string;
+}
+
+export enum LoadStatus {
+  WAITING,
+  ON_PROGRESS,
+  DONE
+}
+
 export class Node {
   name: string;
   children?: Array<Node>;
@@ -189,7 +228,7 @@ export class EntradaManualComponent implements OnInit, OnDestroy {
   enumerationTree: Array<Arvore>;
   arvoreLocal: Array<Arvore>;
 
-  
+  loadProgress: LoadProgress;
 
   dateLast: any;
   currentDate = this.utils.formatDateTime(new Date());
@@ -198,6 +237,7 @@ export class EntradaManualComponent implements OnInit, OnDestroy {
   nextReads: Array<Node> = [];
   originalTree: Array<Node>;
   pathNavigation: Array<Node>
+  loadStatus = LoadStatus;
 
   typeShowSelected: TypeShow = TypeShow.TREE;
   typeShow = TypeShow;
@@ -290,9 +330,6 @@ export class EntradaManualComponent implements OnInit, OnDestroy {
 
   async ionViewWillEnter() {
     this.showProgressBar = true;
-    this.currentIndexProgress = 0;
-    this.progress = 0;
-    this.progressPercent = 0;
     let isToSyncDataFromPI = this.config.isToLoadFromPI && true;
     this.user = this.utils.getStorage('user');
     this.init();
@@ -311,27 +348,6 @@ export class EntradaManualComponent implements OnInit, OnDestroy {
     this.showProgressBar = false;
   }
 
-  arrayProgress = [0, 0.05, 0.1, 0.2, 0.35, 0.55, 0.6, 0.9, 0.95, 1];
-  currentIndexProgress = 0;
-
-  nextProgress() {
-    this.currentIndexProgress++;
-    this.progress = this.arrayProgress[this.currentIndexProgress];
-    this.progressPercent = Math.ceil(this.progress * 100);
-  }
-
-  updateLoopProgress(lenLoop: number){
-    let current = this.arrayProgress[this.currentIndexProgress];
-    let next = this.arrayProgress[this.currentIndexProgress + 1];
-    let diff = (next - current);
-    let percentIteration = diff / lenLoop;
-
-    this.progress += percentIteration;
-    this.progressPercent = Math.ceil(this.progress * 100);
-  }
-
-  progress = 0;
-  progressPercent = Math.ceil(this.progress * 100);
   init() {
     this.elements = null;
     this.utils.propFocous = null;
@@ -341,9 +357,22 @@ export class EntradaManualComponent implements OnInit, OnDestroy {
   }
 
   async syncDataFromPI() {
+    this.loadProgress = new LoadProgress();
+    this.loadProgress.configInicial = LoadStatus.ON_PROGRESS;
     await this.syncConfigFromPI();
+    this.loadProgress.configInicial = LoadStatus.DONE;
+
+    this.loadProgress.instruments = LoadStatus.ON_PROGRESS;
     await this.syncNavigationData();
+    this.loadProgress.instruments = LoadStatus.DONE;
+
+
+    this.loadProgress.tree = LoadStatus.ON_PROGRESS;
     await this.syncEnumerationSets();
+    this.loadProgress.tree = LoadStatus.DONE;
+
+    this.loadProgress = undefined;
+
     this.config.isToLoadFromPI = false;
   }
 
@@ -491,16 +520,13 @@ export class EntradaManualComponent implements OnInit, OnDestroy {
     var categoryNameElement = this.config.Insercao;
     var categoryNameAttr = this.config.CategoriaAtributo;
     var pathSearch = rootData.Path;
-
-    let navigationTree = await this.api.getElements(url, webId, categoryNameElement, categoryNameAttr, pathSearch);
+    let navigationTree = await this.api.getElements(url, webId, categoryNameElement, categoryNameAttr, pathSearch, this.loadProgress, this.config.InstrumentosPorBatch);
 
     await this.storageService.store(
       this.storageService.navigation,
       navigationTree as any
     );
-    this.api.hideLoader();
     await this.loadDataFromStorage();
-    this.nextProgress();
   }
 
   async getEnumarationSets(
@@ -986,15 +1012,12 @@ export class EntradaManualComponent implements OnInit, OnDestroy {
     var countReponse = 0;
     let splitedRequest = this.splitRequest(request);
 
-    var lenSplit = splitedRequest ? splitedRequest.length : 0;
-
     for(let requestSet of splitedRequest) {
       let resp = await this.api.executeBatchAsync(server, requestSet);
       for (let key of Object.keys(resp)) {
         response[countReponse] = resp[key];
         countReponse++;
       }
-      this.updateLoopProgress(lenSplit);
     }
 
     return response;

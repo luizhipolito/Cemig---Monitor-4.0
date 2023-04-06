@@ -348,9 +348,31 @@ ion-select.myCustomSelect {
   padding-bottom: 16px;
 }
 
+.flex {
+  display: flex;
+}
+
 .no-data-cls {
   color: #818080;
   display: flex;
+  font-size: 30px;
+  padding-top: 16px;
+}
+
+.p-l-4 {
+  padding-left: 4px;
+}
+
+.p-l-8 {
+  padding-left: 8px;
+}
+
+.f-s-32 {
+  font-size: 28px;
+}
+
+.progress-cls {
+  color: #818080;
   font-size: 30px;
   padding-top: 16px;
 }

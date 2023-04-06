@@ -29,6 +29,29 @@
   <ion-content>
     <div class="allNav">
       <div class="boxData" [ngClass]="elements == null ? 'boxTotal' : 'boxShort'">
+        <div *ngIf="loadProgress" class="horizontal-center progress-cls">
+          <div>
+            <div class="vertical-center flex">
+              <div>Configurações Iniciais</div>
+              <div class="p-l-4">
+                <ion-icon class="vertical-center f-s-32" [name]="loadProgress.configInicial == loadStatus.DONE ? 'checkmark-done-outline' : (loadProgress.configInicial == loadStatus.ON_PROGRESS ? 'git-compare-outline' : 'hourglass-outline')"></ion-icon>
+              </div>
+            </div>
+            <div class="vertical-center flex">
+              <div>Instrumentos</div>
+              <div class="p-l-8 flex"> {{ loadProgress.textInstrumento }} </div>
+              <div class="p-l-4">
+                <ion-icon class="vertical-center f-s-32" [name]="loadProgress.instruments == loadStatus.DONE ? 'checkmark-done-outline' : (loadProgress.instruments == loadStatus.ON_PROGRESS ? 'git-compare-outline' : 'hourglass-outline')"></ion-icon>
+              </div>
+            </div>
+            <div class="vertical-center flex">
+              <div>Geração Árvore</div>
+              <div class="p-l-4">
+                <ion-icon class="vertical-center f-s-32" [name]="loadProgress.tree == loadStatus.DONE ? 'checkmark-done-outline' : (loadProgress.tree == loadStatus.ON_PROGRESS ? 'git-compare-outline' : 'hourglass-outline')"></ion-icon>
+              </div>
+            </div>
+          </div>
+        </div>
         <div *ngIf="showProgressBar" class="spinner">
           <ion-progress-bar type="indeterminate"></ion-progress-bar>
         </div>

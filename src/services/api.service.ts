@@ -12,6 +12,7 @@ import { AppUtils, firstSelection } from 'src/utils/app.utils';
 import { Device } from '@ionic-native/device/ngx';
 import { ResponseBatch } from 'src/model/ResponseBatch.model';
 import { Atributo, AtributoModel, Elemento, Link, SubAtributo, Value, ValueObj } from 'src/model/Elemento.model';
+import { LoadProgress } from 'src/app/entrada-manual/entrada-manual.component';
 const prefix = 'https:\\\\';
 const sufix = '/piwebapi';
 @Injectable({
@@ -177,20 +178,22 @@ export class ApiService {
     this.setAuth(token);
   }
 
-  async getElements(url, webId, categoryNameElement, categoryNameAttr, pathSearch){
+  async getElements(url, webId, categoryNameElement, categoryNameAttr, pathSearch, loadProgress: LoadProgress, instrumentosPorBatch: number){
     const data = await this.get(this.getUrlCount(url, webId, categoryNameElement)).toPromise();
     const count = data?.Items?.length ? data?.Items?.length : 0;
+    loadProgress.setTotal(count);
 
-    var intervals = this.splitEachHundred(count);
+    const intervals = this.splitEachInstrumentosPorBatch(count, instrumentosPorBatch);
+    let results = [];
 
-    let promises: Array<Promise<ResponseBatch>> = intervals.map(interval => {
+    for(let interval of intervals) {
       const body = this.getDataBatch(interval.start, interval.end - interval.start, url, webId, categoryNameElement, categoryNameAttr);
-      return this.http.post<ResponseBatch>(`${url}/batch`, JSON.stringify(body), this.httpOptions).toPromise();
-    })
+      const result = await this.http.post<ResponseBatch>(`${url}/batch`, JSON.stringify(body), this.httpOptions).toPromise();
+      loadProgress.setCurrent(interval.end);
+      results.push(result);
+    }
 
-    var result = await Promise.all(promises);
-    var resultParse = this.parseResult(result, pathSearch, url)
-    //console.log(resultParse);
+    let resultParse = this.parseResult(results, pathSearch, url);
     return resultParse;
   }
 
@@ -342,14 +345,14 @@ export class ApiService {
     return this.commonGetValue(valueResponse, itemValue.Status, uom);
   }
 
-  splitEachHundred(qnt: number){
+  splitEachInstrumentosPorBatch(qnt: number, splitEachInstrumentosPorBatch: number){
 
     let intervals = [];
     let start = 0;
     let end = 0;
 
     do {
-      end += 100;
+      end += splitEachInstrumentosPorBatch;
       end = end < qnt ? end : qnt;
       intervals.push({
         start,
