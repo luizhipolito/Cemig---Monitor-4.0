@@ -188,7 +188,7 @@ export class ApiService {
 
     for(let interval of intervals) {
       const body = this.getDataBatch(interval.start, interval.end - interval.start, url, webId, categoryNameElement, categoryNameAttr);
-      const result = await this.http.post<ResponseBatch>(`${url}/batch`, JSON.stringify(body), this.httpOptions).toPromise();
+      const result = await this.post(`${url}/batch`, body, null).toPromise();
       loadProgress.setCurrent(interval.end);
       results.push(result);
     }
