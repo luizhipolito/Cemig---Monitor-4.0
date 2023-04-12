@@ -229,8 +229,13 @@ export class ApiService {
       errorMessage = error.error?.message;
     } else {
       // Erro ocorreu no lado do servidor
+
+      let msgErrorMessage = error.message ? error.message : "";
+      let msgErrorError = error.error ? error.error : "";
+      let msgErro = msgErrorMessage ? `${msgErrorMessage} - ${msgErrorError}` : msgErrorError;
+
       errorMessage =
-        `Código do erro: ${error.status}, ` + `mensagem: ${error.message}`;
+        `Código do erro: ${error.status}, ` + `mensagem: ${msgErro}`;
     }
     document.getElementById('loader').style.display = 'none';
     alert(errorMessage);
@@ -274,8 +279,10 @@ export class ApiService {
       const body = this.getDataBatch(interval.start, interval.end - interval.start, url, webId, categoryNameElement, categoryNameAttr);
       let result = await this.post(`${url}/batch`, body, null, true).toPromise().catch(e => e);
 
-      if(result.error) {
+      if(result?.error) {
         result = await this.retry(`${url}/batch`, body, 1);
+      } else {
+        this.checkTooManyRequest(result);
       }
       loadProgress.setCurrent(interval.end);
       results.push(result);
@@ -285,6 +292,31 @@ export class ApiService {
 
     let resultParse = this.parseResult(results, pathSearch, url);
     return resultParse;
+  }
+
+  checkTooManyRequest(result){
+    let some429 = false;
+    let msg429;
+    let some409 = false;
+    let msg409;
+
+    for(let key in result) {
+      if(result[key].Status == 429) {
+        some429 = true;
+        msg429 = result[key].Content;
+      }
+      if(result[key].Status == 409) {
+        some409 = true;
+        msg409 = result[key].Content;
+      }
+    }
+
+    if(some429) {
+      this.handleError({status: 429, error: msg429} as any);
+    }
+    if(some409){
+      this.handleError({status: 409, error: msg409} as any);
+    }
   }
 
   async retry(url, body, count) {
