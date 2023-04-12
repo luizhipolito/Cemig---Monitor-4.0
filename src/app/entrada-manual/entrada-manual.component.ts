@@ -431,11 +431,19 @@ export class EntradaManualComponent implements OnInit, OnDestroy {
     return this.insertChildren(node.children, node, caminho.slice(1, caminho.length), path, index, isRead);
   };
 
-  exportLeituras(){
+  async exportLeituras(){
 
     let reads = this.getChildrenReads(this.navigation);
-    const path = this.navigation[0].parent ? this.getPathFromNode(this.navigation[0].parent).map(n => n.name).join(' > ') : 'Usinas';
+    const pathArr = this.getPathFromNode(this.navigation[0].parent).map(n => n.name);
     const now = new Date();
+
+    const configValues = (await this.storageService.getConfig(this.storageService.configValues));
+    const elementoRaiz = configValues.find(c => c.Nome == 'ElementoRaiz').configValue as string;
+    const indexOfUsina = elementoRaiz.indexOf("Usinas");
+    const pathReduced = elementoRaiz.substring(indexOfUsina, elementoRaiz.length);
+    const pathSplited = pathReduced.split("\\");
+
+    const path = pathSplited.concat(pathArr).join(' > ');
 
     cordova.plugins.pdf.htmlToPDF({
       data: this.buildHtml(now, path, reads),

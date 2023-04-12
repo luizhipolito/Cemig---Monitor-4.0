@@ -2833,6 +2833,11 @@
   "resolved" "https://registry.npmjs.org/cordova-pdf-generator/-/cordova-pdf-generator-2.1.1.tgz"
   "version" "2.1.1"
 
+"cordova-plugin-advanced-http@^3.3.1":
+  "integrity" "sha512-hESuB3mxIHCUrzb5lm7juda6PSNcC5N8Invizj5wGV2rSldCapiNxMTEpzKR1UVPDDP2XOtBzO0SAYS+3+g/ig=="
+  "resolved" "https://registry.npmjs.org/cordova-plugin-advanced-http/-/cordova-plugin-advanced-http-3.3.1.tgz"
+  "version" "3.3.1"
+
 "cordova-plugin-device@^2.0.2":
   "integrity" "sha1-/Ajzci5n7ve2xnv8mag99q3Quro="
   "resolved" "https://registry.npmjs.org/cordova-plugin-device/-/cordova-plugin-device-2.0.2.tgz"

@@ -199,20 +199,22 @@ export class LogsLeituraComponent implements OnInit, OnDestroy {
     let logsObjs: Array<Log> = [];
 
     logs.forEach(log => {
-      let objLog = new Log();
-      let items = log.split(separator);
+      if(log) {
+        let objLog = new Log();
+        let items = log.split(separator);
 
-      objLog.dateInput = new Date(items[0]);
-      objLog.dateSync = new Date(items[1]);
-      objLog.path = items[2];
-      objLog.usina = items[3].trim();
-      objLog.instrumento = items[4];
-      objLog.atributo = items[5];
-      objLog.dateRead = this.getDateRead(items[6]);
-      objLog.value = items[7];
-      objLog.operador = items[8].toLowerCase();
+        objLog.dateInput = new Date(items[0]);
+        objLog.dateSync = new Date(items[1]);
+        objLog.path = items[2];
+        objLog.usina = items[3].trim();
+        objLog.instrumento = items[4];
+        objLog.atributo = items[5];
+        objLog.dateRead = this.getDateRead(items[6]);
+        objLog.value = items[7];
+        objLog.operador = items[8].toLowerCase();
 
-      logsObjs.push(objLog);
+        logsObjs.push(objLog);
+      }
     })
 
     return logsObjs;
