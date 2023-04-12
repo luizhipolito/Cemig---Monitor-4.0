@@ -16,7 +16,7 @@ import { LoadProgress } from 'src/app/entrada-manual/entrada-manual.component';
 
 declare var cordova:any;
 
-const prefix = 'https:\\\\';
+const prefix = 'https://';
 const sufix = '/piwebapi';
 @Injectable({
   providedIn: 'root',
@@ -80,6 +80,7 @@ export class ApiService {
 
 
   post(url: string, data: any, params?: HttpParams, bypassError: boolean = false) {
+    url = url.trim();
     this.showLoader();
     let reqOptions = this.httpOptions;
 
@@ -173,6 +174,7 @@ export class ApiService {
   }
 
   get(url: string, params: HttpParams = new HttpParams()) {
+    url = url.trim();
     this.showLoader();
 
     const observable = window.hasOwnProperty("cordova") ? 
