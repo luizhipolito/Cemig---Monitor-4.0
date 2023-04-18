@@ -48,6 +48,11 @@ export class MenuComponent {
     this.menu.open();
   }
 
+  goLogsLeitura(){
+    this.menu.close();
+    this.router.navigate(['/logs-leitura']);
+  }
+
   logoutUsuario = () => {
     this.storageService.removeEdit();
     this.utils.removeStorgare('Authorization');

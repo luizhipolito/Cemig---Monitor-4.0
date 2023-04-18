@@ -1,0 +1,63 @@
+.boxData{
+    border: 2px solid black;
+    width: calc(100% - 10px);
+    height: calc(100% - 60px);
+    margin: 5px;
+    overflow: auto;
+}
+
+.vertical-center {
+    display: flex;
+    align-items: center;
+  }
+
+.flex {
+    display: flex;
+}
+
+.w-25 {
+    width: 25%;
+}
+
+.m-r-16 {
+    margin-right: 16px;
+}
+
+.btn-clean {
+    background-color: #ccc;
+    color: black;
+}
+
+.horizontal-center {
+    display: flex;
+    justify-content: center;
+}
+
+.p-l-4 {
+    padding-left: 4px !important;
+}
+
+.p-t-14 {
+    padding-top: 14px;
+}
+
+.p-t-32{
+    padding-top: 32px;
+}
+
+.p-t-12 {
+    padding-top: 12px;
+}
+
+.btn{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    // margin: 5px;
+    // margin-right: 20px;
+}
+
+.iconBack{
+    font-size: 1.6rem;
+    margin: 10px;
+  }

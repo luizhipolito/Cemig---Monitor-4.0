@@ -32,6 +32,7 @@ import { PageLogsComponent } from './page-logs/page-logs.component';
 import { SocialSharing } from '@ionic-native/social-sharing/ngx'
 import { File } from '@ionic-native/file/ngx';
 import { Device } from '@ionic-native/device/ngx'
+import { LogsLeituraComponent } from './logs-leitura/logs-leitura.component';
 
 @NgModule({
   declarations: [
@@ -44,6 +45,7 @@ import { Device } from '@ionic-native/device/ngx'
     InserirComentarioComponent,
     FilterPipe,
     MenuComponent,
+    LogsLeituraComponent,
     PageLogsComponent
   ],
   entryComponents: [InserirComentarioComponent, MenuComponent],

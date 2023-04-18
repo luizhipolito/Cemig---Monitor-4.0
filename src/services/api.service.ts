@@ -5,14 +5,18 @@ import {
   HttpErrorResponse,
   HttpParams,
 } from '@angular/common/http';
-import { throwError } from 'rxjs';
+import { from, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { Arvore, StorageArvoreService } from './storage-arvore.service';
 import { AppUtils, firstSelection } from 'src/utils/app.utils';
 import { Device } from '@ionic-native/device/ngx';
 import { ResponseBatch } from 'src/model/ResponseBatch.model';
 import { Atributo, AtributoModel, Elemento, Link, SubAtributo, Value, ValueObj } from 'src/model/Elemento.model';
-const prefix = 'https:\\\\';
+import { LoadProgress } from 'src/app/entrada-manual/entrada-manual.component';
+
+declare var cordova:any;
+
+const prefix = 'https://';
 const sufix = '/piwebapi';
 @Injectable({
   providedIn: 'root',
@@ -33,6 +37,10 @@ export class ApiService {
     headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
   };
 
+  httpOptionsCordova = {
+    'Content-Type': 'application/json'
+  };
+
   showLoader() {
     document.getElementById('loader').style.display = 'block';
   }
@@ -47,6 +55,8 @@ export class ApiService {
       'Authorization',
       `Basic ${token}`
     );
+
+    this.httpOptionsCordova['Authorization'] = `Basic ${token}`;
   }
 
   postData(data: any) {
@@ -69,7 +79,8 @@ export class ApiService {
   }
 
 
-  post(url: string, data: any, params?: HttpParams) {
+  post(url: string, data: any, params?: HttpParams, bypassError: boolean = false) {
+    url = url.trim();
     this.showLoader();
     let reqOptions = this.httpOptions;
 
@@ -77,18 +88,66 @@ export class ApiService {
       reqOptions['params'] = params;
     }
 
-    return this.http
-      .post<any>(url, JSON.stringify(data), reqOptions)
+    const observable = window.hasOwnProperty("cordova") ? 
+      from(this.postPromise(url, data)) : 
+      this.http.post<any>(url, JSON.stringify(data), reqOptions);
+
+    if(bypassError) {
+      return observable;
+    } else {
+      return observable
       .pipe(catchError(this.handleError.bind(this)));
+    }
+  }
+
+  postPromise(url: string, data: any): Promise<any>{
+    return new Promise((resolve, reject) => {
+
+      const options = {
+        method: "post",
+        headers: this.httpOptionsCordova,
+        data,
+        serializer: "json"
+      };
+  
+      cordova.plugin.http.sendRequest(url, options, (response) => {
+        resolve(JSON.parse(response.data));
+        }, (response) => {
+          reject(response);
+      });
+    });
   }
 
   put(url: string, data: any) {
     let options = this.httpOptions;
 
     this.showLoader();
-    return this.http
-      .put<any>(url, JSON.stringify(data), options)
+
+    const observable = window.hasOwnProperty("cordova") ? 
+      from(this.putPromise(url, data)) : 
+      this.http.put<any>(url, JSON.stringify(data), options);
+
+    return observable
       .pipe(catchError(this.handleError.bind(this)));
+  }
+
+  putPromise(url, data): Promise<any>{
+    return new Promise((resolve, reject) => {
+
+      const options = {
+        method: "put",
+        headers: this.httpOptionsCordova,
+        data,
+        serializer: "json"
+      };
+  
+      cordova.plugin.http.sendRequest(url, options, (response) => {
+        resolve(JSON.parse(response.data));
+        }, (response) => {
+          console.log(response);
+          reject(response);
+      });
+    });
   }
 
   putData(url: string, data: any) {
@@ -115,10 +174,36 @@ export class ApiService {
   }
 
   get(url: string, params: HttpParams = new HttpParams()) {
+    url = url.trim();
     this.showLoader();
-    return this.http
-      .get(url, { ...this.httpOptions, params: params })
+
+    const observable = window.hasOwnProperty("cordova") ? 
+      from(this.getPromise(url)) : 
+      this.http.get(url, { ...this.httpOptions, params: params });
+
+    return observable
       .pipe(catchError(this.handleError.bind(this)));
+  }
+
+  getPromise(url: string): Promise<any>{
+    return new Promise((resolve, reject) => {
+
+      const options = {
+        method: "get",
+        headers: this.httpOptionsCordova,
+        serializer: "json"
+      };
+  
+      cordova.plugin.http.setServerTrustMode('nocheck', function() {
+        cordova.plugin.http.sendRequest(url, options, (response) => {
+          resolve(JSON.parse(response.data));
+          }, (response) => {
+          reject(response);
+        });
+      }, function(error) {
+        reject(error);
+      });
+    });
   }
 
   // getData() {
@@ -144,8 +229,13 @@ export class ApiService {
       errorMessage = error.error?.message;
     } else {
       // Erro ocorreu no lado do servidor
+
+      let msgErrorMessage = error.message ? error.message : "";
+      let msgErrorError = error.error ? error.error : "";
+      let msgErro = msgErrorMessage ? `${msgErrorMessage} - ${msgErrorError}` : msgErrorError;
+
       errorMessage =
-        `Código do erro: ${error.status}, ` + `mensagem: ${error.message}`;
+        `Código do erro: ${error.status}, ` + `mensagem: ${msgErro}`;
     }
     document.getElementById('loader').style.display = 'none';
     alert(errorMessage);
@@ -177,21 +267,73 @@ export class ApiService {
     this.setAuth(token);
   }
 
-  async getElements(url, webId, categoryNameElement, categoryNameAttr, pathSearch){
+  async getElements(url, webId, categoryNameElement, categoryNameAttr, pathSearch, loadProgress: LoadProgress, instrumentosPorBatch: number){
     const data = await this.get(this.getUrlCount(url, webId, categoryNameElement)).toPromise();
     const count = data?.Items?.length ? data?.Items?.length : 0;
+    loadProgress.setTotal(count);
 
-    var intervals = this.splitEachHundred(count);
+    const intervals = this.splitEachInstrumentosPorBatch(count, instrumentosPorBatch);
+    let results = [];
 
-    let promises: Array<Promise<ResponseBatch>> = intervals.map(interval => {
+    for(let interval of intervals) {
       const body = this.getDataBatch(interval.start, interval.end - interval.start, url, webId, categoryNameElement, categoryNameAttr);
-      return this.http.post<ResponseBatch>(`${url}/batch`, JSON.stringify(body), this.httpOptions).toPromise();
-    })
+      let result = await this.post(`${url}/batch`, body, null, true).toPromise().catch(e => e);
 
-    var result = await Promise.all(promises);
-    var resultParse = this.parseResult(result, pathSearch, url)
-    //console.log(resultParse);
+      if(result?.error) {
+        result = await this.retry(`${url}/batch`, body, 1);
+      } else {
+        this.checkTooManyRequest(result);
+      }
+      loadProgress.setCurrent(interval.end);
+      results.push(result);
+
+      await new Promise(r => setTimeout(r, 2000));
+    }
+
+    let resultParse = this.parseResult(results, pathSearch, url);
     return resultParse;
+  }
+
+  checkTooManyRequest(result){
+    let some429 = false;
+    let msg429;
+    let some409 = false;
+    let msg409;
+
+    for(let key in result) {
+      if(result[key].Status == 429) {
+        some429 = true;
+        msg429 = result[key].Content;
+      }
+      if(result[key].Status == 409) {
+        some409 = true;
+        msg409 = result[key].Content;
+      }
+    }
+
+    if(some429) {
+      this.handleError({status: 429, error: msg429} as any);
+    }
+    if(some409){
+      this.handleError({status: 409, error: msg409} as any);
+    }
+  }
+
+  async retry(url, body, count) {
+    if(count == 10) {
+      await new Promise(r => setTimeout(r, 2000));
+      let result = await this.post(url, body, null).toPromise();
+      return result;
+    }
+
+    await new Promise(r => setTimeout(r, 2000));
+    let result = await this.post(url, body, null, true).toPromise().catch(e => e);
+
+    if(result.error) {
+      result = await this.retry(url, body, count + 1);
+    }
+
+    return result;
   }
 
   parseResult(result: Array<ResponseBatch>, pathSearch: string, url: string): Array<Elemento> {
@@ -342,14 +484,14 @@ export class ApiService {
     return this.commonGetValue(valueResponse, itemValue.Status, uom);
   }
 
-  splitEachHundred(qnt: number){
+  splitEachInstrumentosPorBatch(qnt: number, splitEachInstrumentosPorBatch: number){
 
     let intervals = [];
     let start = 0;
     let end = 0;
 
     do {
-      end += 100;
+      end += splitEachInstrumentosPorBatch;
       end = end < qnt ? end : qnt;
       intervals.push({
         start,

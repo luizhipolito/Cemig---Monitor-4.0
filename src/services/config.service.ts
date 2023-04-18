@@ -29,6 +29,7 @@ export class ConfigService {
   DataInicioBusca: Number;
   DataFimBusca: Number;
   FormatoData: string;
+  InstrumentosPorBatch: number;
 
   endPoint = {
     asset: 'Databases',
@@ -57,6 +58,7 @@ export class ConfigService {
     DataFimBusca: 'Data Fim da Busca',
     DataInicioBusca: 'Data Início da Busca',
     FormatoData: 'Formato data',
+    InstrumentosPorBatch: 'Instrumentos por Batch'
   };
 
   constructor(public storageService: StorageArvoreService) { }

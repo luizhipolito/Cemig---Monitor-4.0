@@ -2,7 +2,7 @@
   <div class="route">
     <div class="routeSelect" *ngIf="navigation || pathNavigation">
       <span class="inicioNav" (click)="clickMainNavigation()">Início </span>
-      <span (click)="onClickId(null)"> Navegar</span>
+      <span (click)="typeTreeSelected = treeShow.TREE;onClickId(null);"> Navegar</span>
       <span *ngFor="let nav of pathNavigation" (click)="
           onClickId(nav)
         ">
@@ -29,6 +29,29 @@
   <ion-content>
     <div class="allNav">
       <div class="boxData" [ngClass]="elements == null ? 'boxTotal' : 'boxShort'">
+        <div *ngIf="loadProgress" class="horizontal-center progress-cls">
+          <div>
+            <div class="vertical-center flex">
+              <div>Configurações Iniciais</div>
+              <div class="p-l-4">
+                <ion-icon class="vertical-center f-s-32" [name]="loadProgress.configInicial == loadStatus.DONE ? 'checkmark-done-outline' : (loadProgress.configInicial == loadStatus.ON_PROGRESS ? 'git-compare-outline' : 'hourglass-outline')"></ion-icon>
+              </div>
+            </div>
+            <div class="vertical-center flex">
+              <div>Instrumentos</div>
+              <div class="p-l-8 flex"> {{ loadProgress.textInstrumento }} </div>
+              <div class="p-l-4">
+                <ion-icon class="vertical-center f-s-32" [name]="loadProgress.instruments == loadStatus.DONE ? 'checkmark-done-outline' : (loadProgress.instruments == loadStatus.ON_PROGRESS ? 'git-compare-outline' : 'hourglass-outline')"></ion-icon>
+              </div>
+            </div>
+            <div class="vertical-center flex">
+              <div>Geração Árvore</div>
+              <div class="p-l-4">
+                <ion-icon class="vertical-center f-s-32" [name]="loadProgress.tree == loadStatus.DONE ? 'checkmark-done-outline' : (loadProgress.tree == loadStatus.ON_PROGRESS ? 'git-compare-outline' : 'hourglass-outline')"></ion-icon>
+              </div>
+            </div>
+          </div>
+        </div>
         <div *ngIf="showProgressBar" class="spinner">
           <ion-progress-bar type="indeterminate"></ion-progress-bar>
         </div>
@@ -36,89 +59,105 @@
           SEM DADOS
         </div>
 
-        <div *ngIf="elements != null">
-          <ion-list w-50>
-            <ion-item>
-              <ion-label>Data da Leitura:</ion-label>
-              <ion-datetime displayFormat="DD/MM/YYYY" value="data" display-timezone="utc" [(ngModel)]="currentDate"
-                cancelText="Cancelar" doneText="Confirmar">
-              </ion-datetime>
-              <ion-icon class="iconCalendar" name="calendar-outline"></ion-icon>
-            </ion-item>
+        <div *ngIf="!showProgressBar">
+          <div *ngIf="typeShowSelected == typeShow.ELEMENTS">
+            <ion-list w-50>
+              <ion-item>
+                <ion-label>Data da Leitura:</ion-label>
+                <ion-datetime displayFormat="DD/MM/YYYY" value="data" display-timezone="utc" [(ngModel)]="currentDate"
+                  cancelText="Cancelar" doneText="Confirmar">
+                </ion-datetime>
+                <ion-icon class="iconCalendar" name="calendar-outline"></ion-icon>
+              </ion-item>
 
-            <ion-item *ngIf="elements.firstSelection">
-              <ion-label (click)="print()">
-                {{ elements.firstSelection.Name }}:</ion-label>
+              <ion-item *ngIf="elements.firstSelection">
+                <ion-label (click)="print()">
+                  {{ elements.firstSelection.Name }}:</ion-label>
 
-              <ion-input *ngIf="elements.firstSelection.Type == 'Double'" type="number"
-                [value]="elements.firstSelection.Selected"></ion-input>
+                <ion-input *ngIf="elements.firstSelection.Type == 'Double'" type="number"
+                  [value]="elements.firstSelection.Selected"></ion-input>
 
-              <ion-select *ngIf="elements.firstSelection.Type == 'EnumerationValue'" interface="action-sheet"
-                (ionChange)="onSelect($event)" [(ngModel)]="elements.firstSelection.Selected" (click)="print()">
-                <ion-select-option *ngFor="let valueSet of elements.firstSelection.valuesSets" [value]="valueSet"
-                  class="boxSelect">
-                  {{ valueSet.Name }}</ion-select-option>
-              </ion-select>
-            </ion-item>
+                <ion-select *ngIf="elements.firstSelection.Type == 'EnumerationValue'" interface="action-sheet"
+                  (ionChange)="onSelect($event)" [(ngModel)]="elements.firstSelection.Selected" (click)="print()">
+                  <ion-select-option *ngFor="let valueSet of elements.firstSelection.valuesSets" [value]="valueSet"
+                    class="boxSelect">
+                    {{ valueSet.Name }}</ion-select-option>
+                </ion-select>
+              </ion-item>
 
-            <ion-item [ngClass]="{selecionado: element.selecionado}" *ngFor="let element of elements.list | isVisible: true" (click)="setPropFocous(element)">
-              <ion-label style="width: 800px">{{ element.Name }}: {{element.Value.UnitsAbbreviation}}</ion-label>
+              <ion-item [ngClass]="{selecionado: element.selecionado}" *ngFor="let element of elements.list | isVisible: true" (click)="setPropFocous(element)">
+                <ion-label style="width: 800px">{{ element.Name }}: {{element.Value.UnitsAbbreviation}}</ion-label>
 
-              <ion-label
-                *ngIf="element.mode == 'Leitura' || element.mode == 'DataProxima' || element.mode == 'DataUltima'"
-                class="read">
-                {{ element.ValueStringView ? element.ValueStringView : element.ValueString }}</ion-label>
+                <ion-label
+                  *ngIf="element.mode == 'Leitura' || element.mode == 'DataProxima' || element.mode == 'DataUltima'"
+                  class="read">
+                  {{ element.ValueStringView ? element.ValueStringView : element.ValueString }}</ion-label>
 
-              <input [(ngModel)]="element.Selected" class="selectInputText"
-                *ngIf="element.mode == 'LeituraEsConst' && element.Type == 'String'" />
+                <input [(ngModel)]="element.Selected" class="selectInputText"
+                  *ngIf="element.mode == 'LeituraEsConst' && element.Type == 'String'" />
 
-              <!-- values -->
-              <ion-label *ngIf=" (element.mode=='LeituraEscrita' || element.mode=='Escrita' ||
-                element.mode==='EscritaConstante' || element.mode==='LeituraEsConst' ) && (element.Type=='Double' ||
-                element.Type=='Single' ) " [ngClass]=" element.color">{{element.Selected}}
-              </ion-label>
+                <!-- values -->
+                <ion-label *ngIf=" (element.mode=='LeituraEscrita' || element.mode=='Escrita' ||
+                  element.mode==='EscritaConstante' || element.mode==='LeituraEsConst' ) && (element.Type=='Double' ||
+                  element.Type=='Single' ) " [ngClass]=" element.color">{{element.Selected}}
+                </ion-label>
 
 
-              <ion-select *ngIf="
-                  (element.mode == 'LeituraEscrita' ||
-                    element.mode == 'Escrita' || element.mode == 'Leitura' || element.mode === 'EscritaConstante' 
-                    || element.mode == 'LeituraEsConst') &&
-                  element.Type == 'EnumerationValue'
-                " class="select" [value]="element.Selected">
-                <ion-select-option *ngFor="let valueSet of element.valuesSets">
-                  {{ valueSet.Name }}
-                </ion-select-option>
-              </ion-select>
-            </ion-item>
-          </ion-list>
-        </div>
-        <ion-list *ngIf="dataLeitura">
-          <ion-row class="rowHead">
-            <ion-col>Instrumento</ion-col>
-            <ion-col>Próxima Leitura</ion-col>
-            <ion-col>Última Leitura</ion-col>
-          </ion-row>
+                <ion-select *ngIf="
+                    (element.mode == 'LeituraEscrita' ||
+                      element.mode == 'Escrita' || element.mode == 'Leitura' || element.mode === 'EscritaConstante' 
+                      || element.mode == 'LeituraEsConst') &&
+                    element.Type == 'EnumerationValue'
+                  " class="select" [value]="element.Selected">
+                  <ion-select-option *ngFor="let valueSet of element.valuesSets">
+                    {{ valueSet.Name }}
+                  </ion-select-option>
+                </ion-select>
+              </ion-item>
+            </ion-list>
+          </div>
+          <div *ngIf="typeShowSelected == typeShow.TREE">
+            <div *ngIf="typeTreeSelected == treeShow.READ">
+              <div class="p-v-16 p-r-16 horizontal-end">
+                <ion-button (click)="exportLeituras()">EXPORTAR LEITURAS</ion-button>
+              </div>
+              <div *ngIf="!(navigation[0]?.children?.length)">
+                <ion-list>      
+                  <div *ngFor="let app of navigation">
+                    <div>
+                      <ion-row (click)="onClickId(app)" class="rowList">
+                        <ion-col class="font-bold">{{ app.name }}</ion-col>
+                        <ion-col [ngClass]="{'text-done': !app.hasToRead , 'text-pending': app.hasToRead }">{{ app.hasToRead ? 'Leitura Pendente' : 'Leitura Preenchida' }}</ion-col>
+                      </ion-row>
+                    </div>
+                  </div>
+                </ion-list>
+              </div>
+              <div class="flex-row" *ngIf="navigation[0]?.children?.length">
+                <div class="w-33 p-a-8" *ngFor="let app of navigation">
+                    <ion-card class="h-100" (click)="onClickId(app)">
+                      <ion-card-header class="h-60 horizontal-center vertical-center text-center white-fonte header-blue">
+                        <ion-card-title class="white-fonte">{{ app.name }}</ion-card-title>
+                      </ion-card-header>
+                      <ion-card-content [ngClass]="{'font-bold': true, 'p-v-16': true, 'h-40': true, 'text-center': true, 'horizontal-center': true, 'vertical-center': true, 'white-fonte': true, 'pending-cls': app.hasToRead, 'done-cls': !app.hasToRead}">
+                        {{ app.hasToRead ? 'LEITURAS PENDENTES' : 'TODAS AS LEITURAS PREENCHIDAS' }}
+                      </ion-card-content>
+                    </ion-card>
+                </div>
+              </div>
+            </div>
 
-          <div *ngFor="let app of navigation">
-            <div>
-              <ion-row class="rowList">
-                <ion-col (click)="onClickId(app)">{{ app.name }}</ion-col>
-                <ion-col (click)="onClickId(app)">{{app.date}}</ion-col>
-                <ion-col (click)="onClickId(app)">{{app.dateLast}}</ion-col>
-              </ion-row>
+            <div *ngIf="typeTreeSelected == treeShow.TREE">
+              <ion-list class="nameNav" *ngFor="let app of navigation" (click)="onClickId(app)">
+                <div>{{app.name}}</div>
+                <div *ngIf="showSearch" class="cls-path">{{app.pathStr}}</div>
+              </ion-list>
             </div>
           </div>
-        </ion-list>
-
-        <div *ngIf="!dataLeitura">
-          <ion-list class="nameNav" *ngFor="let app of navigation" (click)="onClickId(app)">
-            <div>{{app.name}}</div>
-            <div *ngIf="showSearch" class="cls-path">{{app.pathStr}}</div>
-          </ion-list>
         </div>
 
       </div>
-      <div *ngIf="elements != null" class="controlKeyboard">
+      <div *ngIf="typeShowSelected == typeShow.ELEMENTS" class="controlKeyboard">
         <p>{{ propFocous && propFocous.Name ? propFocous.Name : '' }}</p>
         <div class="keyboard">
           <div *ngFor="let numGroup of numberGroups">

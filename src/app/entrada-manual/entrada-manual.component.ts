@@ -2,6 +2,7 @@ import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { ApiService } from 'src/services/api.service';
 import {
   AppUtils,
+  b64toBlob,
   compoundBatches,
   createBatch,
   distinct,
@@ -46,6 +47,10 @@ import { FormBuilder, FormGroup, NgForm } from '@angular/forms';
 import { formatDate } from '@angular/common';
 import { Elemento } from 'src/model/Elemento.model';
 import { Subscription } from 'rxjs';
+import { SocialSharing } from '@ionic-native/social-sharing/ngx';
+import { File } from '@ionic-native/file/ngx';
+
+declare var cordova:any;
 
 const typeEnumeration = 'EnumerationValue';
 // let currentModal = null;
@@ -72,20 +77,71 @@ class Navigation {
   }
 }
 
+export class LoadProgress {
+
+  constructor() {
+    this.totalInstrument = '?';
+    this.currentInstrument = 0;
+    this.configInicial = LoadStatus.WAITING;
+    this.instruments = LoadStatus.WAITING;
+    this.tree = LoadStatus.WAITING;
+    this.setTextInstrument();
+  }
+
+  private setTextInstrument() {
+    this.textInstrumento = `(${this.currentInstrument}/${this.totalInstrument})`;
+  }
+
+  setCurrent(current: number){
+    this.currentInstrument = current;
+    this.setTextInstrument();
+  }
+
+  setTotal(total: number) {
+    this.totalInstrument = total;
+    this.setTextInstrument()
+  }
+
+  private totalInstrument: number|string;
+  private currentInstrument: number;
+  configInicial: LoadStatus;
+  instruments: LoadStatus;
+  tree: LoadStatus;
+  textInstrumento: string;
+}
+
+export enum LoadStatus {
+  WAITING,
+  ON_PROGRESS,
+  DONE
+}
+
 export class Node {
   name: string;
   children?: Array<Node>;
   index?: number;
+  relativePath?: string;
   date: Date;
   dateLast: Date;
   dateRead?: Date;
   parent?: Node;
   pathStr?: string;
+  hasToRead?: boolean;
 
   constructor(name: string){
     this.name = name;
     this.children = new Array<Node>();
   }
+}
+
+export enum TypeShow {
+  TREE,
+  ELEMENTS
+}
+
+export enum TreeShow {
+  TREE,
+  READ
 }
 
 @Component({
@@ -172,7 +228,7 @@ export class EntradaManualComponent implements OnInit, OnDestroy {
   enumerationTree: Array<Arvore>;
   arvoreLocal: Array<Arvore>;
 
-  
+  loadProgress: LoadProgress;
 
   dateLast: any;
   currentDate = this.utils.formatDateTime(new Date());
@@ -181,7 +237,13 @@ export class EntradaManualComponent implements OnInit, OnDestroy {
   nextReads: Array<Node> = [];
   originalTree: Array<Node>;
   pathNavigation: Array<Node>
+  loadStatus = LoadStatus;
 
+  typeShowSelected: TypeShow = TypeShow.TREE;
+  typeShow = TypeShow;
+
+  typeTreeSelected: TreeShow = TreeShow.TREE;
+  treeShow = TreeShow;
   
   lastFocus: PIWebAttribute[];
   focusLast: string[];
@@ -192,7 +254,6 @@ export class EntradaManualComponent implements OnInit, OnDestroy {
   templateConditionValue = 'Condição X Valor';
   templateIndex = ' X ';
   searchField = '';
-  dataLeitura: boolean;
   onlyReset: boolean;
   selectedDateFormated: Date;
   formSearch: FormGroup = this.formBuilder.group(this.getResetForm());
@@ -218,6 +279,8 @@ export class EntradaManualComponent implements OnInit, OnDestroy {
     public config: ConfigService,
     public modalController: ModalController,
     public alertController: AlertController,
+    private file: File,
+    private socialSharing: SocialSharing
   ) { }
 
 
@@ -231,7 +294,7 @@ export class EntradaManualComponent implements OnInit, OnDestroy {
       editData['isEdit'] = true;
       if (editData['isEdit'] == true) {
         if (editData != null) {
-          this.dataLeitura = false;
+          this.typeShowSelected = TypeShow.ELEMENTS;
           let pathEdit = editData['relativePath'];
           let path = pathEdit.split(`\\`).filter(p => Boolean(p))
           let name = path[path.length - 1];
@@ -241,7 +304,8 @@ export class EntradaManualComponent implements OnInit, OnDestroy {
           this.navigation.push({
             name: undefined,
             date: undefined,
-            dateLast: undefined
+            dateLast: undefined,
+            index: editData['node']?.index
           });
 
           this.buildPathFromNode(editData['node']);
@@ -256,6 +320,7 @@ export class EntradaManualComponent implements OnInit, OnDestroy {
           this.elements.WebId = editData['AplicacaoID'];
           this.elements.list = editData['value'].filter(o => o.Name != 'Observação');
           this.changeFocous(0)
+          await this.storageService.removeEdit();
         }
       }
     }
@@ -264,15 +329,12 @@ export class EntradaManualComponent implements OnInit, OnDestroy {
   public user;
 
   async ionViewWillEnter() {
-    this.currentIndexProgress = 0;
-    this.progress = 0;
-    this.progressPercent = 0;
+    this.showProgressBar = true;
     let isToSyncDataFromPI = this.config.isToLoadFromPI && true;
     this.user = this.utils.getStorage('user');
     this.init();
     await this.api.init();
     await this.config.init();
-    this.dataLeitura = false;
 
     if (isToSyncDataFromPI) {
       await this.syncDataFromPI();
@@ -286,27 +348,6 @@ export class EntradaManualComponent implements OnInit, OnDestroy {
     this.showProgressBar = false;
   }
 
-  arrayProgress = [0, 0.05, 0.1, 0.2, 0.35, 0.55, 0.6, 0.9, 0.95, 1];
-  currentIndexProgress = 0;
-
-  nextProgress() {
-    this.currentIndexProgress++;
-    this.progress = this.arrayProgress[this.currentIndexProgress];
-    this.progressPercent = Math.ceil(this.progress * 100);
-  }
-
-  updateLoopProgress(lenLoop: number){
-    let current = this.arrayProgress[this.currentIndexProgress];
-    let next = this.arrayProgress[this.currentIndexProgress + 1];
-    let diff = (next - current);
-    let percentIteration = diff / lenLoop;
-
-    this.progress += percentIteration;
-    this.progressPercent = Math.ceil(this.progress * 100);
-  }
-
-  progress = 0;
-  progressPercent = Math.ceil(this.progress * 100);
   init() {
     this.elements = null;
     this.utils.propFocous = null;
@@ -316,16 +357,35 @@ export class EntradaManualComponent implements OnInit, OnDestroy {
   }
 
   async syncDataFromPI() {
+    this.loadProgress = new LoadProgress();
+    this.loadProgress.configInicial = LoadStatus.ON_PROGRESS;
     await this.syncConfigFromPI();
+    this.loadProgress.configInicial = LoadStatus.DONE;
+
+    this.loadProgress.instruments = LoadStatus.ON_PROGRESS;
     await this.syncNavigationData();
+    this.loadProgress.instruments = LoadStatus.DONE;
+
+
+    this.loadProgress.tree = LoadStatus.ON_PROGRESS;
     await this.syncEnumerationSets();
+    this.loadProgress.tree = LoadStatus.DONE;
+
+    this.loadProgress = undefined;
+
     this.config.isToLoadFromPI = false;
+  }
+
+  savedatabaseWebId(configHome){
+    const pathSplit = (configHome.Links.Database as string).split("/");
+    this.storageService.saveConfig(this.storageService.databaseWebId, pathSplit[pathSplit.length - 1]);
   }
 
   async syncConfigFromPI() {
     let configHome = await this.api
       .get(this.config.getBaseConfigUrl())
       .toPromise();
+    this.savedatabaseWebId(configHome);
     let configUrlValues = this.utils.getValue(
       configHome,
       this.config.config,
@@ -348,10 +408,11 @@ export class EntradaManualComponent implements OnInit, OnDestroy {
     await this.config.saveStorage();
   }
 
-  insertChildren = (nodes: Array<Node>, parent: Node, caminho: Array<string>, index: number): Node => {
+  insertChildren = (nodes: Array<Node>, parent: Node, caminho: Array<string>, path: string, index: number, isRead: boolean = false): Node => {
 
     if(!caminho.length) {
       parent.index = index;
+      parent.relativePath = path;
       return parent;
     }
 
@@ -367,8 +428,80 @@ export class EntradaManualComponent implements OnInit, OnDestroy {
       nodes.push(node);
     }
     
-    return this.insertChildren(node.children, node, caminho.slice(1, caminho.length), index);
+    return this.insertChildren(node.children, node, caminho.slice(1, caminho.length), path, index, isRead);
   };
+
+  async exportLeituras(){
+
+    let reads = this.getChildrenReads(this.navigation);
+    const pathArr = this.getPathFromNode(this.navigation[0].parent).map(n => n.name);
+    const now = new Date();
+
+    const configValues = (await this.storageService.getConfig(this.storageService.configValues));
+    const elementoRaiz = configValues.find(c => c.Nome == 'ElementoRaiz').configValue as string;
+    const indexOfUsina = elementoRaiz.indexOf("Usinas");
+    const pathReduced = elementoRaiz.substring(indexOfUsina, elementoRaiz.length);
+    const pathSplited = pathReduced.split("\\");
+
+    const path = pathSplited.concat(pathArr).join(' > ');
+
+    cordova.plugins.pdf.htmlToPDF({
+      data: this.buildHtml(now, path, reads),
+      documentSize: "A4",
+      landscape: "portrait",
+      type: "base64"
+    },
+    (data) => {
+        
+        let fileDir = this.file.externalApplicationStorageDirectory;
+        let filename = "Leituras.pdf";
+        this.file.writeFile(fileDir, filename, b64toBlob(data, 'application/pdf'), { replace: true });
+        this.socialSharing.share(null, `Leituras CEMIG ${formatDate(now, 'dd/MM/yyyy', 'en-US')}`, `${fileDir}${filename}`);
+      },
+      () => {
+        alert('Erro ao gerar arquivo');
+        this.showProgressBar = false;
+      }
+    );
+  }
+
+  buildHtml(now: Date, path: string, nodes: Array<Node>): string {
+
+    let rowData = nodes.map(node => {
+      const nodeTree = this.arvoreLocal[node.index];
+      return `<tr>
+                <td>${node.pathStr}</td>
+                <td>${node.name}</td>
+                <td class="f-bold ${node.hasToRead ? 'f-red' : 'f-green'}">${node.hasToRead ? 'Leitura Pendente' : 'Leitura Preenchida'}</td>
+                <td>${nodeTree.node.dateLast}</td>
+                <td>${formatDate(new Date(nodeTree.node.dateRead), 'dd/MM/yyyy', 'en-US')}</td>
+              </tr>`;
+    }).join("");
+
+    return this.htmlPDF
+      .replace("#EXPORT_DATE#", formatDate(now, "dd/MM/yyyy", "en-US"))
+      .replace("#CAMINHO#", path)
+      .replace("#ROW_DATA#", rowData);
+  }
+
+  getChildrenReads(nodes: Array<Node>): Array<Node>{
+
+    if(!nodes.length) {
+      return [];
+    }
+
+    let reads = [];
+
+    nodes.forEach(node => {
+      if(node.children?.length) {
+        reads = reads.concat(this.getChildrenReads(node.children));
+      } else {
+        reads.push(node);
+      }
+    });
+
+    return reads;
+  }
 
   buildPathFromNode(node: Node) {
     this.pathNavigation = this.getPathFromNode(node);
@@ -395,16 +528,13 @@ export class EntradaManualComponent implements OnInit, OnDestroy {
     var categoryNameElement = this.config.Insercao;
     var categoryNameAttr = this.config.CategoriaAtributo;
     var pathSearch = rootData.Path;
-
-    let navigationTree = await this.api.getElements(url, webId, categoryNameElement, categoryNameAttr, pathSearch);
+    let navigationTree = await this.api.getElements(url, webId, categoryNameElement, categoryNameAttr, pathSearch, this.loadProgress, this.config.InstrumentosPorBatch);
 
     await this.storageService.store(
       this.storageService.navigation,
       navigationTree as any
     );
-    this.api.hideLoader();
     await this.loadDataFromStorage();
-    this.nextProgress();
   }
 
   async getEnumarationSets(
@@ -489,29 +619,58 @@ export class EntradaManualComponent implements OnInit, OnDestroy {
   };
 
   async clickMainNavigation() {
+    this.typeShowSelected = TypeShow.TREE;
     this.resetSearch();
     this.elements = null;
 
+    await this.updateNextRead();
+
+    if(this.nextReads.length) {
+      this.typeTreeSelected = TreeShow.READ;
+      this.navigation = this.nextReads;
+    } else {
+      this.typeTreeSelected = TreeShow.TREE;
+      this.onClickId(null);
+    }
+  }
+
+  async updateNextRead(){
     this.pathNavigation = new Array<Node>();
     let dataRead = await this.storageService.getByKey(
       this.storageService.writtenValuesForList
     );
-    let dataReadPath = [];
 
-    if (dataRead != null) {
-      dataReadPath = dataRead.map(p => p.relativePath.split('\\').pop());
-    } else {
-      dataReadPath = [];
+    dataRead = dataRead ? dataRead : [];
+
+    const updateChildren = (nodes: Array<Node>, parent: Node): boolean => {
+
+      if(!nodes?.length) {
+        return !dataRead.some(dr => dr.relativePath == parent.relativePath);
+      }
+
+      nodes.forEach(n => {
+        n.hasToRead = updateChildren(n.children, n);
+      });
+
+      return nodes.some(n => n.hasToRead);
+    };
+
+    if(this.nextReads?.length) {
+      updateChildren(this.nextReads, null);
     }
+  }
 
-    let nextReads = this.nextReads.filter(nr => dataReadPath.indexOf(nr.name) == -1);
+  getToday(): Date {
+    let date = new Date();
+    this.setBeginDay(date);
+    return date;
+  }
 
-    if(nextReads.length) {
-      this.dataLeitura = true;
-      this.navigation = nextReads;
-    } else {
-      this.onClickId(null);
-    }
+  setBeginDay(date: Date){
+    date.setMilliseconds(0);
+    date.setSeconds(0);
+    date.setMinutes(0);
+    date.setHours(0);
   }
 
   async loadNavigationDataFromStorage() {
@@ -523,61 +682,66 @@ export class EntradaManualComponent implements OnInit, OnDestroy {
     );
 
     let dateLastRead: any;
+    const today = this.getToday();
 
     this.navigation = new Array<Node>();
     if (this.arvoreLocal) {
       let nodes = [];
+      let nodesRead = [];
 
       this.arvoreLocal.forEach((arvore: Arvore, index: number) => {
         let dateNext = arvore.atributos.list.filter(l => l.mode == 'DataProxima' && l.Value?.Value?.Name != 'Calc Failed' && l.Value?.Value?.Name != 'Pt Created');
         let datelast = arvore.atributos.list.filter(l => l.mode == 'DataUltima' && l.Value?.Value?.Name != 'Calc Failed' && l.Value?.Value?.Name != 'Pt Created');
-        if (dateNext.length > 0) {
 
-          dataLeitura = dateNext.find(d => d)?.Value.Value;
+        let intervaloInsercao = (dateNext[0]?.config?.find(c => c.Name == 'Intervalo de Inserção') as any)?.Value?.Value;
 
-          dateLastRead = datelast && datelast.length > 0 ? datelast.find(l => l)?.Value.Value : null;
+        dataLeitura = dateNext.find(d => d)?.Value?.Value;
 
-          if (dateLastRead) {
-            dateLastRead = dateLastRead.split('T').find(firstOrNull);
-            dateLastRead = dateLastRead.split('-').reverse().join("/", dateLastRead, 0, dateLastRead.length)
-
-          } else {
-            dateLastRead = 'Sem Data';
-          }
-
-          let datePlus = new Date(this.currentDate);
-          let dateMinus = new Date(this.currentDate);
-          let dataInicio: any = this.config.DataFimBusca;
-          let dataFim: any = this.config.DataFimBusca;
-          datePlus.setDate(datePlus.getDate() + dataInicio);
-          dateMinus.setDate(dateMinus.getDate() - dataFim);
-
-          const dateRead = new Date(dataLeitura);
-          this.date = new Date(dateRead);
-
-          if(dataLeitura) {
-            dataLeitura = dataLeitura.split('T').find(firstOrNull);
-            dataLeitura = dataLeitura.split('-').reverse().join("/", dataLeitura, 0, dataLeitura.length);
-          } else {
-            dataLeitura = 'Sem Data';
-          }
-
-          let path = arvore.Caminho;
-          let lastIndex = arvore.Caminho.length - 1;
-
-          let element = this.insertChildren(nodes, null, arvore.Caminho, index);
-          arvore.node = element;
-
-          if ((this.date > dateMinus && this.date < datePlus)) {
-            element.date = dataLeitura;
-            element.dateLast = dateLastRead;
-            element.dateRead = dateRead;
-            this.nextReads.push(element);
-          }
+        const dateRead = dataLeitura ? new Date(dataLeitura) : null;
+        if(dataLeitura) {
+          dataLeitura = dataLeitura.split('T').find(firstOrNull);
+          dataLeitura = dataLeitura.split('-').reverse().join("/", dataLeitura, 0, dataLeitura.length);
+        } else {
+          dataLeitura = 'Sem Data';
         }
+
+        if(dateRead) {
+          this.setBeginDay(dateRead);
+        }
+
+        this.date = dateRead ? new Date(dateRead) : null;
+
+        dateLastRead = datelast && datelast.length > 0 ? datelast.find(l => l)?.Value.Value : null;
+
+        if (dateLastRead) {
+          dateLastRead = dateLastRead.split('T').find(firstOrNull);
+          dateLastRead = dateLastRead.split('-').reverse().join("/", dateLastRead, 0, dateLastRead.length)
+
+        } else {
+          dateLastRead = 'Sem Data';
+        }
+        
+        let datePlus = new Date(today);
+        datePlus.setDate(datePlus.getDate() + intervaloInsercao);
+        let dateMinus = new Date(today);
+        dateMinus.setDate(dateMinus.getDate() - intervaloInsercao);
+
+
+        let element = this.insertChildren(nodes, null, arvore.Caminho, arvore.relativePath, index);
+        arvore.node = element;
+
+        if (dateRead && this.date >= dateMinus && this.date < datePlus) {
+          element.date = dataLeitura;
+          element.dateLast = dateLastRead;
+          element.dateRead = dateRead;
+
+          this.insertChildren(nodesRead, null, arvore.Caminho, arvore.relativePath, index, true);
+        }
+
       });
 
       this.originalTree = nodes;
+      this.nextReads = nodesRead;
     }
 
     this.clickMainNavigation();
@@ -652,7 +816,7 @@ export class EntradaManualComponent implements OnInit, OnDestroy {
   }
 
   onClickId = (node: Node) => {
-    this.dataLeitura = false;
+    this.typeShowSelected = TypeShow.TREE;
     this.resetSearch();
     let filhos: Array<Node> = [];
     this.pathNavigation = [];
@@ -668,28 +832,27 @@ export class EntradaManualComponent implements OnInit, OnDestroy {
     }
 
     if(!filhos || filhos.length == 0) {
-      //this.storageService.getByKey(this.storageService.navigation).then(result => {
-        
-        let item = this.arvoreLocal[node.index];//result[node.index];
-        this.navigation.push({
-          name: item.Nome,
-          date: undefined,
-          dateLast: undefined,
-          index: node.index
-        });
-        this.elements = item.atributos;
-        if (this.elements.firstSelection && this.elements.firstSelection.Type) {
-          this.elements.firstSelection.valuesSets = this.getOptions(
-            this.elements.firstSelection.TypeQualifier
-          );
+      this.typeShowSelected = TypeShow.ELEMENTS;
+
+      let item = this.arvoreLocal[node.index];//result[node.index];
+      this.navigation.push({
+        name: item.Nome,
+        date: undefined,
+        dateLast: undefined,
+        index: node.index
+      });
+      this.elements = item.atributos;
+      if (this.elements.firstSelection && this.elements.firstSelection.Type) {
+        this.elements.firstSelection.valuesSets = this.getOptions(
+          this.elements.firstSelection.TypeQualifier
+        );
+      }
+      this.elements.list.forEach((elem) => {
+        if (elem.Type == typeEnumeration) {
+          let selectOptions = this.getOptions(elem.TypeQualifier)
+          elem.valuesSets = selectOptions;
         }
-        this.elements.list.forEach((elem) => {
-          if (elem.Type == typeEnumeration) {
-            let selectOptions = this.getOptions(elem.TypeQualifier)
-            elem.valuesSets = selectOptions;
-          }
-        });
-      //});
+      });
     } else {
       this.navigation = filhos;
     }
@@ -804,7 +967,7 @@ export class EntradaManualComponent implements OnInit, OnDestroy {
   }
 
   splitRequest(request, maxLen: number = 1000): Array<any> {
-    const objKeysLen = request ? Object.keys(request).length : [];
+    const objKeysLen = request ? Object.keys(request).length : 0;
 
     if(objKeysLen <= maxLen) {
       return [request];
@@ -857,15 +1020,12 @@ export class EntradaManualComponent implements OnInit, OnDestroy {
     var countReponse = 0;
     let splitedRequest = this.splitRequest(request);
 
-    var lenSplit = splitedRequest ? splitedRequest.length : 0;
-
     for(let requestSet of splitedRequest) {
       let resp = await this.api.executeBatchAsync(server, requestSet);
       for (let key of Object.keys(resp)) {
         response[countReponse] = resp[key];
         countReponse++;
       }
-      this.updateLoopProgress(lenSplit);
     }
 
     return response;
@@ -1256,7 +1416,8 @@ export class EntradaManualComponent implements OnInit, OnDestroy {
     if(!this.selectedDateFormated && !this.formSearch.value.text) {
       this.clickMainNavigation();
     } else {
-      this.dataLeitura = false;
+      this.typeShowSelected = TypeShow.TREE;
+      this.typeTreeSelected = TreeShow.TREE;
       this.elements = null;
       this.pathNavigation = [];
       this.showSearch = true;
@@ -1268,4 +1429,57 @@ export class EntradaManualComponent implements OnInit, OnDestroy {
     this.subs.forEach(s => s.unsubscribe());
   }
 
+  htmlPDF = `<html>
+              <head>
+                <style>
+                  table {
+                    font-family: arial, sans-serif;
+                    border-collapse: collapse;
+                    width: 100%;
+                  }
+                  td,
+                  th {
+                    border: 1px solid #a4a4a4;
+                    text-align: left;
+                    padding: 8px;
+                  }
+                  tr:nth-child(even) {
+                    background-color: #dddddd;
+                  }
+                  .filter-cls {
+                    padding-left: 4px;
+                    font-weight: normal;
+                  }
+                  .flex {
+                    display: flex;
+                  }
+                  .f-bold {
+                    font-weight: bold;
+                  }
+                  .f-green {
+                    color: rgb(112, 173, 71);
+                  }
+                  .f-red {
+                    color: rgb(255, 0, 0);;
+                  }
+                </style>
+              </head>
+              <body>
+                <h1>Leituras #EXPORT_DATE#</h1>
+                <h2 class="flex">
+                  Caminho:
+                  <div class="filter-cls">#CAMINHO#</div>
+                </h2>
+                <table>
+                  <tr>
+                    <th>Caminho Instrumento</th>
+                    <th>Instrumento</th>
+                    <th>Status</th>
+                    <th>Data Última Leitura</th>
+                    <th>Data Próxima Leitura</th>
+                  </tr>
+                  #ROW_DATA#
+                </table>
+              </body>
+            </html>`;
 }

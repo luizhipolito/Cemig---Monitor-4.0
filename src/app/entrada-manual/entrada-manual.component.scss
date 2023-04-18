@@ -40,6 +40,42 @@ ion-progress-bar {
   --buffer-background: #696969 !important;
 }
 
+.flex-row {
+  display: flex;
+  flex-direction: row;
+  flex-flow: row wrap;
+}
+
+.p-a-8 {
+  padding-left: 8px;
+  padding-right: 8px;
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+
+.p-v-16 {
+  padding-top: 32px;
+  padding-bottom: 32px;
+}
+
+.pending-cls {
+  background-color: rgb(255, 0, 0);
+}
+
+.done-cls {
+  background-color: rgb(112, 173, 71);
+}
+
+.text-pending {
+  color: rgb(255, 0, 0);
+  font-weight: bold;
+}
+
+.text-done {
+  color: rgb(48, 117, 1);
+  font-weight: bold;
+}
+
 .route {
   min-height: 60px;
 }
@@ -112,10 +148,10 @@ ion-list {
 
 .rowHead {
   font-size: 28px;
-  border: 1px solid rgb(230, 230, 230);
+  border: 1px solid rgb(155, 155, 155);
 }
 .rowHead > ion-col {
-  border-right: 1px solid rgb(230, 230, 230);
+  border-right: 1px solid rgb(155, 155, 155);
 }
 ion-list {
   padding: 0;
@@ -129,10 +165,10 @@ ion-list {
 .rowList {
   font-size: 25px;
   font-weight: 100;
-  border: 1px solid rgb(230, 230, 230);
+  border: 1px solid rgb(155, 155, 155);
 }
 .rowList > ion-col {
-  border-right: 1px solid rgb(230, 230, 230);
+  border-right: 1px solid rgb(155, 155, 155);
 }
 
 ion-col {
@@ -272,6 +308,50 @@ ion-select.myCustomSelect {
   justify-content: center;
 }
 
+.horizontal-end {
+  display: flex;
+  justify-content: end;
+}
+
+.p-r-16 {
+  padding-right: 16px;
+}
+
+.p-v-16 {
+  padding-top: 16px;
+  padding-bottom: 16px;
+}
+
+.vertical-center {
+  display: flex;
+  align-items: center;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.h-60 {
+  height: 60%;
+}
+
+.h-40 {
+  height: 40%;
+}
+
+.h-100 {
+  height: 100%;
+}
+
+.p-v-16 {
+  padding-top: 16px;
+  padding-bottom: 16px;
+}
+
+.flex {
+  display: flex;
+}
+
 .no-data-cls {
   color: #818080;
   display: flex;
@@ -279,9 +359,47 @@ ion-select.myCustomSelect {
   padding-top: 16px;
 }
 
+.p-l-4 {
+  padding-left: 4px;
+}
+
+.p-l-8 {
+  padding-left: 8px;
+}
+
+.f-s-32 {
+  font-size: 28px;
+}
+
+.progress-cls {
+  color: #818080;
+  font-size: 30px;
+  padding-top: 16px;
+}
+
 .selectInputText {
   width: 50%;
   border: 2px solid rgb(163, 162, 162);
+}
+
+.w-33 {
+  width: 33%;
+}
+
+.p-t-16 {
+  padding-top: 16px;
+}
+
+.white-fonte{
+  color: white;
+}
+
+.font-bold {
+  font-weight: bold;
+}
+
+.header-blue {
+  background-color: rgb(68, 114, 196);
 }
 
 @media screen and(max-width: 825px) {

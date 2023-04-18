@@ -14,6 +14,7 @@ import { Node } from 'src/app/entrada-manual/entrada-manual.component';
 })
 export class StorageArvoreService {
   navigation: string = 'navigation';
+  databaseWebId: string = 'databaseWebId';
   enumerationSets: string = 'enumerationSets';
   configValues: string = 'config';
   writtenValues: string = 'writtenValues';
@@ -116,6 +117,7 @@ export class StorageArvoreService {
 
 
   public async insertOrUpdate(key: string, value: Arvore) {
+    value.inputTimestamp = new Date();
     let oldTree = await this.getByKey(key);
     if (!oldTree) {
       return this.store(key, [value]);
@@ -128,6 +130,7 @@ export class StorageArvoreService {
       if (updateTree) {
         updateTree.value = value.value;
         updateTree.relativePath = value.relativePath;
+        updateTree.inputTimestamp = new Date();
       } else {
         oldTree.push(value);
       }
@@ -182,6 +185,7 @@ export class Arvore {
   Type: string;
   TraitName: any;
   node: Node;
+  inputTimestamp: Date;
 }
 
 export class ArvoreList {
