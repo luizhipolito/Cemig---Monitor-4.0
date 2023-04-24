@@ -70,8 +70,7 @@ export class ApiService {
   executeBatch(server: string, data: any) {
     let batchUrl = '/batch';
     let url = `${prefix}${server}${sufix}${batchUrl}`;
-    let selectedFieldsParam = new HttpParams();
-    return this.post(url, data, selectedFieldsParam).pipe(catchError(this.handleError.bind(this)));
+    return this.post(url, data).pipe(catchError(this.handleError.bind(this)));
   }
 
   async executeBatchAsync(server: string, data: any) {
@@ -79,18 +78,15 @@ export class ApiService {
   }
 
 
-  post(url: string, data: any, params?: HttpParams, bypassError: boolean = false) {
+  post(url: string, data: any, bypassError: boolean = false) {
     url = url.trim();
     this.showLoader();
     let reqOptions = this.httpOptions;
 
-    if (params) {
-      reqOptions['params'] = params;
-    }
-
     const observable = window.hasOwnProperty("cordova") ? 
       from(this.postPromise(url, data)) : 
-      this.http.post<any>(url, JSON.stringify(data), reqOptions);
+      //this.http.post<any>("http://localhost:61278/PIWebApi", JSON.stringify(data), {...reqOptions, params: this.getParams(url)});
+      this.http.post<any>("http://192.168.0.4/IHM-Cemig-Api/PIWebApi", JSON.stringify(data), {...reqOptions, params: this.getParams(url)});
 
     if(bypassError) {
       return observable;
@@ -173,16 +169,25 @@ export class ApiService {
     }
   }
 
-  get(url: string, params: HttpParams = new HttpParams()) {
+  get(url: string) {
     url = url.trim();
     this.showLoader();
 
     const observable = window.hasOwnProperty("cordova") ? 
       from(this.getPromise(url)) : 
-      this.http.get(url, { ...this.httpOptions, params: params });
+      this.http.get("http://192.168.0.4/IHM-Cemig-Api/PIWebApi", { ...this.httpOptions, params: this.getParams(url) });
+      //this.http.get("http://localhost:61278/PIWebApi", { ...this.httpOptions, params: this.getParams(url) });
 
     return observable
       .pipe(catchError(this.handleError.bind(this)));
+  }
+
+  getParams(url: string){
+    return new HttpParams({
+      fromObject: {
+        urlParam: url
+      }
+    });
   }
 
   getPromise(url: string): Promise<any>{
@@ -231,7 +236,7 @@ export class ApiService {
       // Erro ocorreu no lado do servidor
 
       let msgErrorMessage = error.message ? error.message : "";
-      let msgErrorError = error.error ? error.error : "";
+      let msgErrorError = error.error ? JSON.stringify(error.error) : "";
       let msgErro = msgErrorMessage ? `${msgErrorMessage} - ${msgErrorError}` : msgErrorError;
 
       errorMessage =
@@ -277,7 +282,7 @@ export class ApiService {
 
     for(let interval of intervals) {
       const body = this.getDataBatch(interval.start, interval.end - interval.start, url, webId, categoryNameElement, categoryNameAttr);
-      let result = await this.post(`${url}/batch`, body, null, true).toPromise().catch(e => e);
+      let result = await this.post(`${url}/batch`, body, true).toPromise().catch(e => e);
 
       if(result?.error) {
         result = await this.retry(`${url}/batch`, body, 1);
@@ -322,12 +327,12 @@ export class ApiService {
   async retry(url, body, count) {
     if(count == 10) {
       await new Promise(r => setTimeout(r, 2000));
-      let result = await this.post(url, body, null).toPromise();
+      let result = await this.post(url, body).toPromise();
       return result;
     }
 
     await new Promise(r => setTimeout(r, 2000));
-    let result = await this.post(url, body, null, true).toPromise().catch(e => e);
+    let result = await this.post(url, body, true).toPromise().catch(e => e);
 
     if(result.error) {
       result = await this.retry(url, body, count + 1);
