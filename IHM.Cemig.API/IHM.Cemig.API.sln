@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30204.135
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IHM.Cemig.API", "IHM.Cemig.API\IHM.Cemig.API.csproj", "{47550EC8-F6BF-4107-816D-FE536A7D136C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{47550EC8-F6BF-4107-816D-FE536A7D136C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{47550EC8-F6BF-4107-816D-FE536A7D136C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{47550EC8-F6BF-4107-816D-FE536A7D136C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{47550EC8-F6BF-4107-816D-FE536A7D136C}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {5435C71A-2A24-48E6-9A30-DAC2BC18C4B9}
+	EndGlobalSection
+EndGlobal
