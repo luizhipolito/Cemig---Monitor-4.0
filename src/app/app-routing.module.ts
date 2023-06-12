@@ -7,6 +7,8 @@ import { DataConfigComponent } from './data-config/data-config.component';
 import { SalvarDadosComponent } from './salvar-dados/salvar-dados.component';
 import { PageLogsComponent } from './page-logs/page-logs.component';
 import { LogsLeituraComponent } from './logs-leitura/logs-leitura.component';
+import { ExportReadPromptComponent } from './export-read-prompt/export-read-prompt.component';
+import { ExportReadComponent } from './export-read/export-read.component';
 
 const routes: Routes = [
   {
@@ -47,6 +49,14 @@ const routes: Routes = [
   {
     path: 'logs-leitura',
     component: LogsLeituraComponent,
+  },
+  {
+    path: 'read-export-prompt',
+    component: ExportReadPromptComponent,
+  },
+  {
+    path: 'read-export',
+    component: ExportReadComponent,
   },
 
 ];

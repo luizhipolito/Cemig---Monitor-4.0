@@ -56,6 +56,7 @@ export class MenuComponent {
   logoutUsuario = () => {
     this.storageService.removeEdit();
     this.utils.removeStorgare('Authorization');
+    this.utils.removeStorgare('user');
     this.menu.close();
     this.router.navigate(['/']);
   };

@@ -92,3 +92,25 @@ ion-icon {
     margin-top: 10px;
   }
 }
+
+.h-100 {
+  height: 100%;
+}
+
+.w-100 {
+  width: 100%;
+}
+
+.horizontal-center {
+  display: flex;
+  justify-content: center;
+}
+
+.vertical-center {
+  display: flex;
+  align-items: center;
+}
+
+.flex {
+  display: flex;
+}

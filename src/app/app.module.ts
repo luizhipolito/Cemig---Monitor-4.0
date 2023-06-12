@@ -33,6 +33,7 @@ import { SocialSharing } from '@ionic-native/social-sharing/ngx'
 import { File } from '@ionic-native/file/ngx';
 import { Device } from '@ionic-native/device/ngx'
 import { LogsLeituraComponent } from './logs-leitura/logs-leitura.component';
+import { ExportReadComponent } from './export-read/export-read.component';
 
 @NgModule({
   declarations: [
@@ -46,6 +47,7 @@ import { LogsLeituraComponent } from './logs-leitura/logs-leitura.component';
     FilterPipe,
     MenuComponent,
     LogsLeituraComponent,
+    ExportReadComponent,
     PageLogsComponent
   ],
   entryComponents: [InserirComentarioComponent, MenuComponent],

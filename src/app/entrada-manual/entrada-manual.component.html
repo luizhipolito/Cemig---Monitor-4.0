@@ -118,9 +118,6 @@
           </div>
           <div *ngIf="typeShowSelected == typeShow.TREE">
             <div *ngIf="typeTreeSelected == treeShow.READ">
-              <div class="p-v-16 p-r-16 horizontal-end">
-                <ion-button (click)="exportLeituras()">EXPORTAR LEITURAS</ion-button>
-              </div>
               <div *ngIf="!(navigation[0]?.children?.length)">
                 <ion-list>      
                   <div *ngFor="let app of navigation">

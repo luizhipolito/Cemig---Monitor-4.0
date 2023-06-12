@@ -98,7 +98,7 @@ export class LogsLeituraComponent implements OnInit, OnDestroy {
       this.url = config.find(c => c.Nome == 'configUrl').configValue;
       this.databaseWebId = results[1];
 
-      const body = this.getBodyBatchAttrUsinas(this.url, this.databaseWebId);
+      const body = getBodyBatchAttrUsinas(this.url, this.databaseWebId);
       this.subs.push(
         this.api.post(`${this.url}/batch`, body).subscribe(data => {
           this.showProgressBar = false;
@@ -254,27 +254,6 @@ export class LogsLeituraComponent implements OnInit, OnDestroy {
     this.navCtrl.navigateBack('entrada-manual');
   }
 
-  getBodyBatchAttrUsinas(url: string, databaseWebId: string){
-    return {
-      "Elemento": {
-          "Method": "GET",
-          "Resource": `${url}/elements/search?databaseWebId=${databaseWebId}&query=Name:=Usinas&selectedFields=Items.Links.Elements;Items.Links.Self`
-      },
-      "Elementos": {
-        "Method": "GET",
-        "RequestTemplate": {
-             "Resource": "{0}?selectedFields=Items.Name"
-         },
-        "Parameters": [
-            "$.Elemento.Content.Items[0].Links.Elements"
-        ],
-        "ParentIds": [
-            "Elemento"
-        ]
-      }
-    };
-  }
-
   getBodyBatchLogs(){
     return {
       "Atributos": {
@@ -391,4 +370,25 @@ export class LogsLeituraComponent implements OnInit, OnDestroy {
                 </table>
               </body>
             </html>`;
+}
+
+export function getBodyBatchAttrUsinas(url: string, databaseWebId: string){
+  return {
+    "Elemento": {
+        "Method": "GET",
+        "Resource": `${url}/elements/search?databaseWebId=${databaseWebId}&query=Name:=Usinas&selectedFields=Items.Links.Elements;Items.Links.Self`
+    },
+    "Elementos": {
+      "Method": "GET",
+      "RequestTemplate": {
+           "Resource": "{0}?selectedFields=Items.Name"
+       },
+      "Parameters": [
+          "$.Elemento.Content.Items[0].Links.Elements"
+      ],
+      "ParentIds": [
+          "Elemento"
+      ]
+    }
+  };
 }

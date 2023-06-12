@@ -49,6 +49,7 @@ import { Elemento } from 'src/model/Elemento.model';
 import { Subscription } from 'rxjs';
 import { SocialSharing } from '@ionic-native/social-sharing/ngx';
 import { File } from '@ionic-native/file/ngx';
+import { EntradaManualStateService } from './state/entrada-manual-state.service';
 
 declare var cordova:any;
 
@@ -280,6 +281,7 @@ export class EntradaManualComponent implements OnInit, OnDestroy {
     public modalController: ModalController,
     public alertController: AlertController,
     private file: File,
+    private entradaManualState: EntradaManualStateService,
     private socialSharing: SocialSharing
   ) { }
 
@@ -346,6 +348,27 @@ export class EntradaManualComponent implements OnInit, OnDestroy {
     await this.edit();
     this.date = null;
     this.showProgressBar = false;
+
+    this.checkAndOpenPromptExport();
+  }
+
+  checkAndOpenPromptExport(){
+    
+    if(this.entradaManualState.keepEntradaManual || !this.isAdmin()) {
+      this.entradaManualState.resetEntradaManual();
+    } else {
+      this.router.navigate(['/read-export-prompt']);
+    }
+  }
+
+  isAdmin(){
+
+    if(this.config.Administradores) {
+      let admins = this.config.Administradores.split(";");
+      return admins.some(a => a == this.utils.getStorage('user'));
+    }
+
+    return  false;
   }
 
   init() {

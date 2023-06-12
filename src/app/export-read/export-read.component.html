@@ -1,0 +1,34 @@
+<ion-app>
+  <ion-content>
+    <div class="boxData">
+      <div class="flex h-min">
+        <ion-item class="w-25">
+          Data Inicial:
+          <ion-datetime [max]="endDateForm.value ? endDateForm.value : undefined" [formControl]="startDateForm" class="p-t-14 p-l-4" displayFormat="DD/MM/YYYY" value="data" max="2030" display-timezone="utc"
+            cancelText="Cancelar" doneText="Confirmar">
+          </ion-datetime>
+        </ion-item>
+        <ion-item class="w-25">
+          Data Final:
+          <ion-datetime [min]="startDateForm.value ? startDateForm.value : undefined" [formControl]="endDateForm" class="p-t-14 p-l-4" displayFormat="DD/MM/YYYY" value="data" max="2030" display-timezone="utc"
+            cancelText="Cancelar" doneText="Confirmar">
+          </ion-datetime>
+        </ion-item>
+        <ion-item class="w-25">
+          Usinas:
+          <ion-select [formControl]="usinasForm" [multiple]="true">
+            <ion-select-option *ngFor="let usina of usinas" [value]="usina">{{ usina }}</ion-select-option>
+          </ion-select>
+        </ion-item>
+        <div  class="w-25 vertical-center p-l-16">
+          <ion-button (click)="exportLeituras()">EXPORTAR LEITURAS</ion-button>
+        </div>
+      </div>
+    </div>
+    <div class="btn">
+      <div class=" btn_back">
+        <ion-icon class="iconBack" (click)="onBack()" name="arrow-back-outline"></ion-icon>
+      </div>
+    </div>
+  </ion-content>
+</ion-app>

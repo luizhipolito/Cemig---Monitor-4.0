@@ -6,7 +6,7 @@ import {
   HttpParams,
 } from '@angular/common/http';
 import { from, throwError } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { catchError, timeout } from 'rxjs/operators';
 import { Arvore, StorageArvoreService } from './storage-arvore.service';
 import { AppUtils, firstSelection } from 'src/utils/app.utils';
 import { Device } from '@ionic-native/device/ngx';
@@ -88,9 +88,11 @@ export class ApiService {
       reqOptions['params'] = params;
     }
 
-    const observable = window.hasOwnProperty("cordova") ? 
+    let observable = window.hasOwnProperty("cordova") ? 
       from(this.postPromise(url, data)) : 
       this.http.post<any>(url, JSON.stringify(data), reqOptions);
+
+    observable = observable.pipe(timeout(10000));
 
     if(bypassError) {
       return observable;
@@ -279,19 +281,25 @@ export class ApiService {
       const body = this.getDataBatch(interval.start, interval.end - interval.start, url, webId, categoryNameElement, categoryNameAttr);
       let result = await this.post(`${url}/batch`, body, null, true).toPromise().catch(e => e);
 
-      if(result?.error) {
+      if(!this.checkResponseOk(result)) {
         result = await this.retry(`${url}/batch`, body, 1);
       } else {
         this.checkTooManyRequest(result);
       }
       loadProgress.setCurrent(interval.end);
       results.push(result);
-
-      await new Promise(r => setTimeout(r, 2000));
     }
 
     let resultParse = this.parseResult(results, pathSearch, url);
     return resultParse;
+  }
+
+  waitBetweenRequests(): Promise<any>{
+    return new Promise(r => setTimeout(r, 2000));
+  }
+
+  checkResponseOk(response: any): boolean{
+    return  response && response.Elementos && response.Atributos && response.SubAtributos && response.ValoresAtributos && response.ValoresSubAtributos;
   }
 
   checkTooManyRequest(result){
@@ -321,15 +329,15 @@ export class ApiService {
 
   async retry(url, body, count) {
     if(count == 10) {
-      await new Promise(r => setTimeout(r, 2000));
+      await this.waitBetweenRequests();
       let result = await this.post(url, body, null).toPromise();
       return result;
     }
 
-    await new Promise(r => setTimeout(r, 2000));
+    await this.waitBetweenRequests();
     let result = await this.post(url, body, null, true).toPromise().catch(e => e);
 
-    if(result.error) {
+    if(!this.checkResponseOk(result)) {
       result = await this.retry(url, body, count + 1);
     }
 
