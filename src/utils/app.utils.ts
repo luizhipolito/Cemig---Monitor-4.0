@@ -442,3 +442,16 @@ export function b64toBlob(b64Data, contentType='', sliceSize=512) {
   const blob = new Blob(byteArrays, {type: contentType});
   return blob;
 }
+
+export function isNumber(value) {
+  return (!!value && !isNaN(value)) || value == 0;
+}
+
+export function getBeginDay(date: Date): Date {
+  let _date = new Date(date);
+  _date.setMilliseconds(0);
+  _date.setSeconds(0);
+  _date.setMinutes(0);
+  _date.setHours(0);
+  return _date;
+}

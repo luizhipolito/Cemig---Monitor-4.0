@@ -412,6 +412,7 @@ export class ApiService {
         };
 
         elements.push({
+          usina: this.getUsina(el.Path),
           name: el.Name,
           AplicacaoID: el.WebId,
           relativePath: relativePath,
@@ -423,6 +424,13 @@ export class ApiService {
 
     return elements;
   }
+
+  getUsina(path: string) {
+    const nodes = path.split("\\")
+    const index = nodes.indexOf("Usinas");
+    return nodes[index + 1];
+  }
+
   getAttributeValue(itemResult: ResponseBatch, attributoCount: number, uom: string): Value  {
     const itemValue = itemResult?.ValoresAtributos?.Content?.Items[attributoCount];
     const valueResponse = itemValue?.Content?.Value as any;

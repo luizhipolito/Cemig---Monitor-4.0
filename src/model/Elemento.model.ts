@@ -4,6 +4,7 @@ export class Elemento {
     AplicacaoID: string;//WebId do elemento
     atributos: Atributo;
     Caminho: Array<string>;
+    usina: string;
 }
 
 export class Atributo {
