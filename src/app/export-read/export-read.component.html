@@ -82,7 +82,7 @@
                 }
               </style>
             </head>
-              <div *ngFor="let page of tableData" class="p-b-table p-t-table p-x-8 color-black">
+              <div *ngFor="let page of tableData; let i = index" [ngClass]="{'p-b-table': i != (tableData.length - 1), 'p-t-table': true, 'p-x-8': true, 'color-black' : true}">
                 <table class="color-black fs-8 nowrap">
                   <tr>
                     <th>Instrumento</th>

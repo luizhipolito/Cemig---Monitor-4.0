@@ -127,7 +127,7 @@ export class ExportReadComponent implements OnInit, OnDestroy {
       let source = window.document.getElementById("div-tables");
       let doc = new jsPDF('p', 'pt', 'a4');
       await doc.html(source, {'width': 500});
-      doc.save('jsPDF_2Pages.pdf');
+      doc.save('leituras.pdf');
     }, 500);
   }
 
