@@ -24,6 +24,91 @@
           <ion-button [disabled]="startDateForm.invalid || endDateForm.invalid"(click)="exportLeituras()">EXPORTAR LEITURAS</ion-button>
         </div>
       </div>
+
+      <div style="width: 500px"id="div-tables">
+          <head>
+              <style>
+                table {
+                  font-family: arial, sans-serif;
+                  border-collapse: collapse;
+                  width: 100%;
+                }
+                td,
+                th {
+                  border: 0.5px solid #a4a4a4;
+                  text-align: left;
+                  padding: 8px;
+                }
+                tr:nth-child(even) {
+                  background-color: #dddddd;
+                }
+                .filter-cls {
+                  padding-left: 4px;
+                  font-weight: normal;
+                }
+                .flex {
+                  display: flex;
+                }
+                .f-bold {
+                  font-weight: bold;
+                }
+                .f-green {
+                  color: rgb(112, 173, 71);
+                }
+                .f-red {
+                  color: rgb(255, 0, 0);;
+                }
+                .color-black {
+                  color: black;
+                }
+                .fs-8 {
+                  font-size: 8px;
+                }
+                .nowrap {
+                  white-space: nowrap;
+                }
+                .p-x-8 {
+                  padding-left: 8px;
+                  padding-right: 8px;
+                }
+                .p-b-table {
+                  padding-bottom: 27px;
+                }
+                .p-t-table {
+                  padding-top: 8px;
+                }
+                .h-26px{
+                  height: 26px;
+                }
+              </style>
+            </head>
+              <div *ngFor="let page of tableData" class="p-b-table p-t-table p-x-8 color-black">
+                <table class="color-black fs-8 nowrap">
+                  <tr>
+                    <th>Instrumento</th>
+                    <th>Data Prevista para Leitura</th>
+                    <th>Funcionamento</th>
+                    <th>Observação</th>
+                    <th>Leitura 1</th>
+                    <th>Leitura 2</th>
+                    <th>Leitura 3</th>
+                    <th>Leitura 4</th>
+                    <th>Leitura 5</th>
+                  </tr>
+                  <tr class="h-26px" *ngFor="let instrument of page.instruments">
+                    <td>{{ instrument }}</td>
+                    <td>{{ instrument ? page.dateStr : "" }}</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                  </tr>
+              </table>
+            </div>
+      </div>
     </div>
     <div class="btn">
       <div class=" btn_back">

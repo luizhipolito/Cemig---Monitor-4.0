@@ -6,6 +6,8 @@ import { getBodyBatchAttrUsinas } from '../logs-leitura/logs-leitura.component';
 import { FormControl, Validators } from '@angular/forms';
 import { NavController } from '@ionic/angular';
 import { getBeginDay, isNumber } from 'src/utils/app.utils';
+import jsPDF from 'jspdf';
+import { formatDate } from '@angular/common';
 
 export class UsinaDateModel {
 
@@ -13,6 +15,7 @@ export class UsinaDateModel {
     this.instruments = [];
     this.usina = usina;
     this.date = date;
+    this.dateStr = formatDate(date, "dd/MM/yyyy", "en-US");
   }
 
   addInstrument(instrument: string) {
@@ -21,6 +24,7 @@ export class UsinaDateModel {
 
   usina: string;
   date: Date;
+  dateStr: string;
   instruments: Array<string>;
 }
 
@@ -33,9 +37,10 @@ export class ExportReadComponent implements OnInit, OnDestroy {
 
   showProgressBar: boolean = false;
   usinas: Array<string> = [];
-  endDateForm: FormControl = new FormControl(null, Validators.required);
   startDateForm: FormControl = new FormControl(null, Validators.required);
+  endDateForm: FormControl = new FormControl(null, Validators.required);
   usinasForm: FormControl = new FormControl();
+  tableData:  Array<UsinaDateModel> = [];
   subs: Array<Subscription> = [];
 
   constructor(private storageService: StorageArvoreService,
@@ -85,7 +90,7 @@ export class ExportReadComponent implements OnInit, OnDestroy {
 
         while(dateToIncrement <= endDate) {
 
-          let usinaFound = usinasDateInstruments.find(u => u.usina == usinaInstrumento && u.date.getTime() == proximaLeitura.getTime());
+          let usinaFound = usinasDateInstruments.find(u => u.usina == usinaInstrumento && u.date.getTime() == dateToIncrement.getTime());
 
           if(!usinaFound) {
             usinaFound = new UsinaDateModel(usinaInstrumento, new Date(dateToIncrement));
@@ -99,9 +104,31 @@ export class ExportReadComponent implements OnInit, OnDestroy {
 
     }
 
-    console.log(usinasDateInstruments);
+    let finalTableData:  Array<UsinaDateModel> = [];
 
+    usinasDateInstruments.forEach(usina => {
+      do {
+        let instruments = usina.instruments.splice(0, 30);
+        let page = new UsinaDateModel(usina.usina, usina.date);
 
+        while (instruments.length < 30) {
+          instruments.push("");
+        }
+
+        page.instruments = instruments;
+        finalTableData.push(page);
+
+      } while (usina.instruments.length);
+    });
+
+    this.tableData = finalTableData;
+
+    setTimeout(async () => {
+      let source = window.document.getElementById("div-tables");
+      let doc = new jsPDF('p', 'pt', 'a4');
+      await doc.html(source, {'width': 500});
+      doc.save('jsPDF_2Pages.pdf');
+    }, 500);
   }
 
   getDatePeriodicidade(date: Date, stopDate: Date, increment: number){
