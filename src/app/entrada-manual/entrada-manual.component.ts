@@ -8,6 +8,7 @@ import {
   distinct,
   firstOrNull,
   firstSelection,
+  isNumber,
   isResult,
 } from 'src/utils/app.utils';
 import { Router } from '@angular/router';
@@ -34,7 +35,6 @@ import {
 import { map, last } from 'rxjs/operators';
 import { Attribute } from 'src/model/Attribute.model';
 import { __await } from 'tslib';
-import { isNumber, isString } from 'util';
 import { InserirComentarioComponent } from '../inserir-comentario/inserir-comentario.component';
 import { element } from 'protractor';
 import { attachView } from '@ionic/angular/providers/angular-delegate';
@@ -128,6 +128,7 @@ export class Node {
   parent?: Node;
   pathStr?: string;
   hasToRead?: boolean;
+  nextDateToRead?: Date;
 
   constructor(name: string){
     this.name = name;
@@ -668,12 +669,17 @@ export class EntradaManualComponent implements OnInit, OnDestroy {
     const updateChildren = (nodes: Array<Node>, parent: Node): boolean => {
 
       if(!nodes?.length) {
+        parent.nextDateToRead = this.arvoreLocal[parent.index].node.dateRead;
         return !dataRead.some(dr => dr.relativePath == parent.relativePath);
       }
 
       nodes.forEach(n => {
         n.hasToRead = updateChildren(n.children, n);
       });
+
+      if(parent) {
+        parent.nextDateToRead = nodes.reduce((a, b) => a.hasToRead && a.nextDateToRead.getTime() < b.nextDateToRead.getTime() ? a : b).nextDateToRead; 
+      }
 
       return nodes.some(n => n.hasToRead);
     };

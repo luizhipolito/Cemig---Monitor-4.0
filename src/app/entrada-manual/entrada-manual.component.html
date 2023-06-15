@@ -137,7 +137,14 @@
                         <ion-card-title class="white-fonte">{{ app.name }}</ion-card-title>
                       </ion-card-header>
                       <ion-card-content [ngClass]="{'font-bold': true, 'p-v-16': true, 'h-40': true, 'text-center': true, 'horizontal-center': true, 'vertical-center': true, 'white-fonte': true, 'pending-cls': app.hasToRead, 'done-cls': !app.hasToRead}">
-                        {{ app.hasToRead ? 'LEITURAS PENDENTES' : 'TODAS AS LEITURAS PREENCHIDAS' }}
+                        <div>
+                          <div>
+                            {{ app.hasToRead ? 'LEITURAS PENDENTES' : 'TODAS AS LEITURAS PREENCHIDAS' }}
+                          </div>
+                          <div *ngIf="app.hasToRead">
+                            Data Limite Leitura: {{ app.nextDateToRead | formatDate:'dd/MM/yyyy' }}
+                          </div>
+                        </div>
                       </ion-card-content>
                     </ion-card>
                 </div>

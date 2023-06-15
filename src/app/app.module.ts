@@ -34,6 +34,7 @@ import { File } from '@ionic-native/file/ngx';
 import { Device } from '@ionic-native/device/ngx'
 import { LogsLeituraComponent } from './logs-leitura/logs-leitura.component';
 import { ExportReadComponent } from './export-read/export-read.component';
+import { IhmFormatDatePipe } from 'src/pipes/ihm-format-date.pipe';
 
 @NgModule({
   declarations: [
@@ -48,7 +49,8 @@ import { ExportReadComponent } from './export-read/export-read.component';
     MenuComponent,
     LogsLeituraComponent,
     ExportReadComponent,
-    PageLogsComponent
+    PageLogsComponent,
+    IhmFormatDatePipe
   ],
   entryComponents: [InserirComentarioComponent, MenuComponent],
   imports: [
