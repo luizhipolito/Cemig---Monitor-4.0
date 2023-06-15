@@ -1,19 +1,21 @@
 <div class="tudo">
-  <ion-icon class="iconBack" (click)="iconBack()" name="arrow-back-outline"></ion-icon>
+  <div class="bkg-opacity h-100">
+    <ion-icon class="iconBack" (click)="iconBack()" name="arrow-back-outline"></ion-icon>
 
-  <div class="login">
-    <form #f="ngForm" (ngSubmit)="onSubmit(f)">
-      <div class="inputs">
-        <div class="pass">
-          <label>Senha: </label>
-          <input [type]="getType()" type="password" name="password" ngModel placeholder="Senha" required />
-          <ion-icon class="iconEye" name="eye" item-right (click)="toggleTextPassword()"></ion-icon>
+    <div class="login">
+      <form #f="ngForm" (ngSubmit)="onSubmit(f)">
+        <div class="inputs">
+          <div class="pass">
+            <label>Senha: </label>
+            <input [type]="getType()" type="password" name="password" ngModel placeholder="Senha" required />
+            <ion-icon class="iconEye" name="eye" item-right (click)="toggleTextPassword()"></ion-icon>
 
+          </div>
         </div>
-      </div>
-      <div class="btn">
-        <button type="submit" value="Entrar">Entrar</button>
-      </div>
-    </form>
+        <div class="btn">
+          <button type="submit" value="Entrar">Entrar</button>
+        </div>
+      </form>
+    </div>
   </div>
 </div>
