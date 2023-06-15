@@ -354,22 +354,11 @@ export class EntradaManualComponent implements OnInit, OnDestroy {
   }
 
   checkAndOpenPromptExport(){
-    
-    if(this.entradaManualState.keepEntradaManual || !this.isAdmin()) {
+    if(this.entradaManualState.keepEntradaManual || !this.config.subjectAdmin.value) {
       this.entradaManualState.resetEntradaManual();
     } else {
       this.router.navigate(['/read-export-prompt']);
     }
-  }
-
-  isAdmin(){
-
-    if(this.config.Administradores) {
-      let admins = this.config.Administradores.split(";");
-      return admins.some(a => a == this.utils.getStorage('user'));
-    }
-
-    return  false;
   }
 
   init() {
@@ -409,6 +398,7 @@ export class EntradaManualComponent implements OnInit, OnDestroy {
     let configHome = await this.api
       .get(this.config.getBaseConfigUrl())
       .toPromise();
+
     this.savedatabaseWebId(configHome);
     let configUrlValues = this.utils.getValue(
       configHome,

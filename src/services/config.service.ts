@@ -1,10 +1,16 @@
 import { Injectable } from '@angular/core';
 import { Arvore, StorageArvoreService } from './storage-arvore.service';
+import { BehaviorSubject, Observable } from 'rxjs';
+import { AppUtils } from 'src/utils/app.utils';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ConfigService {
+
+  subjectAdmin: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+  isAdmin$: Observable<boolean> = this.subjectAdmin.asObservable();
+
   isToLoadFromPI: boolean = false;
   config: string;
   Insercao: string;
@@ -63,7 +69,8 @@ export class ConfigService {
     Administradores: 'Administradores'
   };
 
-  constructor(public storageService: StorageArvoreService) { }
+  constructor(public storageService: StorageArvoreService, 
+              public utils: AppUtils) { }
 
   async init() {
     let config = await this.storageService.getByKey(
@@ -74,6 +81,8 @@ export class ConfigService {
         this[conf.Nome] = conf.configValue;
       });
     }
+
+    this.updateAdmin();
   }
 
   getBaseUrl() {
@@ -88,6 +97,11 @@ export class ConfigService {
     return this.afServer
       ? ` https://${this.afServer}/piwebapi`
       : `${this.configUrl}`;
+  }
+
+  updateAdmin(){
+    let admins = this.Administradores.split(";");
+    this.subjectAdmin.next(admins.some(a => a == this.utils.getStorage('user')));
   }
 
   async saveStorage() {
@@ -106,5 +120,7 @@ export class ConfigService {
       this.storageService.configValues,
       configTree
     );
+
+    this.updateAdmin();
   }
 }
