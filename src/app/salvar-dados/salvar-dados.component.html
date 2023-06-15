@@ -5,22 +5,24 @@
       <div class="dataConfirm">
         <ion-list lines="none" *ngFor="let element of dataToWriteOnPI">
           <ion-item-divider>
-            {{ getRelativePath(element.relativePath) }}
+            <div>
+              <b class="f-s-18">{{ getRelativePath(element.relativePath) }}</b>
+            </div>
             <ion-checkbox slot="end" [(ngModel)]="element.isToSave"></ion-checkbox>
           </ion-item-divider>
 
-          <ion-item> Data: {{ element.date }}</ion-item>
+          <ion-item> Data: <u class="p-l-4">{{ element.date }}</u></ion-item>
           <div class="btnEdit">
             <ion-button (click)="onEdit(element)">Editar</ion-button>
           </div>
           <div *ngFor="let value of element.value">
             <ion-item *ngIf="value.mode != 'Leitura'">
               {{ value.Name }}:
-              {{
+              <u class="p-l-4">{{
               value.Selected && value.Selected.Name
                 ? value.Selected.Name
                 : value.Selected
-            }}
+            }}</u>
             </ion-item>
           </div>
 
