@@ -100,7 +100,8 @@ export class ConfigService {
   }
 
   updateAdmin(){
-    let admins = this.Administradores.split(";");
+    let admins = this.Administradores?.split(";");
+    admins = admins ? admins : [];
     this.subjectAdmin.next(admins.some(a => a == this.utils.getStorage('user')));
   }
 
