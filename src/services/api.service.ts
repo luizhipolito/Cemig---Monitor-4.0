@@ -374,7 +374,7 @@ export class ApiService {
             TraitName: null,
             config: subAttrResponse.subAttributes,
             mode: this.utils.getModeSubAtributo(subAttrResponse.subAttributes),
-            Value: this.getAttributeValue(itemResult, attributoCount, attr.DefaultUnitsNameAbbreviation),
+            Value: this.getAttributeValue(itemResult, attributoCount, attr.DefaultUnitsNameAbbreviation, attr.Name),
             Selected: null,
             color: null,
             ValueString: null,
@@ -431,7 +431,14 @@ export class ApiService {
     return nodes[index + 1];
   }
 
-  getAttributeValue(itemResult: ResponseBatch, attributoCount: number, uom: string): Value  {
+  getAttributeValue(itemResult: ResponseBatch, attributoCount: number, uom: string, attrName: string): Value  {
+
+    if(attrName == "Relatos de Operação e Manutenção") {
+      return {
+        Value: ""
+      } as any;
+    }
+
     const itemValue = itemResult?.ValoresAtributos?.Content?.Items[attributoCount];
     const valueResponse = itemValue?.Content?.Value as any;
     return this.commonGetValue(valueResponse, itemValue?.Status, uom);

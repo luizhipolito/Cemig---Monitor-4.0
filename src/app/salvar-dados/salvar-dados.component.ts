@@ -124,6 +124,16 @@ export class SalvarDadosComponent {
     this.api.post(`${url}/batch`, objBodyLog).toPromise();
   }
 
+  manageRelatoOperacao(values, user){
+    let emmAssociado = values.find(v => v.Name == 'EMM Associado');
+    let emmUtilizado = values.find(v => v.Name == 'EMM Utilizado');
+    let relato = values.find(v => v.Name == 'Relatos de Operação e Manutenção');
+
+    if(relato) {
+      relato.Selected = `${user};${emmUtilizado?.Selected ? emmUtilizado.Selected : emmAssociado?.Value?.Value};${relato.Selected}`;
+    }
+  }
+
   responses: any[];
   async saveOnPI() {
     if (this.confirm == false) {
@@ -143,6 +153,9 @@ export class SalvarDadosComponent {
         }
         let dataToWriteOnPI = this.dataToWriteOnPI.filter((f) => f['isToSave']);
         for (let data of dataToWriteOnPI) {
+
+          this.manageRelatoOperacao(data.value, _user);
+
           let values = data.value.filter(m => m.mode != 'Leitura');
           if (values) {
             this.dismissAlert();
