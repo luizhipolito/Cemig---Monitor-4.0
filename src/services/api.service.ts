@@ -10,7 +10,7 @@ import { catchError, timeout } from 'rxjs/operators';
 import { Arvore, StorageArvoreService } from './storage-arvore.service';
 import { AppUtils, firstSelection } from 'src/utils/app.utils';
 import { Device } from '@ionic-native/device/ngx';
-import { ResponseBatch } from 'src/model/ResponseBatch.model';
+import { ItemContentItemAtributo, ResponseBatch } from 'src/model/ResponseBatch.model';
 import { Atributo, AtributoModel, Elemento, Link, SubAtributo, Value, ValueObj } from 'src/model/Elemento.model';
 import { LoadProgress } from 'src/app/entrada-manual/entrada-manual.component';
 
@@ -290,7 +290,7 @@ export class ApiService {
       results.push(result);
     }
 
-    let resultParse = this.parseResult(results, pathSearch, url);
+    let resultParse = await this.parseResult(results, pathSearch, url);
     return resultParse;
   }
 
@@ -344,8 +344,20 @@ export class ApiService {
     return result;
   }
 
-  parseResult(result: Array<ResponseBatch>, pathSearch: string, url: string): Array<Elemento> {
+  checkObservation(attr: ItemContentItemAtributo, observations: Array<ObservationAttrModel>, elIndex: number) {
+    if(attr.Name == 'Observação') {
+      observations.push({
+        webId: attr.WebId,
+        index: elIndex
+      });
+    }
+  }
+
+  async parseResult(result: Array<ResponseBatch>, pathSearch: string, url: string) {
     let elements: Array<Elemento> = [];
+
+    let observations: Array<ObservationAttrModel> = [];
+    let indexElement = 0;
     
     result.forEach(itemResult => {
       let elementos = itemResult?.Elementos?.Content?.Items;
@@ -363,6 +375,7 @@ export class ApiService {
           const path = `${el.Path}|${attr.Name}`;
           const subAttrResponse = this.getSubAttributes(itemResult, attributoCount, subAttributoCount, path, attr.DefaultUnitsNameAbbreviation);
           subAttributoCount = subAttrResponse.subAttributoCount;
+          this.checkObservation(attr, observations, indexElement);
 
           let _attr: AtributoModel  = {
             WebId: attr.WebId,
@@ -419,10 +432,22 @@ export class ApiService {
           Caminho: relativePath.split("\\").filter(x => x),
           atributos: atributo
         });
+
+        indexElement++;
       });
     });
 
+    await this.fillObservationsValues(url, elements, observations);
+
     return elements;
+  }
+
+  async fillObservationsValues(url: string, elements: Array<Elemento>, observations: Array<ObservationAttrModel>) {
+    let observationsValues = await this.buildBatchObservation(url, observations);
+
+    elements.forEach((el, index) => {
+      el.observacoes = observationsValues[`obs${index}`].Content?.Items;
+    });
   }
 
   getUsina(path: string) {
@@ -527,6 +552,21 @@ export class ApiService {
     return intervals;
   }
 
+  async buildBatchObservation(url: string, observations: Array<ObservationAttrModel>){
+    let objBody = {};
+
+    observations.forEach(obs => {
+      objBody[`obs${obs.index}`] = {
+        "Method": "GET",
+        "Resource": `${url}/streams/${obs.webId}/recorded?startTime=*&endTime=-3y&maxCount=3`
+      };
+    });
+
+    let result = await this.post(`${url}/batch`, objBody, null, false).toPromise();
+
+    return result;
+  }
+
   getUrlCount(url: string, webId: string, categoryName: string){
     return `${url}/elements/${webId}/elements?searchFullHierarchy=true&selectedFields=Items.Name&maxCount=100000&categoryName=${categoryName}`;
   }
@@ -579,4 +619,9 @@ export class ApiService {
       }
       };
   }
+}
+
+class ObservationAttrModel {
+  webId: string;
+  index: number;
 }

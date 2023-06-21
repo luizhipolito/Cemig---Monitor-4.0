@@ -5,6 +5,7 @@ export class Elemento {
     atributos: Atributo;
     Caminho: Array<string>;
     usina: string;
+    observacoes?: Array<Value>;
 }
 
 export class Atributo {

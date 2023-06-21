@@ -45,7 +45,7 @@ import { SalvarDadosComponent } from '../salvar-dados/salvar-dados.component';
 import { stringify } from 'querystring';
 import { FormBuilder, FormGroup, NgForm } from '@angular/forms';
 import { formatDate } from '@angular/common';
-import { Elemento } from 'src/model/Elemento.model';
+import { Elemento, Value } from 'src/model/Elemento.model';
 import { Subscription } from 'rxjs';
 import { SocialSharing } from '@ionic-native/social-sharing/ngx';
 import { File } from '@ionic-native/file/ngx';
@@ -240,6 +240,7 @@ export class EntradaManualComponent implements OnInit, OnDestroy {
   originalTree: Array<Node>;
   pathNavigation: Array<Node>
   loadStatus = LoadStatus;
+  selectedObservations: Array<Value>;
 
   typeShowSelected: TypeShow = TypeShow.TREE;
   typeShow = TypeShow;
@@ -872,6 +873,7 @@ export class EntradaManualComponent implements OnInit, OnDestroy {
           elem.valuesSets = selectOptions;
         }
       });
+      this.selectedObservations = item.observacoes;
     } else {
       this.navigation = filhos;
     }
