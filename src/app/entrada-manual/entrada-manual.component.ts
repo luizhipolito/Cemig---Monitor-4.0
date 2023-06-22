@@ -1140,6 +1140,78 @@ export class EntradaManualComponent implements OnInit, OnDestroy {
     return att;
   }
 
+  async showDialogConsitenciaLeitura(text: string) {
+    let choice = false;
+    let alert = await this.alertController.create({
+      header: 'Confirmar',
+      message: text,
+      buttons: [
+        {
+          text: 'Não',
+          handler: () => {
+            alert.dismiss(false);
+            return false;
+          },
+        },
+        {
+          text: 'Sim',
+          handler: () => {
+            alert.dismiss(true);
+            return true;
+          },
+        },
+      ],
+    });
+
+    await alert.present();
+    await alert.onDidDismiss().then((data) => {
+      choice = data.data as boolean;
+    });
+    return choice;
+  }
+
+  async checkConsistenciaLeituraAtual(values: Array<PIWebAttribute>){
+
+    let redoRead = async () => {
+      await this.showAlert('Favor refazer a leitura do instrumento!');
+    };
+
+    const obsValue = values.find(v => v.Name == 'Observação')?.Selected?.Name
+
+    let obsDiff = !obsValue ? true : this.selectedObservations.some(obs => {
+      let value = obs.Value?.Name;
+      return value && value != obsValue;
+    });
+
+    if(obsDiff) {
+      let result = await this.showDialogConsitenciaLeitura("Você está entrando com uma Observação diferente das últimas leituras. Você está certo disso?");
+      if(!result) {
+        await redoRead();
+        return false;
+      }
+    }
+
+    for(let value of values) {
+      let tolMinima = (value?.config.find(subAttr => subAttr.Name == 'Tolerância Mínima') as any)?.Value?.Value as number;
+      let tolMaxima = (value?.config.find(subAttr => subAttr.Name == 'Tolerância Máxima') as any)?.Value?.Value as number;
+      let input = value.Selected;
+
+      if(tolMinima && tolMaxima && input) {
+        let doubleInput = Number.parseFloat(input);
+        if(doubleInput < tolMinima || doubleInput > tolMaxima) {
+          let result = await this.showDialogConsitenciaLeitura(`${value.Name}: Essa leitura está fora do limite de tolerância (${tolMinima.toFixed(2)} - ${tolMaxima.toFixed(2)}). Você confirma essa leitura?`);
+          if(!result) {
+            await redoRead();
+            return false;
+          }
+        }
+      }
+
+    }
+
+    return true;
+  }
+
   async saveElement() {
     await this.storageService.removeEdit();
 
@@ -1168,6 +1240,12 @@ export class EntradaManualComponent implements OnInit, OnDestroy {
     treeLogsPost.isEdit = true;
     treeLogsPost.isSystem = false;
     let valuesLogs = this.utils.getWrittenValues(this.elements);
+
+    let consistent = await this.checkConsistenciaLeituraAtual(values);
+
+    if(!consistent){
+      return;
+    }
 
     treeLogsPost.date = currentDateLogs;
     treeLogsPost.value = valuesLogs;

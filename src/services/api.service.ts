@@ -446,7 +446,8 @@ export class ApiService {
     let observationsValues = await this.buildBatchObservation(url, observations);
 
     elements.forEach((el, index) => {
-      el.observacoes = observationsValues[`obs${index}`].Content?.Items;
+      let obs = observationsValues[`obs${index}`].Content?.Items;
+      el.observacoes = obs ? obs : [];
     });
   }
 
