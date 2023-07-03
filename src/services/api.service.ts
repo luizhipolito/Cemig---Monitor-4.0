@@ -236,12 +236,18 @@ export class ApiService {
     } else {
       // Erro ocorreu no lado do servidor
 
-      let msgErrorMessage = error.message ? error.message : "";
-      let msgErrorError = error.error ? JSON.stringify(error.error) : "";
-      let msgErro = msgErrorMessage ? `${msgErrorMessage} - ${msgErrorError}` : msgErrorError;
+      let msg;
+
+      if(error?.error?.message) {
+        msg = error.error.message;
+      } else if(error?.error) {
+        msg = JSON.stringify(error.error);
+      } else if(error?.message) {
+        msg = error.message;
+      }
 
       errorMessage =
-        `Código do erro: ${error.status}, ` + `mensagem: ${msgErro}`;
+        `Código do erro: ${error.status}, ` + `mensagem: ${msg}`;
     }
     document.getElementById('loader').style.display = 'none';
     alert(errorMessage);
