@@ -1,3 +1,4 @@
 export const environment = {
-  production: true
+  production: true,
+  apiUrl: "http://pwnap-agsb01/PIWebApi"
 };

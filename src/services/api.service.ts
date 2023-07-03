@@ -13,6 +13,7 @@ import { Device } from '@ionic-native/device/ngx';
 import { ItemContentItemAtributo, ResponseBatch } from 'src/model/ResponseBatch.model';
 import { Atributo, AtributoModel, Elemento, Link, SubAtributo, Value, ValueObj } from 'src/model/Elemento.model';
 import { LoadProgress } from 'src/app/entrada-manual/entrada-manual.component';
+import { environment } from 'src/environments/environment';
 
 declare var cordova:any;
 
@@ -85,8 +86,7 @@ export class ApiService {
 
     let observable = window.hasOwnProperty("cordova") ? 
       from(this.postPromise(url, data)) : 
-      //this.http.post<any>("http://localhost:61278/PIWebApi", JSON.stringify(data), {...reqOptions, params: this.getParams(url)});
-      this.http.post<any>("http://192.168.0.4/IHM-Cemig-Api/PIWebApi", JSON.stringify(data), {...reqOptions, params: this.getParams(url)});
+      this.http.post<any>(environment.apiUrl, JSON.stringify(data), {...reqOptions, params: this.getParams(url)});
 
     observable = observable.pipe(timeout(10000));
 
@@ -177,8 +177,7 @@ export class ApiService {
 
     const observable = window.hasOwnProperty("cordova") ? 
       from(this.getPromise(url)) : 
-      this.http.get("http://192.168.0.4/IHM-Cemig-Api/PIWebApi", { ...this.httpOptions, params: this.getParams(url) });
-      //this.http.get("http://localhost:61278/PIWebApi", { ...this.httpOptions, params: this.getParams(url) });
+      this.http.get(environment.apiUrl, { ...this.httpOptions, params: this.getParams(url) });
 
     return observable
       .pipe(catchError(this.handleError.bind(this)));
@@ -451,7 +450,7 @@ export class ApiService {
     let observationsValues = await this.buildBatchObservation(url, observations);
 
     elements.forEach((el, index) => {
-      let obs = observationsValues[`obs${index}`].Content?.Items;
+      let obs = observationsValues[`obs${index}`]?.Content?.Items;
       el.observacoes = obs ? obs : [];
     });
   }
