@@ -5,13 +5,9 @@ import { AlertController, NavController } from '@ionic/angular';
 import { Subscription } from 'rxjs';
 import { ApiService } from 'src/services/api.service';
 import { StorageArvoreService } from 'src/services/storage-arvore.service';
-import { AppUtils, b64toBlob } from 'src/utils/app.utils';
+import { AppUtils } from 'src/utils/app.utils';
 import { separator } from '../salvar-dados/salvar-dados.component';
-import { SocialSharing } from '@ionic-native/social-sharing/ngx';
-import { File } from '@ionic-native/file/ngx';
-import { formatDate } from '@angular/common';
-
-declare var cordova:any;
+import jsPDF from 'jspdf';
 
 class Log {
   dateSync: Date;
@@ -43,14 +39,16 @@ export class LogsLeituraComponent implements OnInit, OnDestroy {
   endDateForm = new FormControl();
   usinaForm = new FormControl();
   operadorForm = new FormControl();
+  usina: string;
+  operador: string;
+  now: Date;
+  logs: Array<Log>;
 
   constructor(private api: ApiService,
               private storageService: StorageArvoreService,
               private alertController: AlertController,
               private navCtrl: NavController,
               private utils: AppUtils,
-              private file: File,
-              private socialSharing: SocialSharing,
               private router: Router) { }
 
   async ngOnInit() {
@@ -129,7 +127,7 @@ export class LogsLeituraComponent implements OnInit, OnDestroy {
         this.showProgressBar = false;
         if(data) {
           const indexLog = (data.Atributos.Content.Items as Array<any>).findIndex(i => i.Name == 'Log');
-          const logs = this.createLogArrayObj(data.RecordedValues.Content.Items[indexLog].Content.Items.map(log => log.Value));
+          const logs = this.createLogArrayObj(data.RecordedValues.Content.Items[indexLog].Content.Items.filter(log => log.Good).map(log => log.Value));
           const logsFilter: Array<Log> = [];
 
           logs.forEach(log => {
@@ -145,53 +143,20 @@ export class LogsLeituraComponent implements OnInit, OnDestroy {
             }
           });
 
-          const now = new Date();
+          this.now = new Date();
+          this.usina = usina;
+          this.operador = operador;
+          this.logs = logsFilter;
 
-          cordova.plugins.pdf.htmlToPDF({
-            data: this.buildHtml(now, this.startDateForm.value, this.endDateForm.value, usina, operador, logsFilter),
-            documentSize: "A4",
-            landscape: "landscape",
-            type: "base64"
-          },
-          (data) => {
-              
-              let fileDir = this.file.externalApplicationStorageDirectory;
-              let filename = "LogsLeitura.pdf";
-              this.file.writeFile(fileDir, filename, b64toBlob(data, 'application/pdf'), { replace: true });
-              this.socialSharing.share(null, `Logs de Leituras CEMIG ${formatDate(now, 'dd/MM/yyyy', 'en-US')}`, `${fileDir}${filename}`);
-            },
-            () => {
-              alert('Erro ao gerar arquivo');
-              this.showProgressBar = false;
-            }
-          );
+          setTimeout(async () => {
+            let source = window.document.getElementById("div-table-logs");
+            let doc = new jsPDF('p', 'pt', 'a4');
+            await doc.html(source, {'width': 500});
+            doc.save('leituras.pdf');
+          }, 500);
         }
       })
     );
-  }
-
-  buildHtml(now: Date, startDate: Date, endDate: Date, usina: string, operador: string, logs: Array<Log>): string {
-
-    let rowData = logs.map(log =>
-      `<tr>
-        <td>${formatDate(log.dateInput, "dd/MM/yyyy HH:mm:ss", 'en-US')}</td>
-        <td>${formatDate(log.dateSync, "dd/MM/yyyy HH:mm:ss", 'en-US')}</td>
-        <td>${log.path}</td>
-        <td>${log.usina}</td>
-        <td>${log.instrumento}</td>
-        <td>${log.atributo}</td>
-        <td>${formatDate(log.dateRead, "dd/MM/yyyy", 'en-US')}</td>
-        <td>${log.value}</td>
-        <td>${log.operador}</td>
-      </tr>`).join("");
-
-    return this.htmlPDF
-      .replace("#EXPORT_DATE#", formatDate(now, "dd/MM/yyyy", "en-US"))
-      .replace("#BEGIN_DATE#", startDate ? formatDate(startDate, "dd/MM/yyyy", "en-US") : "")
-      .replace("#END_DATE#", endDate ? formatDate(endDate, "dd/MM/yyyy", "en-US") : "")
-      .replace("#USINA#", usina ? usina : "")
-      .replace("#OPERADOR#", operador ? operador : "")
-      .replace("#ROW_DATA#", rowData);
   }
 
   createLogArrayObj(logs: Array<string>): Array<Log> {
@@ -263,7 +228,7 @@ export class LogsLeituraComponent implements OnInit, OnDestroy {
       "RecordedValues": {
           "Method": "GET",
           "RequestTemplate": {
-              "Resource": "{0}?selectedFields=Items.Value&maxCount=150000"
+              "Resource": "{0}?selectedFields=Items.Value;Items.Good&startTime=-10y&endTime=*&maxCount=150000"
           },
           "Parameters": [
               "$.Atributos.Content.Items[*].Links.RecordedData"
@@ -309,67 +274,7 @@ export class LogsLeituraComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
       this.subs.forEach(s => s.unsubscribe());
   }
-
-  htmlPDF = `<html>
-              <head>
-                <style>
-                  table {
-                    font-family: arial, sans-serif;
-                    border-collapse: collapse;
-                    width: 100%;
-                  }
-                  td,
-                  th {
-                    border: 1px solid #a4a4a4;
-                    text-align: left;
-                    padding: 8px;
-                  }
-                  tr:nth-child(even) {
-                    background-color: #dddddd;
-                  }
-                  .filter-cls {
-                    padding-left: 4px;
-                    font-weight: normal;
-                  }
-                  .flex {
-                    display: flex;
-                  }
-                </style>
-              </head>
-              <body>
-                <h1>Logs de Leituras #EXPORT_DATE#</h1>
-                <h2 class="flex">
-                  Data Início:
-                  <div class="filter-cls">#BEGIN_DATE#</div>
-                </h2>
-                <h2 class="flex">
-                  Data Fim:
-                  <div class="filter-cls">#END_DATE#</div>
-                </h2>
-                <h2 class="flex">
-                  Usina:
-                  <div class="filter-cls">#USINA#</div>
-                </h2>
-                <h2 class="flex">
-                  Operador:
-                  <div class="filter-cls">#OPERADOR#</div>
-                </h2>
-                <table>
-                  <tr>
-                    <th>Data/Hora Entrada</th>
-                    <th>Data/Hora Sincronismo</th>
-                    <th>Caminho</th>
-                    <th>Usina</th>
-                    <th>Instrumento</th>
-                    <th>Atributo</th>
-                    <th>Data leitura</th>
-                    <th>Valor lido</th>
-                    <th>Operador</th>
-                  </tr>
-                  #ROW_DATA#
-                </table>
-              </body>
-            </html>`;
+  
 }
 
 export function getBodyBatchAttrUsinas(url: string, databaseWebId: string){
