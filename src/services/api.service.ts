@@ -84,9 +84,7 @@ export class ApiService {
     this.showLoader();
     let reqOptions = this.httpOptions;
 
-    let observable = window.hasOwnProperty("cordova") ? 
-      from(this.postPromise(url, data)) : 
-      this.http.post<any>(environment.apiUrl, JSON.stringify(data), {...reqOptions, params: this.getParams(url)});
+    let observable = this.http.post<any>(environment.apiUrl, JSON.stringify(data), {...reqOptions, params: this.getParams(url)});
 
     observable = observable.pipe(timeout(10000));
 
@@ -121,9 +119,7 @@ export class ApiService {
 
     this.showLoader();
 
-    const observable = window.hasOwnProperty("cordova") ? 
-      from(this.putPromise(url, data)) : 
-      this.http.put<any>(url, JSON.stringify(data), options);
+    const observable = this.http.put<any>(url, JSON.stringify(data), options);
 
     return observable
       .pipe(catchError(this.handleError.bind(this)));
@@ -175,9 +171,7 @@ export class ApiService {
     url = url.trim();
     this.showLoader();
 
-    const observable = window.hasOwnProperty("cordova") ? 
-      from(this.getPromise(url)) : 
-      this.http.get(environment.apiUrl, { ...this.httpOptions, params: this.getParams(url) });
+    const observable = this.http.get(environment.apiUrl, { ...this.httpOptions, params: this.getParams(url) });
 
     return observable
       .pipe(catchError(this.handleError.bind(this)));
