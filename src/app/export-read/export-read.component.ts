@@ -8,6 +8,8 @@ import { NavController } from '@ionic/angular';
 import { getBeginDay, isNumber } from 'src/utils/app.utils';
 import jsPDF from 'jspdf';
 import { formatDate } from '@angular/common';
+import { SocialSharing } from '@ionic-native/social-sharing/ngx';
+import { File } from '@ionic-native/file/ngx';
 
 export class UsinaDateModel {
 
@@ -44,6 +46,8 @@ export class ExportReadComponent implements OnInit, OnDestroy {
   subs: Array<Subscription> = [];
 
   constructor(private storageService: StorageArvoreService,
+              private file: File,
+              private socialSharing: SocialSharing,
               private navCtrl: NavController,
               private api: ApiService) { }
 
@@ -127,7 +131,18 @@ export class ExportReadComponent implements OnInit, OnDestroy {
       let source = window.document.getElementById("div-tables");
       let doc = new jsPDF('p', 'pt', 'a4');
       await doc.html(source, {'width': 500});
-      doc.save('leituras.pdf');
+
+      if(window.hasOwnProperty("cordova")){
+        var blob = doc.output('blob');
+        let fileDir = this.file.externalApplicationStorageDirectory;
+        let filename = "Leitura.pdf";
+        this.file.writeFile(fileDir, filename, blob, { replace: true });
+        this.socialSharing.share(null, `Leituras CEMIG ${formatDate(new Date(), 'dd/MM/yyyy', 'en-US')}`, `${fileDir}${filename}`);
+      }
+      else {
+        doc.save('leituras.pdf');
+      }
+      
     }, 500);
   }
 

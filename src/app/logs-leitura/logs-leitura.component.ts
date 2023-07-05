@@ -8,6 +8,9 @@ import { StorageArvoreService } from 'src/services/storage-arvore.service';
 import { AppUtils } from 'src/utils/app.utils';
 import { separator } from '../salvar-dados/salvar-dados.component';
 import jsPDF from 'jspdf';
+import { formatDate } from '@angular/common';
+import { SocialSharing } from '@ionic-native/social-sharing/ngx';
+import { File } from '@ionic-native/file/ngx';
 
 class Log {
   dateSync: Date;
@@ -49,6 +52,8 @@ export class LogsLeituraComponent implements OnInit, OnDestroy {
               private alertController: AlertController,
               private navCtrl: NavController,
               private utils: AppUtils,
+              private file: File,
+              private socialSharing: SocialSharing,
               private router: Router) { }
 
   async ngOnInit() {
@@ -152,7 +157,18 @@ export class LogsLeituraComponent implements OnInit, OnDestroy {
             let source = window.document.getElementById("div-table-logs");
             let doc = new jsPDF('p', 'pt', 'a4');
             await doc.html(source, {'width': 500});
-            doc.save('leituras.pdf');
+
+            if(window.hasOwnProperty("cordova")){
+              var blob = doc.output('blob');
+              let fileDir = this.file.externalApplicationStorageDirectory;
+              let filename = "LogsLeitura.pdf";
+              this.file.writeFile(fileDir, filename, blob, { replace: true });
+              this.socialSharing.share(null, `Logs de Leituras CEMIG ${formatDate(new Date(), 'dd/MM/yyyy', 'en-US')}`, `${fileDir}${filename}`);
+            }
+            else {
+              doc.save('logs_leituras.pdf');
+            }
+
           }, 500);
         }
       })
