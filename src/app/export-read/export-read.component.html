@@ -80,20 +80,25 @@
                 .h-26px{
                   height: 26px;
                 }
+                .w-read {
+                  padding-left: 14px;
+                  padding-right: 14px;
+                }
               </style>
             </head>
               <div *ngFor="let page of tableData; let i = index" [ngClass]="{'p-b-table': i != (tableData.length - 1), 'p-t-table': true, 'p-x-8': true, 'color-black' : true}">
                 <table class="color-black fs-8 nowrap">
                   <tr>
                     <th>Instrumento</th>
-                    <th>Data Prevista para Leitura</th>
-                    <th>Funcionamento</th>
-                    <th>Observação</th>
-                    <th>Leitura 1</th>
-                    <th>Leitura 2</th>
-                    <th>Leitura 3</th>
-                    <th>Leitura 4</th>
-                    <th>Leitura 5</th>
+                    <th>Data Prevista</th>
+                    <th>Data Leitura</th>
+                    <th>Fun</th>
+                    <th>Obs</th>
+                    <th class="w-read">Leitura 1</th>
+                    <th class="w-read">Leitura 2</th>
+                    <th class="w-read">Leitura 3</th>
+                    <th class="w-read">Leitura 4</th>
+                    <th class="w-read">Leitura 5</th>
                   </tr>
                   <tr class="h-26px" *ngFor="let instrument of page.instruments">
                     <td>{{ instrument }}</td>
@@ -101,10 +106,11 @@
                     <td></td>
                     <td></td>
                     <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
+                    <td class="w-read"></td>
+                    <td class="w-read"></td>
+                    <td class="w-read"></td>
+                    <td class="w-read"></td>
+                    <td class="w-read"></td>
                   </tr>
               </table>
             </div>
