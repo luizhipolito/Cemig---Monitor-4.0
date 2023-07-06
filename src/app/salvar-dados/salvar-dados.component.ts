@@ -130,7 +130,7 @@ export class SalvarDadosComponent {
     let relato = values.find(v => v.Name == 'Relatos de Operação e Manutenção');
 
     if(relato) {
-      relato.Selected = `${user};${emmUtilizado?.Selected ? emmUtilizado.Selected : emmAssociado?.Value?.Value};${relato.Selected}`;
+      relato.Selected = `${user};${emmUtilizado?.Selected ? emmUtilizado.Selected : emmAssociado?.Value?.Value};${relato.Selected ? relato.Selected : ""}`;
     }
   }
 
