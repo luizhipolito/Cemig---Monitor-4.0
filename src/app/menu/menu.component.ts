@@ -6,6 +6,7 @@ import { AppUtils } from 'src/utils/app.utils';
 import { EntradaManualComponent } from '../entrada-manual/entrada-manual.component';
 import { ConfigService } from 'src/services/config.service';
 import { Subscription } from 'rxjs';
+import { EntradaManualStateService } from '../entrada-manual/state/entrada-manual-state.service';
 
 @Component({
   selector: 'app-menu',
@@ -24,6 +25,7 @@ export class MenuComponent implements OnInit, OnDestroy {
     public storageService: StorageArvoreService,
     public utils: AppUtils,
     public entradaManual: EntradaManualComponent,
+    private entradaManualState: EntradaManualStateService,
     public config: ConfigService
   ) { }
 
@@ -61,6 +63,18 @@ export class MenuComponent implements OnInit, OnDestroy {
   goLogsLeitura(){
     this.menu.close();
     this.router.navigate(['/logs-leitura']);
+  }
+
+  goInicio(){
+    this.menu.close();
+
+    if(this.isAdmin) {
+      this.entradaManualState.resetEntradaManual();
+      this.router.navigate(['/read-export-prompt']);
+    }
+    else {
+      this.router.navigate(['/entrada-manual']);
+    }
   }
 
   logoutUsuario = () => {

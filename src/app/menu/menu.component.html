@@ -8,24 +8,30 @@
     </ion-header>
     <ion-content>
       <ion-list>
+
+        <ion-item (click)="goInicio()">
+          <ion-icon name="home-outline"></ion-icon>
+          <ion-label class="p-l-8">Início</ion-label>
+        </ion-item>
+
         <ion-item (click)="goSalvarDados()">
           <ion-icon name="navigate-outline"></ion-icon>
-          <ion-label>Enviar</ion-label>
+          <ion-label class="p-l-8">Enviar</ion-label>
         </ion-item>
 
         <ion-item (click)="goPageLogs()">
           <ion-icon name="layers-outline"></ion-icon>
-          <ion-label>Logs</ion-label>
+          <ion-label class="p-l-8">Logs</ion-label>
         </ion-item>
 
         <ion-item *ngIf="isAdmin" (click)="goLogsLeitura()">
           <ion-icon name="checkmark-done-outline"></ion-icon>
-          <ion-label>Logs de Leituras</ion-label>
+          <ion-label class="p-l-8">Logs de Leituras</ion-label>
         </ion-item>
 
         <ion-item name="logout" slot="start" (click)="logoutUsuario()">
           <ion-icon name="log-out-outline"></ion-icon>
-          <ion-label>Sair</ion-label>
+          <ion-label class="p-l-8">Sair</ion-label>
         </ion-item>
       </ion-list>
     </ion-content>
