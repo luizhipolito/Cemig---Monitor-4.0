@@ -103,7 +103,7 @@ export class LogsLeituraComponent implements OnInit, OnDestroy {
 
       const body = getBodyBatchAttrUsinas(this.url, this.databaseWebId);
       this.subs.push(
-        this.api.post(`${this.url}/batch`, body).subscribe(data => {
+        this.api.post(`${this.url}/batch`, body, false).subscribe(data => {
           this.showProgressBar = false;
           this.usinas = data.Elementos.Content.Items[0].Content.Items.map(usina => usina.Name);
           this.urlUsinaElement = data.Elemento.Content.Items[0].Links.Self;
@@ -128,7 +128,7 @@ export class LogsLeituraComponent implements OnInit, OnDestroy {
 
     const logsBody = this.getBodyBatchLogs();
 
-    this.subs.push(this.api.post(`${this.url}/batch`, logsBody).subscribe(data => {
+    this.subs.push(this.api.post(`${this.url}/batch`, logsBody, false).subscribe(data => {
         this.showProgressBar = false;
         if(data) {
           const indexLog = (data.Atributos.Content.Items as Array<any>).findIndex(i => i.Name == 'Log');

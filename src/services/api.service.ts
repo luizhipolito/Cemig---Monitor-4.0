@@ -71,7 +71,7 @@ export class ApiService {
   executeBatch(server: string, data: any) {
     let batchUrl = '/batch';
     let url = `${prefix}${server}${sufix}${batchUrl}`;
-    return this.post(url, data).pipe(catchError(this.handleError.bind(this)));
+    return this.post(url, data, false).pipe(catchError(this.handleError.bind(this)));
   }
 
   async executeBatchAsync(server: string, data: any) {
@@ -79,14 +79,16 @@ export class ApiService {
   }
 
 
-  post(url: string, data: any, bypassError: boolean = false) {
+  post(url: string, data: any, bypassError: boolean, applyTimeout: boolean = false) {
     url = url.trim();
     this.showLoader();
     let reqOptions = this.httpOptions;
 
     let observable = this.http.post<any>(environment.apiUrl, JSON.stringify(data), {...reqOptions, params: this.getParams(url)});
 
-    observable = observable.pipe(timeout(10000));
+    if(applyTimeout) {
+      observable = observable.pipe(timeout(10000));
+    }
 
     if(bypassError) {
       return observable;
@@ -283,7 +285,7 @@ export class ApiService {
 
     for(let interval of intervals) {
       const body = this.getDataBatch(interval.start, interval.end - interval.start, url, webId, categoryNameElement, categoryNameAttr);
-      let result = await this.post(`${url}/batch`, body, true).toPromise().catch(e => e);
+      let result = await this.post(`${url}/batch`, body, true, true).toPromise().catch(e => e);
 
       if(!this.checkResponseOk(result)) {
         result = await this.retry(`${url}/batch`, body, 1);
@@ -334,12 +336,12 @@ export class ApiService {
   async retry(url, body, count) {
     if(count == 10) {
       await this.waitBetweenRequests();
-      let result = await this.post(url, body, null).toPromise();
+      let result = await this.post(url, body, false).toPromise();
       return result;
     }
 
     await this.waitBetweenRequests();
-    let result = await this.post(url, body, true).toPromise().catch(e => e);
+    let result = await this.post(url, body, true, true).toPromise().catch(e => e);
 
     if(!this.checkResponseOk(result)) {
       result = await this.retry(url, body, count + 1);

@@ -80,7 +80,7 @@ export class SalvarDadosComponent {
 
     const url = config.find(c => c.Nome == 'configUrl').configValue;
     const body = this.getBodyBatchAttrUsinas(url, webId);
-    let usinasEl = await this.api.post(`${url}/batch`, body).toPromise();
+    let usinasEl = await this.api.post(`${url}/batch`, body, false).toPromise();
 
     const webIdAttr = (usinasEl.Atributos.Content.Items[0].Content.Items as Array<any>).find(attr => attr.Name == 'Log').WebId;
 
@@ -121,7 +121,7 @@ export class SalvarDadosComponent {
       }
     });
 
-    this.api.post(`${url}/batch`, objBodyLog).toPromise();
+    this.api.post(`${url}/batch`, objBodyLog, false).toPromise();
   }
 
   manageRelatoOperacao(values, user){

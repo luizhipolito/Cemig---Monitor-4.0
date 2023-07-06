@@ -176,7 +176,7 @@ export class ExportReadComponent implements OnInit, OnDestroy {
 
       const body = getBodyBatchAttrUsinas(url, databaseWebId);
       this.subs.push(
-        this.api.post(`${url}/batch`, body).subscribe(data => {
+        this.api.post(`${url}/batch`, body, false).subscribe(data => {
           this.showProgressBar = false;
           this.usinas = data.Elementos.Content.Items[0].Content.Items.map(usina => usina.Name);
         })
