@@ -11,6 +11,7 @@ import { ConfigService } from 'src/services/config.service';
 import { EntradaManualComponent } from '../entrada-manual/entrada-manual.component';
 import { PIWebObject } from 'src/model/PIWebObject.model';
 import { formatDate } from '@angular/common';
+import { EntradaManualStateService } from '../entrada-manual/state/entrada-manual-state.service';
 
 export const separator = "#IHM_CEMIG#";
 
@@ -30,6 +31,7 @@ export class SalvarDadosComponent {
     private api: ApiService,
     public config: ConfigService,
     public alertController: AlertController,
+    private entradaManualState: EntradaManualStateService
   ) { }
 
   onBack() {
@@ -280,6 +282,7 @@ export class SalvarDadosComponent {
 
 
   onEdit(element) {
+    this.entradaManualState.setKeepEntradaManual();
     this.storageService.save(
       'Edit',
       element
