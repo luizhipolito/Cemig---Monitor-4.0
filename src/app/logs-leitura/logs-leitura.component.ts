@@ -129,7 +129,6 @@ export class LogsLeituraComponent implements OnInit, OnDestroy {
     const logsBody = this.getBodyBatchLogs();
 
     this.subs.push(this.api.post(`${this.url}/batch`, logsBody, false).subscribe(data => {
-        this.showProgressBar = false;
         if(data) {
           const indexLog = (data.Atributos.Content.Items as Array<any>).findIndex(i => i.Name == 'Log');
           const logs = this.createLogArrayObj(data.RecordedValues.Content.Items[indexLog].Content.Items.filter(log => log.Good).map(log => log.Value));
@@ -164,9 +163,11 @@ export class LogsLeituraComponent implements OnInit, OnDestroy {
               let filename = "LogsLeitura.pdf";
               this.file.writeFile(fileDir, filename, blob, { replace: true });
               this.socialSharing.share(null, `Logs de Leituras CEMIG ${formatDate(new Date(), 'dd/MM/yyyy', 'en-US')}`, `${fileDir}${filename}`);
+              this.showProgressBar = false;
             }
             else {
               doc.save('logs_leituras.pdf');
+              this.showProgressBar = false;
             }
 
           }, 500);

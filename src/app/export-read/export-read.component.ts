@@ -56,6 +56,7 @@ export class ExportReadComponent implements OnInit, OnDestroy {
   }
 
   async exportLeituras(){
+    this.showProgressBar = true;
     let startDate = getBeginDay(new Date(this.startDateForm.value));
     let endDate = getBeginDay(new Date(this.endDateForm.value));
     let usinasFilter = this.usinasForm.value as Array<string>;
@@ -138,9 +139,11 @@ export class ExportReadComponent implements OnInit, OnDestroy {
         let filename = "Leitura.pdf";
         this.file.writeFile(fileDir, filename, blob, { replace: true });
         this.socialSharing.share(null, `Leituras CEMIG ${formatDate(new Date(), 'dd/MM/yyyy', 'en-US')}`, `${fileDir}${filename}`);
+        this.showProgressBar = false;
       }
       else {
         doc.save('leituras.pdf');
+        this.showProgressBar = false;
       }
       
     }, 500);

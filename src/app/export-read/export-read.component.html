@@ -1,6 +1,9 @@
 <ion-app>
   <ion-content>
     <div class="boxData">
+      <div *ngIf="showProgressBar" class="p-t-8 p-b-8">
+        <ion-progress-bar type="indeterminate"></ion-progress-bar>
+      </div>
       <div class="flex h-min">
         <ion-item class="w-25">
           Data Inicial:
