@@ -109,6 +109,14 @@ export class ExportReadComponent implements OnInit, OnDestroy {
 
     }
 
+    usinasDateInstruments.sort((a,b) => {
+      if(a.usina != b.usina) {
+        return a.usina.localeCompare(b.usina);
+      } else {
+        return a.date.getTime() < b.date.getTime() ? -1 : 1
+      }
+    });
+
     let finalTableData:  Array<UsinaDateModel> = [];
 
     usinasDateInstruments.forEach(usina => {
