@@ -13,6 +13,11 @@ Thumbs.db
 UserInterfaceState.xcuserstate
 $RECYCLE.BIN/
 
+
+IHM.Cemig.API/.vs
+IHM.Cemig.API/IHM.Cemig.API/bin
+IHM.Cemig.API/IHM.Cemig.API/obj
+
 *.log
 log.txt
 npm-debug.log*

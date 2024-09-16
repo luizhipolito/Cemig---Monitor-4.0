@@ -6,13 +6,14 @@ import {
   HttpParams,
 } from '@angular/common/http';
 import { from, throwError } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { catchError, timeout } from 'rxjs/operators';
 import { Arvore, StorageArvoreService } from './storage-arvore.service';
 import { AppUtils, firstSelection } from 'src/utils/app.utils';
 import { Device } from '@ionic-native/device/ngx';
-import { ResponseBatch } from 'src/model/ResponseBatch.model';
+import { ItemContentItemAtributo, ResponseBatch } from 'src/model/ResponseBatch.model';
 import { Atributo, AtributoModel, Elemento, Link, SubAtributo, Value, ValueObj } from 'src/model/Elemento.model';
 import { LoadProgress } from 'src/app/entrada-manual/entrada-manual.component';
+import { environment } from 'src/environments/environment';
 
 declare var cordova:any;
 
@@ -70,8 +71,7 @@ export class ApiService {
   executeBatch(server: string, data: any) {
     let batchUrl = '/batch';
     let url = `${prefix}${server}${sufix}${batchUrl}`;
-    let selectedFieldsParam = new HttpParams();
-    return this.post(url, data, selectedFieldsParam).pipe(catchError(this.handleError.bind(this)));
+    return this.post(url, data, false).pipe(catchError(this.handleError.bind(this)));
   }
 
   async executeBatchAsync(server: string, data: any) {
@@ -79,18 +79,16 @@ export class ApiService {
   }
 
 
-  post(url: string, data: any, params?: HttpParams, bypassError: boolean = false) {
+  post(url: string, data: any, bypassError: boolean, applyTimeout: boolean = false) {
     url = url.trim();
     this.showLoader();
     let reqOptions = this.httpOptions;
 
-    if (params) {
-      reqOptions['params'] = params;
-    }
+    let observable = this.http.post<any>(environment.apiUrl, JSON.stringify(data), {...reqOptions, params: this.getParams(url)});
 
-    const observable = window.hasOwnProperty("cordova") ? 
-      from(this.postPromise(url, data)) : 
-      this.http.post<any>(url, JSON.stringify(data), reqOptions);
+    if(applyTimeout) {
+      observable = observable.pipe(timeout(10000));
+    }
 
     if(bypassError) {
       return observable;
@@ -123,9 +121,7 @@ export class ApiService {
 
     this.showLoader();
 
-    const observable = window.hasOwnProperty("cordova") ? 
-      from(this.putPromise(url, data)) : 
-      this.http.put<any>(url, JSON.stringify(data), options);
+    const observable = this.http.put<any>(url, JSON.stringify(data), options);
 
     return observable
       .pipe(catchError(this.handleError.bind(this)));
@@ -173,16 +169,22 @@ export class ApiService {
     }
   }
 
-  get(url: string, params: HttpParams = new HttpParams()) {
+  get(url: string) {
     url = url.trim();
     this.showLoader();
 
-    const observable = window.hasOwnProperty("cordova") ? 
-      from(this.getPromise(url)) : 
-      this.http.get(url, { ...this.httpOptions, params: params });
+    const observable = this.http.get(environment.apiUrl, { ...this.httpOptions, params: this.getParams(url) });
 
     return observable
       .pipe(catchError(this.handleError.bind(this)));
+  }
+
+  getParams(url: string){
+    return new HttpParams({
+      fromObject: {
+        urlParam: url
+      }
+    });
   }
 
   getPromise(url: string): Promise<any>{
@@ -230,12 +232,18 @@ export class ApiService {
     } else {
       // Erro ocorreu no lado do servidor
 
-      let msgErrorMessage = error.message ? error.message : "";
-      let msgErrorError = error.error ? error.error : "";
-      let msgErro = msgErrorMessage ? `${msgErrorMessage} - ${msgErrorError}` : msgErrorError;
+      let msg;
+
+      if(error?.error?.message) {
+        msg = error.error.message;
+      } else if(error?.error) {
+        msg = JSON.stringify(error.error);
+      } else if(error?.message) {
+        msg = error.message;
+      }
 
       errorMessage =
-        `Código do erro: ${error.status}, ` + `mensagem: ${msgErro}`;
+        `Código do erro: ${error.status}, ` + `mensagem: ${msg}`;
     }
     document.getElementById('loader').style.display = 'none';
     alert(errorMessage);
@@ -277,21 +285,27 @@ export class ApiService {
 
     for(let interval of intervals) {
       const body = this.getDataBatch(interval.start, interval.end - interval.start, url, webId, categoryNameElement, categoryNameAttr);
-      let result = await this.post(`${url}/batch`, body, null, true).toPromise().catch(e => e);
+      let result = await this.post(`${url}/batch`, body, true, true).toPromise().catch(e => e);
 
-      if(result?.error) {
+      if(!this.checkResponseOk(result)) {
         result = await this.retry(`${url}/batch`, body, 1);
       } else {
         this.checkTooManyRequest(result);
       }
       loadProgress.setCurrent(interval.end);
       results.push(result);
-
-      await new Promise(r => setTimeout(r, 2000));
     }
 
-    let resultParse = this.parseResult(results, pathSearch, url);
+    let resultParse = await this.parseResult(results, pathSearch, url);
     return resultParse;
+  }
+
+  waitBetweenRequests(): Promise<any>{
+    return new Promise(r => setTimeout(r, 2000));
+  }
+
+  checkResponseOk(response: any): boolean{
+    return  response && response.Elementos && response.Atributos && response.SubAtributos && response.ValoresAtributos && response.ValoresSubAtributos;
   }
 
   checkTooManyRequest(result){
@@ -321,23 +335,35 @@ export class ApiService {
 
   async retry(url, body, count) {
     if(count == 10) {
-      await new Promise(r => setTimeout(r, 2000));
-      let result = await this.post(url, body, null).toPromise();
+      await this.waitBetweenRequests();
+      let result = await this.post(url, body, false).toPromise();
       return result;
     }
 
-    await new Promise(r => setTimeout(r, 2000));
-    let result = await this.post(url, body, null, true).toPromise().catch(e => e);
+    await this.waitBetweenRequests();
+    let result = await this.post(url, body, true, true).toPromise().catch(e => e);
 
-    if(result.error) {
+    if(!this.checkResponseOk(result)) {
       result = await this.retry(url, body, count + 1);
     }
 
     return result;
   }
 
-  parseResult(result: Array<ResponseBatch>, pathSearch: string, url: string): Array<Elemento> {
+  checkObservation(attr: ItemContentItemAtributo, observations: Array<ObservationAttrModel>, elIndex: number) {
+    if(attr.Name == 'Observação') {
+      observations.push({
+        webId: attr.WebId,
+        index: elIndex
+      });
+    }
+  }
+
+  async parseResult(result: Array<ResponseBatch>, pathSearch: string, url: string) {
     let elements: Array<Elemento> = [];
+
+    let observations: Array<ObservationAttrModel> = [];
+    let indexElement = 0;
     
     result.forEach(itemResult => {
       let elementos = itemResult?.Elementos?.Content?.Items;
@@ -355,6 +381,7 @@ export class ApiService {
           const path = `${el.Path}|${attr.Name}`;
           const subAttrResponse = this.getSubAttributes(itemResult, attributoCount, subAttributoCount, path, attr.DefaultUnitsNameAbbreviation);
           subAttributoCount = subAttrResponse.subAttributoCount;
+          this.checkObservation(attr, observations, indexElement);
 
           let _attr: AtributoModel  = {
             WebId: attr.WebId,
@@ -366,7 +393,7 @@ export class ApiService {
             TraitName: null,
             config: subAttrResponse.subAttributes,
             mode: this.utils.getModeSubAtributo(subAttrResponse.subAttributes),
-            Value: this.getAttributeValue(itemResult, attributoCount, attr.DefaultUnitsNameAbbreviation),
+            Value: this.getAttributeValue(itemResult, attributoCount, attr.DefaultUnitsNameAbbreviation, attr.Name),
             Selected: null,
             color: null,
             ValueString: null,
@@ -404,18 +431,46 @@ export class ApiService {
         };
 
         elements.push({
+          usina: this.getUsina(el.Path),
           name: el.Name,
           AplicacaoID: el.WebId,
           relativePath: relativePath,
           Caminho: relativePath.split("\\").filter(x => x),
           atributos: atributo
         });
+
+        indexElement++;
       });
     });
 
+    await this.fillObservationsValues(url, elements, observations);
+
     return elements;
   }
-  getAttributeValue(itemResult: ResponseBatch, attributoCount: number, uom: string): Value  {
+
+  async fillObservationsValues(url: string, elements: Array<Elemento>, observations: Array<ObservationAttrModel>) {
+    let observationsValues = await this.buildBatchObservation(url, observations);
+
+    elements.forEach((el, index) => {
+      let obs = observationsValues[`obs${index}`]?.Content?.Items;
+      el.observacoes = obs ? obs : [];
+    });
+  }
+
+  getUsina(path: string) {
+    const nodes = path.split("\\")
+    const index = nodes.indexOf("Usinas");
+    return nodes[index + 1];
+  }
+
+  getAttributeValue(itemResult: ResponseBatch, attributoCount: number, uom: string, attrName: string): Value  {
+
+    if(attrName == "Relatos de Operação e Manutenção") {
+      return {
+        Value: ""
+      } as any;
+    }
+
     const itemValue = itemResult?.ValoresAtributos?.Content?.Items[attributoCount];
     const valueResponse = itemValue?.Content?.Value as any;
     return this.commonGetValue(valueResponse, itemValue?.Status, uom);
@@ -504,6 +559,21 @@ export class ApiService {
     return intervals;
   }
 
+  async buildBatchObservation(url: string, observations: Array<ObservationAttrModel>){
+    let objBody = {};
+
+    observations.forEach(obs => {
+      objBody[`obs${obs.index}`] = {
+        "Method": "GET",
+        "Resource": `${url}/streams/${obs.webId}/recorded?startTime=*&endTime=-3y&maxCount=3`
+      };
+    });
+
+    let result = await this.post(`${url}/batch`, objBody, false).toPromise();
+
+    return result;
+  }
+
   getUrlCount(url: string, webId: string, categoryName: string){
     return `${url}/elements/${webId}/elements?searchFullHierarchy=true&selectedFields=Items.Name&maxCount=100000&categoryName=${categoryName}`;
   }
@@ -556,4 +626,9 @@ export class ApiService {
       }
       };
   }
+}
+
+class ObservationAttrModel {
+  webId: string;
+  index: number;
 }

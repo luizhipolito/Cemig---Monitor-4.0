@@ -8,6 +8,7 @@ import { EnumerationValue } from 'src/model/EnumerationValue.model';
 import { PIWebObject } from 'src/model/PIWebObject.model';
 import { PIWebAttribute } from 'src/model/PIWebAttribute.model';
 import { Node } from 'src/app/entrada-manual/entrada-manual.component';
+import { Value } from 'src/model/Elemento.model';
 
 @Injectable({
   providedIn: 'root',
@@ -186,6 +187,7 @@ export class Arvore {
   TraitName: any;
   node: Node;
   inputTimestamp: Date;
+  observacoes: Array<Value>
 }
 
 export class ArvoreList {

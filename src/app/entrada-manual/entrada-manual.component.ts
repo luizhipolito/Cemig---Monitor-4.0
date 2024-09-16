@@ -8,6 +8,7 @@ import {
   distinct,
   firstOrNull,
   firstSelection,
+  isNumber,
   isResult,
 } from 'src/utils/app.utils';
 import { Router } from '@angular/router';
@@ -34,7 +35,6 @@ import {
 import { map, last } from 'rxjs/operators';
 import { Attribute } from 'src/model/Attribute.model';
 import { __await } from 'tslib';
-import { isNumber, isString } from 'util';
 import { InserirComentarioComponent } from '../inserir-comentario/inserir-comentario.component';
 import { element } from 'protractor';
 import { attachView } from '@ionic/angular/providers/angular-delegate';
@@ -45,10 +45,11 @@ import { SalvarDadosComponent } from '../salvar-dados/salvar-dados.component';
 import { stringify } from 'querystring';
 import { FormBuilder, FormGroup, NgForm } from '@angular/forms';
 import { formatDate } from '@angular/common';
-import { Elemento } from 'src/model/Elemento.model';
+import { Elemento, Value } from 'src/model/Elemento.model';
 import { Subscription } from 'rxjs';
 import { SocialSharing } from '@ionic-native/social-sharing/ngx';
 import { File } from '@ionic-native/file/ngx';
+import { EntradaManualStateService } from './state/entrada-manual-state.service';
 
 declare var cordova:any;
 
@@ -127,6 +128,7 @@ export class Node {
   parent?: Node;
   pathStr?: string;
   hasToRead?: boolean;
+  nextDateToRead?: Date;
 
   constructor(name: string){
     this.name = name;
@@ -238,6 +240,7 @@ export class EntradaManualComponent implements OnInit, OnDestroy {
   originalTree: Array<Node>;
   pathNavigation: Array<Node>
   loadStatus = LoadStatus;
+  selectedObservations: Array<Value>;
 
   typeShowSelected: TypeShow = TypeShow.TREE;
   typeShow = TypeShow;
@@ -280,6 +283,7 @@ export class EntradaManualComponent implements OnInit, OnDestroy {
     public modalController: ModalController,
     public alertController: AlertController,
     private file: File,
+    private entradaManualState: EntradaManualStateService,
     private socialSharing: SocialSharing
   ) { }
 
@@ -346,6 +350,16 @@ export class EntradaManualComponent implements OnInit, OnDestroy {
     await this.edit();
     this.date = null;
     this.showProgressBar = false;
+
+    this.checkAndOpenPromptExport();
+  }
+
+  checkAndOpenPromptExport(){
+    if(this.entradaManualState.keepEntradaManual || !this.config.subjectAdmin.value) {
+      this.entradaManualState.resetEntradaManual();
+    } else {
+      this.router.navigate(['/read-export-prompt']);
+    }
   }
 
   init() {
@@ -385,6 +399,7 @@ export class EntradaManualComponent implements OnInit, OnDestroy {
     let configHome = await this.api
       .get(this.config.getBaseConfigUrl())
       .toPromise();
+
     this.savedatabaseWebId(configHome);
     let configUrlValues = this.utils.getValue(
       configHome,
@@ -645,12 +660,17 @@ export class EntradaManualComponent implements OnInit, OnDestroy {
     const updateChildren = (nodes: Array<Node>, parent: Node): boolean => {
 
       if(!nodes?.length) {
+        parent.nextDateToRead = this.arvoreLocal[parent.index].node.dateRead;
         return !dataRead.some(dr => dr.relativePath == parent.relativePath);
       }
 
       nodes.forEach(n => {
         n.hasToRead = updateChildren(n.children, n);
       });
+
+      if(parent) {
+        parent.nextDateToRead = nodes.reduce((a, b) => a.hasToRead && a.nextDateToRead.getTime() < b.nextDateToRead.getTime() ? a : b).nextDateToRead; 
+      }
 
       return nodes.some(n => n.hasToRead);
     };
@@ -853,6 +873,7 @@ export class EntradaManualComponent implements OnInit, OnDestroy {
           elem.valuesSets = selectOptions;
         }
       });
+      this.selectedObservations = item.observacoes;
     } else {
       this.navigation = filhos;
     }
@@ -1119,6 +1140,78 @@ export class EntradaManualComponent implements OnInit, OnDestroy {
     return att;
   }
 
+  async showDialogConsitenciaLeitura(text: string) {
+    let choice = false;
+    let alert = await this.alertController.create({
+      header: 'Confirmar',
+      message: text,
+      buttons: [
+        {
+          text: 'Não',
+          handler: () => {
+            alert.dismiss(false);
+            return false;
+          },
+        },
+        {
+          text: 'Sim',
+          handler: () => {
+            alert.dismiss(true);
+            return true;
+          },
+        },
+      ],
+    });
+
+    await alert.present();
+    await alert.onDidDismiss().then((data) => {
+      choice = data.data as boolean;
+    });
+    return choice;
+  }
+
+  async checkConsistenciaLeituraAtual(values: Array<PIWebAttribute>){
+
+    let redoRead = async () => {
+      await this.showAlert('Favor refazer a leitura do instrumento!');
+    };
+
+    const obsValue = values.find(v => v.Name == 'Observação')?.Selected?.Name
+
+    let obsDiff = !obsValue ? true : this.selectedObservations.some(obs => {
+      let value = obs.Value?.Name;
+      return value && value != obsValue;
+    });
+
+    if(obsDiff) {
+      let result = await this.showDialogConsitenciaLeitura("Você está entrando com uma Observação diferente das últimas leituras. Você está certo disso?");
+      if(!result) {
+        await redoRead();
+        return false;
+      }
+    }
+
+    for(let value of values) {
+      let tolMinima = (value?.config.find(subAttr => subAttr.Name == 'Tolerância Mínima') as any)?.Value?.Value as number;
+      let tolMaxima = (value?.config.find(subAttr => subAttr.Name == 'Tolerância Máxima') as any)?.Value?.Value as number;
+      let input = value.Selected;
+
+      if(tolMinima && tolMaxima && input) {
+        let doubleInput = Number.parseFloat(input);
+        if(doubleInput < tolMinima || doubleInput > tolMaxima) {
+          let result = await this.showDialogConsitenciaLeitura(`${value.Name}: Essa leitura está fora do limite de tolerância (${tolMinima.toFixed(2)} - ${tolMaxima.toFixed(2)}). Você confirma essa leitura?`);
+          if(!result) {
+            await redoRead();
+            return false;
+          }
+        }
+      }
+
+    }
+
+    return true;
+  }
+
   async saveElement() {
     await this.storageService.removeEdit();
 
@@ -1147,6 +1240,12 @@ export class EntradaManualComponent implements OnInit, OnDestroy {
     treeLogsPost.isEdit = true;
     treeLogsPost.isSystem = false;
     let valuesLogs = this.utils.getWrittenValues(this.elements);
+
+    let consistent = await this.checkConsistenciaLeituraAtual(values);
+
+    if(!consistent){
+      return;
+    }
 
     treeLogsPost.date = currentDateLogs;
     treeLogsPost.value = valuesLogs;

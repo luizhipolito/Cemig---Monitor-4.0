@@ -1,0 +1,40 @@
+.btn{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    // margin: 5px;
+    // margin-right: 20px;
+}
+
+.iconBack{
+    font-size: 1.6rem;
+    margin: 10px;
+}
+
+.boxData{
+    border: 2px solid black;
+    width: calc(100% - 10px);
+    height: calc(100% - 60px);
+    margin: 5px;
+    overflow: auto;
+}
+
+.w-25 {
+    width: 25%;
+}
+
+.p-l-16 {
+    padding-left: 16px;
+}
+
+.h-min {
+    height: min-content;
+}
+
+.p-t-8 {
+    padding-top: 8px;
+}
+
+.p-b-8 {
+    padding-bottom: 8px;
+}

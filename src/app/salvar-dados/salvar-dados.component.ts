@@ -11,6 +11,7 @@ import { ConfigService } from 'src/services/config.service';
 import { EntradaManualComponent } from '../entrada-manual/entrada-manual.component';
 import { PIWebObject } from 'src/model/PIWebObject.model';
 import { formatDate } from '@angular/common';
+import { EntradaManualStateService } from '../entrada-manual/state/entrada-manual-state.service';
 
 export const separator = "#IHM_CEMIG#";
 
@@ -30,6 +31,7 @@ export class SalvarDadosComponent {
     private api: ApiService,
     public config: ConfigService,
     public alertController: AlertController,
+    private entradaManualState: EntradaManualStateService
   ) { }
 
   onBack() {
@@ -80,7 +82,7 @@ export class SalvarDadosComponent {
 
     const url = config.find(c => c.Nome == 'configUrl').configValue;
     const body = this.getBodyBatchAttrUsinas(url, webId);
-    let usinasEl = await this.api.post(`${url}/batch`, body).toPromise();
+    let usinasEl = await this.api.post(`${url}/batch`, body, false).toPromise();
 
     const webIdAttr = (usinasEl.Atributos.Content.Items[0].Content.Items as Array<any>).find(attr => attr.Name == 'Log').WebId;
 
@@ -121,7 +123,17 @@ export class SalvarDadosComponent {
       }
     });
 
-    this.api.post(`${url}/batch`, objBodyLog).toPromise();
+    this.api.post(`${url}/batch`, objBodyLog, false).toPromise();
+  }
+
+  manageRelatoOperacao(values, user){
+    let emmAssociado = values.find(v => v.Name == 'EMM Associado');
+    let emmUtilizado = values.find(v => v.Name == 'EMM Utilizado');
+    let relato = values.find(v => v.Name == 'Relatos de Operação e Manutenção');
+
+    if(relato) {
+      relato.Selected = `${user};${emmUtilizado?.Selected ? emmUtilizado.Selected : emmAssociado?.Value?.Value};${relato.Selected ? relato.Selected : ""}`;
+    }
   }
 
   responses: any[];
@@ -143,6 +155,9 @@ export class SalvarDadosComponent {
         }
         let dataToWriteOnPI = this.dataToWriteOnPI.filter((f) => f['isToSave']);
         for (let data of dataToWriteOnPI) {
+
+          this.manageRelatoOperacao(data.value, _user);
+
           let values = data.value.filter(m => m.mode != 'Leitura');
           if (values) {
             this.dismissAlert();
@@ -267,6 +282,7 @@ export class SalvarDadosComponent {
 
 
   onEdit(element) {
+    this.entradaManualState.setKeepEntradaManual();
     this.storageService.save(
       'Edit',
       element

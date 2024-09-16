@@ -65,7 +65,7 @@ class ContentItemAtributo {
     Items: Array<ItemContentItemAtributo>;
 }
 
-class ItemContentItemAtributo {
+export class ItemContentItemAtributo {
     Name: string;
     Description: string;
     Type: string;

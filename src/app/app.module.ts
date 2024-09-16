@@ -33,6 +33,9 @@ import { SocialSharing } from '@ionic-native/social-sharing/ngx'
 import { File } from '@ionic-native/file/ngx';
 import { Device } from '@ionic-native/device/ngx'
 import { LogsLeituraComponent } from './logs-leitura/logs-leitura.component';
+import { ExportReadComponent } from './export-read/export-read.component';
+import { IhmFormatDatePipe } from 'src/pipes/ihm-format-date.pipe';
+import { ExportReadPromptComponent } from './export-read-prompt/export-read-prompt.component';
 
 @NgModule({
   declarations: [
@@ -46,7 +49,10 @@ import { LogsLeituraComponent } from './logs-leitura/logs-leitura.component';
     FilterPipe,
     MenuComponent,
     LogsLeituraComponent,
-    PageLogsComponent
+    ExportReadComponent,
+    ExportReadPromptComponent,
+    PageLogsComponent,
+    IhmFormatDatePipe
   ],
   entryComponents: [InserirComentarioComponent, MenuComponent],
   imports: [

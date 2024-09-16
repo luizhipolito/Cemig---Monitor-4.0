@@ -36,6 +36,37 @@
         <ion-button class="m-r-16" color="light" (click)="cleanFilters()">LIMPAR FILTROS</ion-button>
         <ion-button (click)="searchlogs()">EXPORTAR LOGS DE LEITURA</ion-button>
       </div>
+
+      <div class="w-500px p-x-16" id="div-table-logs" *ngIf="logs">
+          <div class="p-b-8">Logs de Leituras {{ now | formatDate }}</div>
+          <div class="p-b-8">Data Início: {{ startDateForm.value | formatDate }}</div>
+          <div class="p-b-8">Data Fim: {{ endDateForm.value | formatDate }}</div>
+          <div class="p-b-8">Usina: {{ usina }}</div>
+          <div class="p-b-8">Operador: {{ operador }}</div>
+          <table class="fs-8">
+            <tr>
+              <th>Data/Hora Entrada</th>
+              <th>Data/Hora Sincronismo</th>
+              <th>Usina</th>
+              <th>Instrumento</th>
+              <th>Atributo</th>
+              <th>Data leitura</th>
+              <th>Valor lido</th>
+              <th>Operador</th>
+            </tr>
+            <tr *ngFor="let log of logs">
+              <td>{{ log.dateInput | formatDate : 'dd/MM/yyyy HH:mm:ss' }}</td>
+              <td>{{ log.dateSync | formatDate : 'dd/MM/yyyy HH:mm:ss' }}</td>
+              <td>{{ log.usina }}</td>
+              <td>{{ log.instrumento }}</td>
+              <td>{{ log.atributo }}</td>
+              <td>{{ log.dateRead | formatDate }}</td>
+              <td>{{ log.value }}</td>
+              <td>{{ log.operador }}</td>
+            </tr>
+          </table>
+      </div>
+
     </div>
     <div class="btn">
       <div class="btn_back">

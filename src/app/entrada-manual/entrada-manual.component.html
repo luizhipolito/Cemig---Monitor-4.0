@@ -118,9 +118,6 @@
           </div>
           <div *ngIf="typeShowSelected == typeShow.TREE">
             <div *ngIf="typeTreeSelected == treeShow.READ">
-              <div class="p-v-16 p-r-16 horizontal-end">
-                <ion-button (click)="exportLeituras()">EXPORTAR LEITURAS</ion-button>
-              </div>
               <div *ngIf="!(navigation[0]?.children?.length)">
                 <ion-list>      
                   <div *ngFor="let app of navigation">
@@ -140,7 +137,14 @@
                         <ion-card-title class="white-fonte">{{ app.name }}</ion-card-title>
                       </ion-card-header>
                       <ion-card-content [ngClass]="{'font-bold': true, 'p-v-16': true, 'h-40': true, 'text-center': true, 'horizontal-center': true, 'vertical-center': true, 'white-fonte': true, 'pending-cls': app.hasToRead, 'done-cls': !app.hasToRead}">
-                        {{ app.hasToRead ? 'LEITURAS PENDENTES' : 'TODAS AS LEITURAS PREENCHIDAS' }}
+                        <div>
+                          <div>
+                            {{ app.hasToRead ? 'LEITURAS PENDENTES' : 'TODAS AS LEITURAS PREENCHIDAS' }}
+                          </div>
+                          <div *ngIf="app.hasToRead">
+                            Data Limite Leitura: {{ app.nextDateToRead | formatDate:'dd/MM/yyyy' }}
+                          </div>
+                        </div>
                       </ion-card-content>
                     </ion-card>
                 </div>
@@ -158,11 +162,9 @@
 
       </div>
       <div *ngIf="typeShowSelected == typeShow.ELEMENTS" class="controlKeyboard">
-        <p>{{ propFocous && propFocous.Name ? propFocous.Name : '' }}</p>
         <div class="keyboard">
           <div *ngFor="let numGroup of numberGroups">
-            <ion-button *ngFor="let num of numGroup" (click)="onButtonPress(num)" class="calc-button"
-              [ngClass]="propFocous && propFocous.Name ? 'enabled' : 'disabled'">{{ num }}
+            <ion-button *ngFor="let num of numGroup" (click)="onButtonPress(num)" class="calc-button">{{ num }}
             </ion-button>
           </div>
         </div>
