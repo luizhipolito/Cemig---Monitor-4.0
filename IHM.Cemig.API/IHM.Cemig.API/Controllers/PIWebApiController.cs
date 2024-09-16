@@ -26,13 +26,6 @@ namespace CemigApi.Controllers
         }
 
         [HttpGet]
-        [Route("GetIhmTeste")]
-        public ValueTask<dynamic> GetIhmTest()
-        {
-            return _pIWebApiService.Get("https://srvbhz24/piwebapi", "Basic YnJ1bm8ubWFpYTpTZW5oYS1paG1AMjAyNw==");
-        }
-
-        [HttpGet]
         [Route("GetCemigTeste")]
         public ValueTask<dynamic> GetCemigTest()
         {
